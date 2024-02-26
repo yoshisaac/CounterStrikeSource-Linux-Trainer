@@ -22,3 +22,10 @@ To run the software, go to the root directory of the project and type `sudo ./ha
 
 # Is this finished?
 No, it is very incomplete, and will change a lot over time. The program is inefficient, and commented out code is all over the place. Features such as ESP are very incomplete but work on a crude level.
+
+# TODO:
+Ordered by importance  
+- Fix the X window from blocking mouse clicks  
+- More visual features  
+- Multi-thread features  
+- Automatic aiming  
