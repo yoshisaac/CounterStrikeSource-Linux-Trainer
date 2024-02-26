@@ -3,13 +3,15 @@ This is a program that is intended to automate tasks such as movement, and displ
 
 # How does it work?
 It externally (as a seperate program from the video game) reads and writes memory using system calls that the Linux kernel graciously gives us. Those system calls include functions like `processes_vm_readv()` and `process_vm_writev()`. 
- 
+  
 As a way to render information inside a window to the screen, it uses OpenGL, the Open Graphics Library. To create windows, it also uses the X11 protocol. That can be a problem if you are using a display server/client such as Wayland or its, so make sure your desktop environment/floating window manager is set to a Xorg session.
 
-# How to compile.
-Go to the root directory of the project in your terminal (where main.cpp is located), and run `g++ main.cpp hacks/bhop.cpp hacks/playerInfo.cpp -o hack -L/usr/X11/lib -lX11 -lXfixes -lGL -lGLU -lstdc++ -Wno-int-to-pointer-cast` 
+# How to compile
+Go to the root directory of the project in your terminal (where main.cpp is located), and run:  
+`g++ main.cpp hacks/bhop.cpp hacks/playerInfo.cpp -o hack -L/usr/X11/lib -lX11 -lXfixes -lGL -lGLU -lstdc++ -Wno-int-to-pointer-cast`  
+  
 This is a very archaic way, but hopefully in the future I will use make, cmake, or something similar.
 
-# How to use.
-After compilation, there will be a program created in the root directory of the project called "`hack`" 
+# How to use
+After compilation, there will be a program created in the root directory of the project called "`hack`"  
 To run the software, go to the root directory of the project and type `sudo ./hack` in your terminal. What this does is it runs the software as `root`, which is required for reading and writing memory on an external level.
