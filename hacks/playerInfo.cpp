@@ -15,7 +15,7 @@
 
 //https://github.com/ALittlePatate/CSS-external/blob/master/ImGuiExternal/Memory.h#L61
 float vmatrix[4][4];
-bool WorldToScreen(pid_t gamePid, const Vector3& vIn, Vector3& vOut, unsigned int viewMatrix)
+bool WorldToScreen(pid_t gamePid, const Vector3& vIn, Vector2& vOut, unsigned int viewMatrix)
 {
   Memory::Read(gamePid, viewMatrix, &vmatrix, sizeof(vmatrix));
 
@@ -48,18 +48,21 @@ bool WorldToScreen(pid_t gamePid, const Vector3& vIn, Vector3& vOut, unsigned in
 
 void printPlayers(pid_t gamePid, Display* d, Window win, unsigned int playerList, unsigned int viewMatrix) {
 
-  playerList += 0x28; //I don't know, my playerlist ptr is most likely wrong but it works, for the most part... 
+  playerList += 0x28; //I don't know, my playerlist ptr is most likely wrong but it works, for the most part...
+
+  glClear(GL_COLOR_BUFFER_BIT); // Clear the color buffer
   
-  for (int i = 0; i < 32; i++) {
+  for (int i = 1; i < 32; i++) {
     unsigned int player = playerList + (i * 0x140);
     
     int index = -1;
     Memory::Read(gamePid, player, &index, sizeof(int));
-    if (index == -1) { continue; } //read failed
-    if (i > 0 && index == 0) { continue; } //index out of bounds of how many players exist
+    if (index == -1) continue; //read failed
+    if (i > 0 && index == 0) continue; //index out of bounds of how many players exist
 
     int health = 0;
     Memory::Read(gamePid, player + playerOffset::health, &health, sizeof(int));
+    if (health <= 0) continue;
 
     /*
     float pitch = 0;
@@ -74,11 +77,10 @@ void printPlayers(pid_t gamePid, Display* d, Window win, unsigned int playerList
     Memory::Read(gamePid, player + playerOffset::x, &location.x, sizeof(float));
     Memory::Read(gamePid, player + playerOffset::y, &location.y, sizeof(float));
     Memory::Read(gamePid, player + playerOffset::z, &location.z, sizeof(float));
-
     if (location.x == 0 && location.y == 0 && location.z == 0) continue; //here is that "for the most part" kicking in.
                                                                         //This is a check for if the player is even in the server (for now)
-    Vector3 out;                                                       //Why tf does this happen? God do I know.
-
+    Vector2 out;                                                       //Why tf does this happen? God do I know.
+    
     std::string name = "";
     for (int h = 0; h < 256; h++) {
       char currentCharacter;
@@ -89,41 +91,61 @@ void printPlayers(pid_t gamePid, Display* d, Window win, unsigned int playerList
       name += currentCharacter;
     }
 
-    // Convert screen coordinates to OpenGL coordinates
-    float oglX = (2.0 * ((out.x)-20)) / 1366 - 1.0; //top left
-    float oglY = 1.0 - (2.0 * ((out.y)+30)) / 768; //top left
-  
-    float oglX2 = (2.0 * ((out.x)-20)) / 1366 - 1.0; //bottom left
-    float oglY2 = 1.0 - (2.0 * ((out.y)-30)) / 768; //bottom left
-  
-    float oglX3 = (2.0 * ((out.x)+20)) / 1366 - 1.0; //top right
-    float oglY3 = 1.0 - (2.0 * ((out.y)+30)) / 768; //top right
+    if (WorldToScreen(gamePid, location, out, viewMatrix)) {      
+      // Convert screen coordinates to OpenGL coordinates
 
-    float oglX4 = (2.0 * ((out.x)+20)) / 1366 - 1.0; //bottom right
-    float oglY4 = 1.0 - (2.0 * ((out.y)-30)) / 768; //bottom right
+      Vector3 getFeet = location;
+      getFeet.z -= 73;
+      Vector2 screenFeet;
+      WorldToScreen(gamePid, getFeet, screenFeet, viewMatrix); //get feet
 
-    glClear(GL_COLOR_BUFFER_BIT); // Clear the color buffer
+      Vector3 rightSideOffset = location;
+      rightSideOffset.z += 30;
+      Vector2 screenRightOffset;
+      WorldToScreen(gamePid, rightSideOffset, screenRightOffset, viewMatrix);
+      
+      //line
+      float rightX = (2.0 * ((screenRightOffset.x))) / 1366 - 1.0; //head
+      float topY = 1.0 - (2.0 * ((out.y))) / 768; //head
+      
+      Vector3 leftSideOffset = location;
+      leftSideOffset.z += 30;
+      Vector2 screenLeftOffset;
+      WorldToScreen(gamePid, leftSideOffset, screenLeftOffset, viewMatrix);
+      
+      float leftX = (2.0 * ((screenLeftOffset.x))) / 1366 - 1.0;
+      float bottomY = 1.0 - (2.0 * ((screenFeet.y))) / 768;
 
-    // Draw a square
-    glBegin(GL_QUAD_STRIP);
-    //glColor3f(1.0f, 0.0f, 0.0f); // Set color to red
-    glVertex2f(oglX, oglY);
-    //glColor3f(0.0f, 1.0f, 0.0f); // Set color to green
-    glVertex2f(oglX2, oglY2);
-    //glColor3f(0.0f, 0.0f, 1.0f); // Set color to blue
-    glVertex2f(oglX3, oglY3);
-    glVertex2f(oglX4, oglY4);
-    glEnd();
-
-    glXSwapBuffers(d, win); // Swap buffers
     
-    std::cout << "Name: " << name << '\n'
-    << "Index: " << index << '\n'
-    << "Health: " << health << '\n'
-    //std::cout << "Pitch: " << pitch << '\n';
-    //std::cout << "Yaw: " << yaw << '\n';
-    << "Coords: " << location.x << ' ' << location.y << ' ' << location.z << '\n'
-    << "WorldToScreen: " << WorldToScreen(gamePid, location, out, viewMatrix) << "\n\n";
+      //std::cout << "Name: " << name << '\n'
+      //<< "Index: " << index << '\n'
+      //<< "Health: " << health << '\n'
+      //std::cout << "Pitch: " << pitch << '\n';
+      //std::cout << "Yaw: " << yaw << '\n';
+      //<< "Coords: " << location.x << ' ' << location.y << ' ' << location.z << '\n'
+      //<< "WorldToScreen: " << WorldToScreen(gamePid, location, out, viewMatrix) << "\n\n";
+
+      glLineWidth(3);
+      glBegin(GL_LINE_LOOP);
+      glColor4f(1, 1, 1, 1);
+      glVertex2f(leftX, topY);
+      glVertex2f(leftX, bottomY);
+      glEnd();
+
+      /*
+      glLineWidth(3);
+      glBegin(GL_LINE_LOOP);
+      glColor4f(1, 1, 1, 1);
+      glVertex2f(rightX, topY);
+      glVertex2f(rightX, bottomY);
+      glEnd();
+      */
+      
+    }
   }
+
+  
+  glXSwapBuffers(d, win); // Swap buffers
+
   
 }

@@ -4,7 +4,7 @@
 #include "../memory.hpp"
 
 void bhop(pid_t gamePid, Display* d, unsigned int isOnGround, unsigned int dwForceJump) {
-  pid_t currentWindowPid = getWindowPID(d, getFocusedWindow(d)); //get the current processes id of the window we are focused into
+  pid_t currentWindowPid = getPidByWindow(d, getFocusedWindow(d)); //get the current processes id of the window we are focused into
 
   if (currentWindowPid != gamePid) { return; } //dont read, write, or get the space key if we aren't focused into the game
 

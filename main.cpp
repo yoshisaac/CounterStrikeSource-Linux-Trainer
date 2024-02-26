@@ -1,4 +1,4 @@
-//g++ main.cpp hacks/bhop.cpp hacks/playerInfo.cpp -o hack -L/usr/X11/lib -lX11 -lGL -lGLU -lstdc++ -Wno-int-to-pointer-cast
+//g++ main.cpp hacks/bhop.cpp hacks/playerInfo.cpp -o hack -L/usr/X11/lib -lX11 -lXfixes -lGL -lGLU -lstdc++ -Wno-int-to-pointer-cast
 
 #include <stdio.h>
 #include <string>
@@ -30,6 +30,7 @@
 #include "hacks/playerInfo.hpp"
 
 #include "memory.hpp"
+#include "xutil.hpp"
 
 //Reads the data of a file
 std::string ReadFile(std::string filePath, bool firstLine=true) {
@@ -179,8 +180,11 @@ int main() {
   attr.background_pixel = 0;
   attr.override_redirect = True;
 
-  Window win = XCreateWindow(d, DefaultRootWindow(d), 0, 0, 1366, 768, 0, vinfo.depth, InputOutput, vinfo.visual, CWColormap | CWBorderPixel | CWBackPixel, &attr);
-  XSelectInput(d, win, StructureNotifyMask);
+  int gameX = 0, gameY = 0;
+  //getWindowPosition(d, getWindowByPid(d, gamePid), gameX, gameY);
+
+  Window win = XCreateWindow(d, DefaultRootWindow(d), gameX, gameY, 1366, 768, 0, vinfo.depth, InputOutput, vinfo.visual, CWColormap | CWBorderPixel | CWBackPixel, &attr);
+  XSelectInput(d, win, ButtonPressMask | ButtonReleaseMask);
 
   GC gc = XCreateGC(d, win, 0, 0);
 
@@ -208,6 +212,9 @@ int main() {
   glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
   XMapWindow(d, win);
+
+  XGrabPointer(d, win, False, ButtonPressMask | ButtonReleaseMask,
+	       GrabModeAsync, GrabModeAsync, None, None, CurrentTime);
 
   unsigned int ClientObject = Memory::getModuleBaseAddress(gamePid, "bin/client.so");
   unsigned int EngineObject = Memory::getModuleBaseAddress(gamePid, "bin/engine.so");
