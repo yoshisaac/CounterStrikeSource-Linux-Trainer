@@ -15,3 +15,10 @@ This is a very archaic way, but hopefully in the future I will use make, cmake, 
 # How to use
 After compilation, there will be a program created in the root directory of the project called "`hack`"  
 To run the software, go to the root directory of the project and type `sudo ./hack` in your terminal. What this does is it runs the software as `root`, which is required for reading and writing memory on an external level.
+
+# Features:
+- Bunny hop (automatically jump after hitting the ground)  
+- Player ESP
+
+# Is this finished?
+No, it is very incomplete, and will change a lot over time. The program is inefficient, and commented out code is all over the place. Features such as ESP are very incomplete but work on a crude level.
