@@ -8,9 +8,9 @@ As a way to render information inside a window to the screen, it uses OpenGL, th
 
 # How to compile
 Go to the root directory of the project in your terminal (where main.cpp is located), and run:  
-`g++ main.cpp hacks/bhop.cpp hacks/playerInfo.cpp -o hack -L/usr/X11/lib -lX11 -lXfixes -lGL -lGLU -lstdc++ -Wno-int-to-pointer-cast`  
+`g++ main.cpp hacks/bhop.cpp hacks/playerInfo.cpp client/client.cpp -o hack -L/usr/X11/lib -lX11 -lXfixes -lGL -lGLU -lstdc++ -Wno-int-to-pointer-cast`  
   
-This is a very archaic way, but hopefully in the future I will use make, cmake, or something similar.
+This is very archaic, but hopefully in the future I will use make, cmake, or something similar.
 
 # How to use
 After compilation, there will be a program created in the root directory of the project called "`hack`"  
