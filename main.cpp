@@ -28,6 +28,7 @@
 
 #include "hacks/bhop.hpp"
 #include "hacks/playerInfo.hpp"
+#include "client/client.hpp"
 
 #include "memory.hpp"
 #include "xutil.hpp"
@@ -145,30 +146,37 @@ unsigned int findPattern(pid_t procId, std::string moduleName, std::string Patte
     
   }
   
-  return 0;
+  return 0; //failed, cant return negative numbers due to signed-ness
 }
 
 int main() {
   if (getuid()) { //check if we are root or not
     printf("Please run as root\nExample: \"sudo ./hack\"\n");
-    return 0;
+    return 1;
   }
   
   pid_t gamePid = GetProcessByName("hl2_linux");
   if (gamePid == -1) { // check if we successfully got the game processes id
     printf("Please open the game\n");
-    return 0;
+    return 1;
   }
 
+  
+  /* beginning of X and OpenGL initiation*/
   Display* d = XOpenDisplay(NULL);
+  Display* clientDisplay = XOpenDisplay(NULL);
+  Display* bhopDisplay = XOpenDisplay(NULL);
 
   int screen = DefaultScreen(d);
+
+  Window root = DefaultRootWindow(d);
 
   XVisualInfo* visual_info;
   static int visual_attribs[] = { GLX_RGBA, None };
   visual_info = glXChooseVisual(d, screen, visual_attribs);
   if (!visual_info) {
-    // Handle error
+    printf("Failed it initiate visual_info\n");
+    return 1;
   }
 
   XVisualInfo vinfo;
@@ -181,10 +189,24 @@ int main() {
   attr.override_redirect = True;
 
   int gameX = 0, gameY = 0;
-  //getWindowPosition(d, getWindowByPid(d, gamePid), gameX, gameY);
+  /*
+  Window gameWin = getWindowByPid(d, gamePid);
+  if (!gameWin) {
+    printf("bryh");
+    return -1;
+  }
+  getWindowPosition(d, gameWin, gameX, gameY);
+  */
+  
+  Window win = XCreateWindow(d, root, gameX, gameY, 1366, 768, 0, vinfo.depth, InputOutput, vinfo.visual, CWColormap | CWBorderPixel | CWBackPixel, &attr);
+  XSelectInput(d, win, NoEventMask);
 
-  Window win = XCreateWindow(d, DefaultRootWindow(d), gameX, gameY, 1366, 768, 0, vinfo.depth, InputOutput, vinfo.visual, CWColormap | CWBorderPixel | CWBackPixel, &attr);
-  XSelectInput(d, win, ButtonPressMask | ButtonReleaseMask);
+  XserverRegion region = XFixesCreateRegion (d, NULL, 0);
+
+  XFixesSetWindowShapeRegion (d, win, ShapeBounding, 0, 0, 0);
+  XFixesSetWindowShapeRegion (d, win, ShapeInput, 0, 0, region);
+
+  XFixesDestroyRegion (d, region);
 
   GC gc = XCreateGC(d, win, 0, 0);
 
@@ -216,48 +238,51 @@ int main() {
   XGrabPointer(d, win, False, ButtonPressMask | ButtonReleaseMask,
 	       GrabModeAsync, GrabModeAsync, None, None, CurrentTime);
 
-  unsigned int ClientObject = Memory::getModuleBaseAddress(gamePid, "bin/client.so");
-  unsigned int EngineObject = Memory::getModuleBaseAddress(gamePid, "bin/engine.so");
-  
-  unsigned int hl2_linux = Memory::getModuleBaseAddress(gamePid, "hl2_linux");
+  XInitThreads();
+  /* End of X and OpenGL initiation */
 
-  unsigned int playerListPtr = ClientObject + 0xBE9380;
+  
+  //Get memory addresses/offsets
+  const unsigned int ClientObject = Memory::getModuleBaseAddress(gamePid, "bin/client.so");
+  const unsigned int EngineObject = Memory::getModuleBaseAddress(gamePid, "bin/engine.so");
+  
+  const unsigned int hl2_linux = Memory::getModuleBaseAddress(gamePid, "hl2_linux");
+
+  const unsigned int playerListPtr = ClientObject + 0xBE9380;
   unsigned int playerList = -1;
+  Memory::Read(gamePid, playerListPtr, &playerList, sizeof(unsigned int));
 
-  unsigned int viewMatrix = EngineObject + 0xC7213C;
+  const unsigned int viewMatrix = EngineObject + 0xC7213C;
   
-  unsigned int dwForceJump = ClientObject + 0xBEE4E8;
-  unsigned int isOnGround = ClientObject + 0xB9E650;
+  const unsigned int dwForceJump = ClientObject + 0xBEE4E8;
+  const unsigned int dwForceAttack = ClientObject + 0xBEE578;
+  
+  const unsigned int onGround = ClientObject + 0xB9E650;
 
-  /*
-  unsigned int test = FindPatternEx(gamePid, "bin/client.so", "00 00 00 00 00 20 41 0a 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ??");
-  
-  if (test == 0) {
-    printf("failed\n");
-  }
-  else {
-    std::cout << std::hex << test << '\n';
-  }
-  */
+  //Client fixes thread
+  std::thread clientThread(client, gamePid, clientDisplay, dwForceAttack);
 
-  //coords for testing
-  float oglX = (2.0 * ((1366/2)-20)) / 1366 - 1.0; //top left
-  float oglY = 1.0 - (2.0 * ((768/2)+30)) / 768; //top left
-  
-  float oglX2 = (2.0 * ((1366/2)-20)) / 1366 - 1.0; //bottom left
-  float oglY2 = 1.0 - (2.0 * ((768/2)-30)) / 768; //bottom left
-  
-  float oglX3 = (2.0 * ((1366/2)+20)) / 1366 - 1.0; //top right
-  float oglY3 = 1.0 - (2.0 * ((768/2)+30)) / 768; //top right
-
-  float oglX4 = (2.0 * ((1366/2)+20)) / 1366 - 1.0; //bottom right
-  float oglY4 = 1.0 - (2.0 * ((768/2)-30)) / 768; //bottom right
+  //bhop thread
+  std::thread bhopThread(bhop, gamePid, bhopDisplay, onGround, dwForceJump);
 
   printf("Ready\n");
+  printf("The Free and Open Source no-name GNU CS:S cheat, made with GNU Emacs, for your GNU operating system.\n");
+  printf("    ,           ,   \n");
+  printf("   /             \\ \n");
+  printf("  ((__-^^-,-^^-__)) \n");
+  printf("   `-_---\' `---_-\' \n"); 
+  printf("    `--|o` \'o|--\'   \n"); 
+  printf("       \\  `  /        \n");
+  printf("        ): :(         \n");
+  printf("        :o_o:         \n");
+  printf("         \"-\"         \n");
+  //Drawer/player iterator thread
+  //OpenGL can only have calls from a single thread
+  //But we want the iterator and drawer on seperate threads
+  //And this will be accomplished soon, but OpenGL will just always sit on the main thread
   for (;;) {
-    Memory::Read(gamePid, playerListPtr, &playerList, sizeof(unsigned int));
-    //bhop(gamePid, d, isOnGround, dwForceJump);
-    printPlayers(gamePid, d, win, playerList, viewMatrix);
+    players(gamePid, d, win, playerList, viewMatrix); 
+    std::this_thread::sleep_for(std::chrono::milliseconds(1));
   }
   
   return 0;

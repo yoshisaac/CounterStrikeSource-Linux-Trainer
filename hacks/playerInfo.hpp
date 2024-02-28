@@ -13,7 +13,8 @@ namespace playerOffset {
   const unsigned int z = 0x40;
 };
 
-void printPlayers(pid_t gamePid, Display* d, Window win, unsigned int playerList, unsigned int viewMatrix);
+void players(pid_t gamePid, Display* d, Window win, unsigned int playerList, unsigned int viewMatrix);
+
 
 //playerlist math
 //begining offset from playerlist 0x28
