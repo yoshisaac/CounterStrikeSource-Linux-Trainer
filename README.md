@@ -4,7 +4,7 @@ This is a program that is intended to automate tasks such as movement, and displ
 # How does it work?
 It externally (as a seperate program from the video game) reads and writes memory using system calls that the Linux kernel graciously gives us. Those system calls include functions like `processes_vm_readv()` and `process_vm_writev()`. 
   
-As a way to render information inside a window to the screen, it uses OpenGL, the Open Graphics Library. To create windows, it also uses the X11 protocol. That can be a problem if you are using a display server/client such as Wayland or its variants, so make sure your desktop environment/floating window manager is set to a Xorg session. There may also be other issues your window manager or desktop environment can cause, such as over riding placement of windows.
+As a way to render information inside a window to the screen, it uses OpenGL, the Open Graphics Library. To create windows, it also uses the X11 protocol. That can be a problem if you are using a display server/client such as Wayland or its variants, so make sure your desktop environment/floating window manager is set to a Xorg session. There may also be other issues your window manager or desktop environment can cause, such as overriding placement of windows.
 
 # How to compile
 Go to the root directory of the project in your terminal (where main.cpp is located), and run:  
@@ -25,8 +25,7 @@ No, it is very incomplete, and will change a lot over time. The program is ineff
 
 # TODO:
 Ordered by importance  
-- Fix the X window from blocking all mouse clicks
-- More visual features  
 - Ignore dormant (non networked) players  
-- Render differently or ignore players of the same team  
+- More visual features  
 - Automatic aiming  
+- Fix the X window from blocking all mouse clicks  
