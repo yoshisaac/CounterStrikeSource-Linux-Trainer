@@ -25,7 +25,7 @@ No, it is very incomplete, and will change a lot over time. The program is ineff
 
 # TODO:
 Ordered by importance  
-- Fix the X window from blocking mouse clicks  
+- Fix the X window from blocking all mouse clicks
 - More visual features  
-- Multi-thread features  
+- Ignore dormant (non networked) players
 - Automatic aiming  
