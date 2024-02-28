@@ -27,5 +27,6 @@ No, it is very incomplete, and will change a lot over time. The program is ineff
 Ordered by importance  
 - Fix the X window from blocking all mouse clicks
 - More visual features  
-- Ignore dormant (non networked) players
+- Ignore dormant (non networked) players  
+- Render differently or ignore players of the same team  
 - Automatic aiming  
