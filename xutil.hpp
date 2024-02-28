@@ -1,3 +1,10 @@
+/*
+ *                                                                      WARNING
+ * ChatGPT basically wrote this entire file. I have no interest in working with a window protocol from 1984, although more recently X11 is from 2012.
+ * Regardless, it's not like im using ChatGPT for everything. Just a little less pain with legacy software. This really isn't fun.
+ */
+
+
 #include <X11/X.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
@@ -39,38 +46,35 @@ inline bool isMouseDown(Display* d, int mouse) {
   }
 }
 
-//Get window from pid and processes name
-//chatgpt wrote this
-inline Window getWindowByPid(Display* display, int pid) {
-    Window root = DefaultRootWindow(display);
-    Window parent, *children;
-    unsigned int nchildren;
+//Halts the program until that pid is in focus, yes, the only purpose is to get the Window object of the game
+//chatgpt assisted
+inline Window waitUntilPidIsFocus(Display *display, pid_t pid) {
+    Atom prop = XInternAtom(display, "_NET_WM_PID", False);
 
-    XQueryTree(display, root, &root, &parent, &children, &nchildren);
-    for (unsigned int i = 0; i < nchildren; ++i) {
-        XWindowAttributes attrs;
-        XGetWindowAttributes(display, children[i], &attrs);
+    Atom actualType;
+    int format;
+    unsigned long nItems, bytesAfter;
+    unsigned char *propData = NULL;
 
+    while (true) {
+      Window focusedWindow;
+      int revert;
+      XGetInputFocus(display, &focusedWindow, &revert);
+      if (XGetWindowProperty(display, focusedWindow, prop, 0, LONG_MAX / 4, False, AnyPropertyType,
+			     &actualType, &format, &nItems, &bytesAfter, &propData) == Success) {
+        if (propData != NULL) {
+	  pid_t *pidArray = reinterpret_cast<pid_t *>(propData);
+	  pid_t windowPid = pidArray[0];
 
-	pid_t child_pid;
-	XWMHints *wm_hints = XGetWMHints(display, children[i]);
-	if (wm_hints && (child_pid = wm_hints->initial_state) != WithdrawnState) {
-	  XFree(wm_hints);
-	  char *window_name = nullptr;
-	  XFetchName(display, children[i], &window_name);
-	  if (window_name != nullptr) {
-	    if (child_pid == pid) {
-	      XFree(children);
-	      XFree(window_name);
-	      return children[i];
-	    }
-	    XFree(window_name);
+	  if (windowPid == pid) {
+	    XFree(propData);
+	    return focusedWindow;
 	  }
-	}
-    
+        }
+      }
     }
-    XFree(children);
-    return 0;
+
+    return -1; // Unable to retrieve PID
 }
 
 //chatgpt wrote this

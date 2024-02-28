@@ -7,4 +7,4 @@ namespace BHOP {
   static int DONTJUMP = 4;
 };
 
-void bhop(pid_t gamePid, Display* d, unsigned int isOnGround, unsigned int dwForceJump);
+void bhop(pid_t gamePid, Display* d, unsigned int onGround, unsigned int dwForceJump);

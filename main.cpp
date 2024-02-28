@@ -29,6 +29,7 @@
 #include "hacks/bhop.hpp"
 #include "hacks/playerInfo.hpp"
 #include "client/client.hpp"
+#include "engine/engine.hpp"
 
 #include "memory.hpp"
 #include "xutil.hpp"
@@ -160,8 +161,28 @@ int main() {
     printf("Please open the game\n");
     return 1;
   }
-
   
+  //Get memory addresses/offsets
+  const unsigned int ClientObject = Memory::getModuleBaseAddress(gamePid, "bin/client.so");
+  const unsigned int EngineObject = Memory::getModuleBaseAddress(gamePid, "bin/engine.so");
+  const unsigned int hl2_linux = Memory::getModuleBaseAddress(gamePid, "hl2_linux");
+
+  const unsigned int screenXLength = EngineObject + 0xD20014;
+  Memory::Read(gamePid, screenXLength, &ENGINE::screenX, sizeof(int));
+  
+  const unsigned int screenYLength = EngineObject + 0xD20018;
+  Memory::Read(gamePid, screenYLength, &ENGINE::screenY, sizeof(int));
+  
+  unsigned int playerList = -1;
+  Memory::Read(gamePid, ClientObject + 0xBE9380, &playerList, sizeof(unsigned int));
+
+  const unsigned int viewMatrix = EngineObject + 0xC7213C;
+  
+  const unsigned int dwForceJump = ClientObject + 0xBEE4E8;
+  const unsigned int dwForceAttack = ClientObject + 0xBEE578;
+  
+  const unsigned int onGround = ClientObject + 0xB9E650;
+
   /* beginning of X and OpenGL initiation*/
   Display* d = XOpenDisplay(NULL);
   Display* clientDisplay = XOpenDisplay(NULL);
@@ -189,16 +210,10 @@ int main() {
   attr.override_redirect = True;
 
   int gameX = 0, gameY = 0;
-  /*
-  Window gameWin = getWindowByPid(d, gamePid);
-  if (!gameWin) {
-    printf("bryh");
-    return -1;
-  }
+  Window gameWin = waitUntilPidIsFocus(d, gamePid);
   getWindowPosition(d, gameWin, gameX, gameY);
-  */
   
-  Window win = XCreateWindow(d, root, gameX, gameY, 1366, 768, 0, vinfo.depth, InputOutput, vinfo.visual, CWColormap | CWBorderPixel | CWBackPixel, &attr);
+  Window win = XCreateWindow(d, root, gameX, gameY, ENGINE::screenX, ENGINE::screenY, 0, vinfo.depth, InputOutput, vinfo.visual, CWColormap | CWBorderPixel | CWBackPixel, &attr);
   XSelectInput(d, win, NoEventMask);
 
   XserverRegion region = XFixesCreateRegion (d, NULL, 0);
@@ -221,10 +236,10 @@ int main() {
   XChangeProperty(d, win, XInternAtom(d, "_NET_WM_STATE", False),
   		  XA_ATOM, 32, PropModeReplace, (unsigned char *)&always_on_top, 1);
 
-  glViewport(0, 0, 1366, 768); // Set the viewport size
+  glViewport(0, 0, ENGINE::screenX, ENGINE::screenY); // Set the viewport size
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-  gluPerspective(90.0f, (GLfloat)1366 / (GLfloat)768, 0.1f, 100.0f); // Set the projection matrix
+  gluPerspective(90.0f, (GLfloat)ENGINE::screenX / (GLfloat)ENGINE::screenY, 0.1f, 100.0f); // Set the projection matrix
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
 
@@ -241,23 +256,6 @@ int main() {
   XInitThreads();
   /* End of X and OpenGL initiation */
 
-  
-  //Get memory addresses/offsets
-  const unsigned int ClientObject = Memory::getModuleBaseAddress(gamePid, "bin/client.so");
-  const unsigned int EngineObject = Memory::getModuleBaseAddress(gamePid, "bin/engine.so");
-  
-  const unsigned int hl2_linux = Memory::getModuleBaseAddress(gamePid, "hl2_linux");
-
-  const unsigned int playerListPtr = ClientObject + 0xBE9380;
-  unsigned int playerList = -1;
-  Memory::Read(gamePid, playerListPtr, &playerList, sizeof(unsigned int));
-
-  const unsigned int viewMatrix = EngineObject + 0xC7213C;
-  
-  const unsigned int dwForceJump = ClientObject + 0xBEE4E8;
-  const unsigned int dwForceAttack = ClientObject + 0xBEE578;
-  
-  const unsigned int onGround = ClientObject + 0xB9E650;
 
   //Client fixes thread
   std::thread clientThread(client, gamePid, clientDisplay, dwForceAttack);
@@ -281,6 +279,8 @@ int main() {
   //But we want the iterator and drawer on seperate threads
   //And this will be accomplished soon, but OpenGL will just always sit on the main thread
   for (;;) {
+    
+    
     players(gamePid, d, win, playerList, viewMatrix); 
     std::this_thread::sleep_for(std::chrono::milliseconds(1));
   }
