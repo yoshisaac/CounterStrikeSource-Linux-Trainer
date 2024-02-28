@@ -55,15 +55,27 @@ void players(pid_t gamePid, Display* d, Window win, unsigned int playerList, uns
     glClear(GL_COLOR_BUFFER_BIT); // Clear the color buffer
 
     int teamOfLocalPlayer = 0;
+    Memory::Read(gamePid, playerList + playerOffset::team, &teamOfLocalPlayer, sizeof(int)); //Remember now, the first index of the playerlist is the local player
     for (int i = 0; i < 32; i++) {
       unsigned int player = playerList + (i * 0x140);
 
-      Memory::Read(gamePid, playerList + playerOffset::team, &teamOfLocalPlayer, sizeof(int)); //Remember now, the first index of the playerlist is the local player
-
+      float color[4];
       int team = -1;
       Memory::Read(gamePid, player + playerOffset::team, &team, sizeof(int));
-      if (team == teamOfLocalPlayer) continue; //dont render team mates
-    
+      //if (team == teamOfLocalPlayer) continue; //dont render team mates
+      switch (team) {
+      case 2:
+	color[0] = 0.506f;
+	color[1] = 0.243f;
+	color[2] = 0.259f;
+	break;
+      case 3:
+	color[0] = 0.333f;
+	color[1] = 0.431f;
+	color[2] = 0.506f;
+	break;
+      }
+      
       int index = -1;
       Memory::Read(gamePid, player, &index, sizeof(int));
       if (index == -1) continue; //read failed
@@ -142,7 +154,7 @@ void players(pid_t gamePid, Display* d, Window win, unsigned int playerList, uns
 
 	glLineWidth(3);
 	glBegin(GL_LINE_LOOP);
-	glColor4f(1, 1, 1, 1);
+	glColor4f(color[0], color[1], color[2], 1);
 	glVertex2f(leftX, topY);
 	glVertex2f(leftX, bottomY);
 	glEnd();

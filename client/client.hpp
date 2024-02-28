@@ -8,4 +8,4 @@ namespace CLIENT {
   static int DONTSHOOT = 4;
 };
 
-void client(pid_t gamePid, Display* d, unsigned int dwForceAttack);
+void client(pid_t gamePid, Display* d, unsigned int dwForceAttack1, unsigned int dwForceAttack2);

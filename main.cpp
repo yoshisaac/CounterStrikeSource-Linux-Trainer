@@ -179,7 +179,8 @@ int main() {
   const unsigned int viewMatrix = EngineObject + 0xC7213C;
   
   const unsigned int dwForceJump = ClientObject + 0xBEE4E8;
-  const unsigned int dwForceAttack = ClientObject + 0xBEE578;
+  const unsigned int dwForceAttack1 = ClientObject + 0xBEE578;
+  const unsigned int dwForceAttack2 = ClientObject + 0xBEE4C8;
   
   const unsigned int onGround = ClientObject + 0xB9E650;
 
@@ -258,7 +259,7 @@ int main() {
 
 
   //Client fixes thread
-  std::thread clientThread(client, gamePid, clientDisplay, dwForceAttack);
+  std::thread clientThread(client, gamePid, clientDisplay, dwForceAttack1, dwForceAttack2);
 
   //bhop thread
   std::thread bhopThread(bhop, gamePid, bhopDisplay, onGround, dwForceJump);
