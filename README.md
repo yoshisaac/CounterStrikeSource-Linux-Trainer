@@ -25,7 +25,7 @@ No, it is very incomplete, and will change a lot over time. The program is ineff
 
 # TODO:
 Ordered by importance  
-- Ignore dormant (non networked) players  
+- Render differently or ignore dormant (non networked) players  
 - More visual features  
 - Automatic aiming  
 - Fix the X window from blocking all mouse clicks  
