@@ -11,6 +11,7 @@ namespace playerOffset {
   const unsigned int x = 0x38;
   const unsigned int y = 0x3C;
   const unsigned int z = 0x40;
+  const unsigned int team = 0x30;
 };
 
 void players(pid_t gamePid, Display* d, Window win, unsigned int playerList, unsigned int viewMatrix);

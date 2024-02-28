@@ -1,4 +1,4 @@
-//g++ main.cpp hacks/bhop.cpp hacks/playerInfo.cpp -o hack -L/usr/X11/lib -lX11 -lXfixes -lGL -lGLU -lstdc++ -Wno-int-to-pointer-cast
+//g++ main.cpp hacks/bhop.cpp hacks/playerInfo.cpp client/client.cpp -o hack -L/usr/X11/lib -lX11 -lXfixes -lGL -lGLU -lstdc++ -Wno-int-to-pointer-cast
 
 #include <stdio.h>
 #include <string>
@@ -263,13 +263,15 @@ int main() {
   //bhop thread
   std::thread bhopThread(bhop, gamePid, bhopDisplay, onGround, dwForceJump);
 
+  std::cout << std::hex << playerList << '\n';
+
   printf("Ready\n");
   printf("The Free and Open Source no-name GNU CS:S cheat, made with GNU Emacs, for your GNU operating system.\n");
   printf("    ,           ,   \n");
   printf("   /             \\ \n");
   printf("  ((__-^^-,-^^-__)) \n");
   printf("   `-_---\' `---_-\' \n"); 
-  printf("    `--|o` \'o|--\'   \n"); 
+  printf("    `--|o` \'o|--\'   \n"); //GNU ascii :D
   printf("       \\  `  /        \n");
   printf("        ): :(         \n");
   printf("        :o_o:         \n");

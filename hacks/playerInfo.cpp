@@ -12,6 +12,8 @@
 #include "../memory.hpp"
 #include "../vector.hpp"
 
+#include "../engine/engine.hpp"
+
 
 //https://github.com/ALittlePatate/CSS-external/blob/b17e083a4f0d0e4406d49d55c9c761cedab1ad66/ImGuiExternal/Memory.h#L61
 float vmatrix[4][4];
@@ -31,8 +33,8 @@ bool WorldToScreen(pid_t gamePid, const Vector3& vIn, Vector2& vOut, unsigned in
   vOut.x *= invw;
   vOut.y *= invw;
 
-  int width = 1366;
-  int height = 768;
+  int width = ENGINE::screenX;
+  int height = ENGINE::screenY;
 
   float x = width / 2.0f;
   float y = height / 2.0f;
@@ -51,18 +53,31 @@ void players(pid_t gamePid, Display* d, Window win, unsigned int playerList, uns
   playerList += 0x28; //I don't know, my playerlist ptr is most likely wrong but it works, for the most part...
 
     glClear(GL_COLOR_BUFFER_BIT); // Clear the color buffer
-  
-    for (int i = 1; i < 32; i++) {
+
+    int teamOfLocalPlayer = 0;
+    for (int i = 0; i < 32; i++) {
       unsigned int player = playerList + (i * 0x140);
+
+      Memory::Read(gamePid, playerList + playerOffset::team, &teamOfLocalPlayer, sizeof(int)); //Remember now, the first index of the playerlist is the local player
+
+      int team = -1;
+      Memory::Read(gamePid, player + playerOffset::team, &team, sizeof(int));
+      if (team == teamOfLocalPlayer) continue; //dont render team mates
     
       int index = -1;
       Memory::Read(gamePid, player, &index, sizeof(int));
       if (index == -1) continue; //read failed
       if (i > 0 && index == 0) continue; //index out of bounds of how many players exist
 
+      /*
+      float dormant;
+      Memory::Read(gamePid, player + playerOffset::dormant, &dormant, sizeof(float));
+      if (dormant == -4.0f) continue;
+      */
+      
       int health = 0;
       Memory::Read(gamePid, player + playerOffset::health, &health, sizeof(int));
-      if (health <= 0) continue;
+      if (health <= 0) continue; //if they are dead
 
       /*
 	float pitch = 0;
@@ -105,16 +120,16 @@ void players(pid_t gamePid, Display* d, Window win, unsigned int playerList, uns
 	WorldToScreen(gamePid, rightSideOffset, screenRightOffset, viewMatrix);
       
 	//line
-	float rightX = (2.0 * ((screenRightOffset.x))) / 1366 - 1.0; //head
-	float topY = 1.0 - (2.0 * ((out.y))) / 768; //head
+	float rightX = (2.0 * ((screenRightOffset.x))) / ENGINE::screenX - 1.0; //head
+	float topY = 1.0 - (2.0 * ((out.y))) / ENGINE::screenY; //head
       
 	Vector3 leftSideOffset = location;
 	leftSideOffset.z += 30;
 	Vector2 screenLeftOffset;
 	WorldToScreen(gamePid, leftSideOffset, screenLeftOffset, viewMatrix);
       
-	float leftX = (2.0 * ((screenLeftOffset.x))) / 1366 - 1.0;
-	float bottomY = 1.0 - (2.0 * ((screenFeet.y))) / 768;
+	float leftX = (2.0 * ((screenLeftOffset.x))) / ENGINE::screenX - 1.0;
+	float bottomY = 1.0 - (2.0 * ((screenFeet.y))) / ENGINE::screenY;
 
     
 	//std::cout << "Name: " << name << '\n'
