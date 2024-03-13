@@ -16,7 +16,7 @@ This is very archaic, but hopefully in the future I will use make, cmake, or som
 After compilation, there will be a program created in the root directory of the project called "`hack`"  
 To run the software, go to the root directory of the project and type `sudo ./hack` in your terminal. What this does is it runs the software as `root`, which is required for reading and writing memory on an external level.  
 
-The only distribution I have tested (and currently is Linux Mint 21.3
+The only distribution I have tested (and currently use) is Linux Mint 21.3
 
 # Features:
 - Bunny hop (automatically jump after hitting the ground)  
