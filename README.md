@@ -7,6 +7,15 @@ It externally (as a seperate program from the video game) reads and writes memor
 As a way to render information inside a window to the screen, it uses OpenGL, the Open Graphics Library. To create windows, it also uses the X11 protocol. That can be a problem if you are using a display server/client such as Wayland or its variants, so make sure your desktop environment/floating window manager is set to a Xorg session. There may also be other issues your window manager or desktop environment can cause, such as overriding placement of windows.
 
 # How to compile
+  
+### 1.
+Install the necessary packages.  
+  
+Debian/Ubuntu/LinuxMint:  
+`sudo apt install libglu1-mesa-dev freeglut3-dev mesa-common-dev libx11-dev gcc g++`  
+If these are found to be incorrect, then contact me.  
+  
+### 2.
 Go to the root directory of the project in your terminal (where main.cpp is located), and run:  
 `g++ main.cpp hacks/bhop.cpp hacks/playerInfo.cpp client/client.cpp -o hack -L/usr/X11/lib -lX11 -lXfixes -lGL -lGLU -lstdc++ -Wno-int-to-pointer-cast`  
   
