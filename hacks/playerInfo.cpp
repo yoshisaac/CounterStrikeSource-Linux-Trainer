@@ -1,5 +1,4 @@
 #include "playerInfo.hpp"
-#include "player/player.hpp"
 
 #include <iostream>
 #include <GL/gl.h>
@@ -17,21 +16,21 @@
 
 //https://github.com/ALittlePatate/CSS-external/blob/b17e083a4f0d0e4406d49d55c9c761cedab1ad66/ImGuiExternal/Memory.h#L61
 float vmatrix[4][4];
-bool WorldToScreen(pid_t gamePid, const Vector3& vIn, Vector2& vOut, unsigned int viewMatrix)
+bool WorldToScreen(pid_t gamePid, const float vIn[3], float vOut[2], unsigned int viewMatrix)
 {
   Memory::Read(gamePid, viewMatrix, &vmatrix, sizeof(vmatrix));
 
-  float w = vmatrix[3][0] * vIn.x + vmatrix[3][1] * vIn.y + vmatrix[3][2] * vIn.z + vmatrix[3][3];
+  float w = vmatrix[3][0] * vIn[0] + vmatrix[3][1] * vIn[1] + vmatrix[3][2] * vIn[2] + vmatrix[3][3];
 
-  if (w < 0.01f)
+  if (w < 0.1f)
     return false;
 
-  vOut.x = vmatrix[0][0] * vIn.x + vmatrix[0][1] * vIn.y + vmatrix[0][2] * vIn.z + vmatrix[0][3];
-  vOut.y = vmatrix[1][0] * vIn.x + vmatrix[1][1] * vIn.y + vmatrix[1][2] * vIn.z + vmatrix[1][3];
+  vOut[0] = vmatrix[0][0] * vIn[0] + vmatrix[0][1] * vIn[1] + vmatrix[0][2] * vIn[2] + vmatrix[0][3];
+  vOut[1] = vmatrix[1][0] * vIn[0] + vmatrix[1][1] * vIn[1] + vmatrix[1][2] * vIn[2] + vmatrix[1][3];
   float invw = 1.0f / w;
 
-  vOut.x *= invw;
-  vOut.y *= invw;
+  vOut[0] *= invw;
+  vOut[1] *= invw;
 
   int width = ENGINE::screenX;
   int height = ENGINE::screenY;
@@ -39,11 +38,11 @@ bool WorldToScreen(pid_t gamePid, const Vector3& vIn, Vector2& vOut, unsigned in
   float x = width / 2.0f;
   float y = height / 2.0f;
 
-  x += 0.5f * vOut.x * width + 0.5f;
-  y -= 0.5f * vOut.y * height + 0.5f;
+  x += 0.5f * vOut[0] * width + 0.5f;
+  y -= 0.5f * vOut[1] * height + 0.5f;
 
-  vOut.x = x;
-  vOut.y = y;
+  vOut[0] = x;
+  vOut[1] = y;
 
   return true;
 }
@@ -56,7 +55,7 @@ void players(pid_t gamePid, Display* d, Window win, unsigned int playerList, uns
 
     int teamOfLocalPlayer = 0;
     Memory::Read(gamePid, playerList + playerOffset::team, &teamOfLocalPlayer, sizeof(int)); //Remember now, the first index of the playerlist is the local player
-    for (int i = 0; i < 32; i++) {
+    for (int i = 1; i < 32; i++) {
       unsigned int player = playerList + (i * 0x140);
 
       float color[4];
@@ -100,13 +99,11 @@ void players(pid_t gamePid, Display* d, Window win, unsigned int playerList, uns
       */
     
       //This needs to be optimized to a single Read call
-      Vector3 location;
-      Memory::Read(gamePid, player + playerOffset::x, &location.x, sizeof(float));
-      Memory::Read(gamePid, player + playerOffset::y, &location.y, sizeof(float));
-      Memory::Read(gamePid, player + playerOffset::z, &location.z, sizeof(float));
-      if (location.x == 0 && location.y == 0 && location.z == 0) continue; //here is that "for the most part" kicking in.
+      float location[3];
+      Memory::Read(gamePid, player + playerOffset::x, &location, sizeof(float[3]));
+      if (location[0] == 0 && location[1] == 0 && location[2] == 0) continue; //here is that "for the most part" kicking in.
       //This is a check for if the player is even in the server, because players that leave still stay in the list.
-      Vector2 out;                                                       //Why tf does this happen? God do I know.
+      float out[2];                                                       //Why tf does this happen? God do I know.
     
       std::string name = "";
       for (int h = 0; h < 256; h++) {
@@ -121,27 +118,29 @@ void players(pid_t gamePid, Display* d, Window win, unsigned int playerList, uns
       if (WorldToScreen(gamePid, location, out, viewMatrix)) {      
 	// Convert screen coordinates to OpenGL coordinates
 
-	Vector3 getFeet = location;
-	getFeet.z -= 73;
-	Vector2 screenFeet;
+	float getFeet[3] = {location[0], location[1], location[2]};
+	getFeet[2] -= 73;
+	float screenFeet[2];
 	WorldToScreen(gamePid, getFeet, screenFeet, viewMatrix); //get feet
 
+	/*
 	Vector3 rightSideOffset = location;
 	rightSideOffset.z += 30;
 	Vector2 screenRightOffset;
 	WorldToScreen(gamePid, rightSideOffset, screenRightOffset, viewMatrix);
-      
+	*/
+	
 	//line
-	float rightX = (2.0 * ((screenRightOffset.x))) / ENGINE::screenX - 1.0; //head
-	float topY = 1.0 - (2.0 * ((out.y))) / ENGINE::screenY; //head
+	//float rightX = (2.0 * ((screenRightOffset.x))) / ENGINE::screenX - 1.0; //head
+	float topY = 1.0 - (2.0 * ((out[1]))) / ENGINE::screenY; //head
       
-	Vector3 leftSideOffset = location;
-	leftSideOffset.z += 30;
-	Vector2 screenLeftOffset;
+	float leftSideOffset[3] = {location[0], location[1], location[2]};
+	leftSideOffset[2] += 30;
+	float screenLeftOffset[2];
 	WorldToScreen(gamePid, leftSideOffset, screenLeftOffset, viewMatrix);
       
-	float leftX = (2.0 * ((screenLeftOffset.x))) / ENGINE::screenX - 1.0;
-	float bottomY = 1.0 - (2.0 * ((screenFeet.y))) / ENGINE::screenY;
+	float leftX = (2.0 * ((screenLeftOffset[0]))) / ENGINE::screenX - 1.0;
+	float bottomY = 1.0 - (2.0 * ((screenFeet[1]))) / ENGINE::screenY;
 
     
 	//std::cout << "Name: " << name << '\n'

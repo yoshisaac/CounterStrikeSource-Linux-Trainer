@@ -53,7 +53,8 @@ std::string ReadFile(std::string filePath, bool firstLine=true) {
   return concat;
 }
 
-pid_t GetProcessByName(std::string strName) {
+//https://www.unknowncheats.me/forum/general-programming-and-reversing/147140-linux-accessing-process-memory.html
+pid_t getProcessByName(std::string strName) {
   if (strName.length() == 0)
     return -1;
  
@@ -91,6 +92,7 @@ pid_t GetProcessByName(std::string strName) {
 
 //Returns Address of the Signature
 //Unfinished, doesn't work, would like some help.
+/*
 unsigned int findPattern(pid_t procId, std::string moduleName, std::string Pattern) {
   const unsigned int start = Memory::getModuleBaseAddress(procId, moduleName);
   const unsigned int end = (start + Memory::getModuleSize(procId, moduleName));
@@ -149,6 +151,7 @@ unsigned int findPattern(pid_t procId, std::string moduleName, std::string Patte
   
   return 0; //failed, cant return negative numbers due to signed-ness
 }
+*/
 
 int main() {
   if (getuid()) { //check if we are root or not
@@ -156,7 +159,7 @@ int main() {
     return 1;
   }
   
-  pid_t gamePid = GetProcessByName("hl2_linux");
+  pid_t gamePid = getProcessByName("hl2_linux");
   if (gamePid == -1) { // check if we successfully got the game processes id
     printf("Please open the game\n");
     return 1;
@@ -212,7 +215,7 @@ int main() {
 
   int gameX = 0, gameY = 0;
   Window gameWin = waitUntilPidIsFocus(d, gamePid);
-  getWindowPosition(d, gameWin, gameX, gameY);
+  getWindowPosition(d, gameWin, gameX, gameY); //This will not work on some window managers, including but not limited to Mutter
   
   Window win = XCreateWindow(d, root, gameX, gameY, ENGINE::screenX, ENGINE::screenY, 0, vinfo.depth, InputOutput, vinfo.visual, CWColormap | CWBorderPixel | CWBackPixel, &attr);
   XSelectInput(d, win, NoEventMask);
@@ -260,6 +263,7 @@ int main() {
 
   //Client fixes thread
   std::thread clientThread(client, gamePid, clientDisplay, dwForceAttack1, dwForceAttack2);
+  pthread_setname_np(clientThread.native_handle(), "clientThread");
 
   //bhop thread
   std::thread bhopThread(bhop, gamePid, bhopDisplay, onGround, dwForceJump);
