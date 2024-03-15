@@ -36,7 +36,8 @@ No, it is very incomplete, and will change a lot over time. The program is ineff
 
 # TODO:
 Ordered by importance  
-- Render differently or ignore dormant (non networked) players  
-- More visual features (Display player health, name, etc)  
+- Render differently or ignore dormant (non networked) players
+- More visual features (boxes around players, display player health, name, etc)
+- Fix ESP flickering in fullscreen
 - Automatic aiming  
 - Fix the X window from blocking all mouse clicks  
