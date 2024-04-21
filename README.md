@@ -12,7 +12,7 @@ As a way to render information inside a window to the screen, it uses OpenGL, th
 Install the necessary packages.  
   
 Debian/Ubuntu/LinuxMint:  
-`sudo apt install libglu1-mesa-dev freeglut3-dev mesa-common-dev libx11-dev gcc g++`  
+`sudo apt install libglu1-mesa-dev freeglut3-dev mesa-common-dev libx11-dev libxfixes-dev gcc g++`  
 If these are found to be incorrect, then contact me.  
   
 ### 2.
