@@ -12,7 +12,7 @@ As a way to render information inside a window to the screen, it uses OpenGL, th
 Install the necessary packages.  
   
 Debian/Ubuntu/LinuxMint:  
-`sudo apt install libglu1-mesa-dev freeglut3-dev mesa-common-dev libx11-dev gcc g++`  
+`sudo apt install libglu1-mesa-dev freeglut3-dev mesa-common-dev libx11-dev libxfixes-dev gcc g++`  
 If these are found to be incorrect, then contact me.  
   
 ### 2.
@@ -36,7 +36,8 @@ No, it is very incomplete, and will change a lot over time. The program is ineff
 
 # TODO:
 Ordered by importance  
-- Render differently or ignore dormant (non networked) players  
-- More visual features (Display player health, name, etc)  
+- Render differently or ignore dormant (non networked) players
+- More visual features (boxes around players, display player health, name, etc)
+- Fix ESP flickering in fullscreen
 - Automatic aiming  
 - Fix the X window from blocking all mouse clicks  
