@@ -10,6 +10,7 @@
 
 #include "../memory.hpp"
 #include "../vector.hpp"
+#include "../math.hpp"
 
 #include "../engine/engine.hpp"
 
@@ -62,6 +63,7 @@ void players(pid_t gamePid, Display* d, Window win, unsigned int playerList, uns
       int team = -1;
       Memory::Read(gamePid, player + playerOffset::team, &team, sizeof(int));
       //if (team == teamOfLocalPlayer) continue; //dont render team mates
+
       switch (team) {
       case 2:
 	color[0] = 0.506f;
@@ -74,6 +76,8 @@ void players(pid_t gamePid, Display* d, Window win, unsigned int playerList, uns
 	color[2] = 0.506f;
 	break;
       }
+      
+      
       
       int index = -1;
       Memory::Read(gamePid, player, &index, sizeof(int));
@@ -97,6 +101,10 @@ void players(pid_t gamePid, Display* d, Window win, unsigned int playerList, uns
 	float yaw = 0;
 	Memory::Read(gamePid, player + playerOffset::yaw, &yaw, sizeof(float));
       */
+
+      float localpLocation[3];
+      Memory::Read(gamePid, playerList + playerOffset::x, &localpLocation, sizeof(float[3]));
+      if (localpLocation[0] == 0 && localpLocation[1] == 0 && localpLocation[2] == 0) continue;
     
       //This needs to be optimized to a single Read call
       float location[3];
@@ -118,17 +126,14 @@ void players(pid_t gamePid, Display* d, Window win, unsigned int playerList, uns
       if (WorldToScreen(gamePid, location, out, viewMatrix)) {      
 	// Convert screen coordinates to OpenGL coordinates
 
+        float distance = distanceFormula(localpLocation, location);
+
+	std::cout << distance << '\n';
+
 	float getFeet[3] = {location[0], location[1], location[2]};
 	getFeet[2] -= 73;
 	float screenFeet[2];
 	WorldToScreen(gamePid, getFeet, screenFeet, viewMatrix); //get feet
-
-	/*
-	Vector3 rightSideOffset = location;
-	rightSideOffset.z += 30;
-	Vector2 screenRightOffset;
-	WorldToScreen(gamePid, rightSideOffset, screenRightOffset, viewMatrix);
-	*/
 	
 	//line
 	//float rightX = (2.0 * ((screenRightOffset.x))) / ENGINE::screenX - 1.0; //head
@@ -139,18 +144,27 @@ void players(pid_t gamePid, Display* d, Window win, unsigned int playerList, uns
 	float screenLeftOffset[2];
 	WorldToScreen(gamePid, leftSideOffset, screenLeftOffset, viewMatrix);
       
-	float leftX = (2.0 * ((screenLeftOffset[0]))) / ENGINE::screenX - 1.0;
+	float rightX = (10.f/distance) + ((2.0 * ((screenLeftOffset[0]))) / ENGINE::screenX - 1.0);
+	float leftX = ((2.0 * ((screenLeftOffset[0]))) / ENGINE::screenX - 1.0) - (10.f/distance);
 	float bottomY = 1.0 - (2.0 * ((screenFeet[1]))) / ENGINE::screenY;
 
-    
-	//std::cout << "Name: " << name << '\n'
-	//<< "Index: " << index << '\n'
-	//<< "Health: " << health << '\n'
-	//std::cout << "Pitch: " << pitch << '\n';
-	//std::cout << "Yaw: " << yaw << '\n';
-	//<< "Coords: " << location.x << ' ' << location.y << ' ' << location.z << '\n'
-	//<< "WorldToScreen: " << WorldToScreen(gamePid, location, out, viewMatrix) << "\n\n";
+	/*
+	std::cout << "Name: " << name << '\n'
+	<< "Team: " << team << '\n'
+	<< "Index: " << index << '\n'
+	<< "Health: " << health << '\n'
+	<< "Coords: " << location[0] << ' ' << location[1] << ' ' << location[2] << '\n'
+	<< "WorldToScreen: " << WorldToScreen(gamePid, location, out, viewMatrix) << "\n\n";
+	*/
 
+
+	glLineWidth(3);
+	glBegin(GL_LINE_LOOP);
+	glColor4f(color[0], color[1], color[2], 1);
+	glVertex2f(rightX, topY);
+	glVertex2f(rightX, bottomY);
+	glEnd();
+	
 	glLineWidth(3);
 	glBegin(GL_LINE_LOOP);
 	glColor4f(color[0], color[1], color[2], 1);
@@ -158,15 +172,19 @@ void players(pid_t gamePid, Display* d, Window win, unsigned int playerList, uns
 	glVertex2f(leftX, bottomY);
 	glEnd();
 
-	/*
-	  glLineWidth(3);
-	  glBegin(GL_LINE_LOOP);
-	  glColor4f(1, 1, 1, 1);
-	  glVertex2f(rightX, topY);
-	  glVertex2f(rightX, bottomY);
-	  glEnd();
-	*/
-      
+	glLineWidth(3);
+	glBegin(GL_LINE_LOOP);
+	glColor4f(color[0], color[1], color[2], 1);
+	glVertex2f(rightX, topY);
+	glVertex2f(leftX, topY);
+	glEnd();
+	
+      	glLineWidth(3);
+	glBegin(GL_LINE_LOOP);
+	glColor4f(color[0], color[1], color[2], 1);
+	glVertex2f(rightX, bottomY);
+	glVertex2f(leftX, bottomY);
+	glEnd();
       }
     }
 

@@ -6,7 +6,6 @@
 #include <iostream>
 #include <dirent.h>
 #include <fstream>
-#include <ctype.h>
 #include <climits>
 #include <unistd.h>
 #include <sstream>
@@ -17,6 +16,7 @@
 #include <X11/Xatom.h>
 #include <X11/extensions/shape.h>
 #include <X11/extensions/Xfixes.h>
+#include <X11/extensions/Xcomposite.h>
 #include <vector>
 #include <cstring>
 #include <cstddef>
@@ -261,14 +261,15 @@ int main() {
   /* End of X and OpenGL initiation */
 
 
+
+  
   //Client fixes thread
   std::thread clientThread(client, gamePid, clientDisplay, dwForceAttack1, dwForceAttack2);
   pthread_setname_np(clientThread.native_handle(), "clientThread");
 
   //bhop thread
   std::thread bhopThread(bhop, gamePid, bhopDisplay, onGround, dwForceJump);
-
-  std::cout << std::hex << playerList << '\n';
+  pthread_setname_np(bhopThread.native_handle(), "bhopThread");
 
   printf("Ready\n");
   printf("The Free and Open Source no-name GNU CS:S cheat, made with GNU Emacs, for your GNU operating system.\n");
@@ -291,6 +292,6 @@ int main() {
     players(gamePid, d, win, playerList, viewMatrix); 
     std::this_thread::sleep_for(std::chrono::milliseconds(1));
   }
-  
+
   return 0;
 }
