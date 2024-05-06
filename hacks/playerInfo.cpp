@@ -7,13 +7,16 @@
 #include <X11/X.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
+#include <cmath>
+#include <stdlib.h>
+#include <cfenv>
+#include <thread>
 
 #include "../memory.hpp"
 #include "../vector.hpp"
 #include "../math.hpp"
 
 #include "../engine/engine.hpp"
-
 
 //https://github.com/ALittlePatate/CSS-external/blob/b17e083a4f0d0e4406d49d55c9c761cedab1ad66/ImGuiExternal/Memory.h#L61
 float vmatrix[4][4];
@@ -23,15 +26,17 @@ bool WorldToScreen(pid_t gamePid, const float vIn[3], float vOut[2], unsigned in
 
   float w = vmatrix[3][0] * vIn[0] + vmatrix[3][1] * vIn[1] + vmatrix[3][2] * vIn[2] + vmatrix[3][3];
 
-  if (w < 0.1f)
+  if (w < 0.01f)
     return false;
 
-  vOut[0] = vmatrix[0][0] * vIn[0] + vmatrix[0][1] * vIn[1] + vmatrix[0][2] * vIn[2] + vmatrix[0][3];
-  vOut[1] = vmatrix[1][0] * vIn[0] + vmatrix[1][1] * vIn[1] + vmatrix[1][2] * vIn[2] + vmatrix[1][3];
+  float vOutTmp[2];
+  
+  vOutTmp[0] = vmatrix[0][0] * vIn[0] + vmatrix[0][1] * vIn[1] + vmatrix[0][2] * vIn[2] + vmatrix[0][3];
+  vOutTmp[1] = vmatrix[1][0] * vIn[0] + vmatrix[1][1] * vIn[1] + vmatrix[1][2] * vIn[2] + vmatrix[1][3];
   float invw = 1.0f / w;
 
-  vOut[0] *= invw;
-  vOut[1] *= invw;
+  vOutTmp[0] *= invw;
+  vOutTmp[1] *= invw;
 
   int width = ENGINE::screenX;
   int height = ENGINE::screenY;
@@ -39,9 +44,9 @@ bool WorldToScreen(pid_t gamePid, const float vIn[3], float vOut[2], unsigned in
   float x = width / 2.0f;
   float y = height / 2.0f;
 
-  x += 0.5f * vOut[0] * width + 0.5f;
-  y -= 0.5f * vOut[1] * height + 0.5f;
-
+  x += 0.5f * vOutTmp[0] * width + 0.5f;
+  y -= 0.5f * vOutTmp[1] * height + 0.5f;
+  
   vOut[0] = x;
   vOut[1] = y;
 
@@ -50,7 +55,7 @@ bool WorldToScreen(pid_t gamePid, const float vIn[3], float vOut[2], unsigned in
 
 void players(pid_t gamePid, Display* d, Window win, unsigned int playerList, unsigned int viewMatrix) {
 
-  playerList += 0x28; //I don't know, my playerlist ptr is most likely wrong but it works, for the most part...
+  playerList += 0x28; //I don't know, my playerlist ptr is most likely wrong, but it works. For the most part...
 
     glClear(GL_COLOR_BUFFER_BIT); // Clear the color buffer
 
@@ -83,12 +88,6 @@ void players(pid_t gamePid, Display* d, Window win, unsigned int playerList, uns
       Memory::Read(gamePid, player, &index, sizeof(int));
       if (index == -1) continue; //read failed
       if (i > 0 && index == 0) continue; //index out of bounds of how many players exist
-
-      /*
-      float dormant;
-      Memory::Read(gamePid, player + playerOffset::dormant, &dormant, sizeof(float));
-      if (dormant == -4.0f) continue;
-      */
       
       int health = 0;
       Memory::Read(gamePid, player + playerOffset::health, &health, sizeof(int));
@@ -123,69 +122,90 @@ void players(pid_t gamePid, Display* d, Window win, unsigned int playerList, uns
 	name += currentCharacter;
       }
 
+      location[2] += 8;
+
       if (WorldToScreen(gamePid, location, out, viewMatrix)) {      
-	// Convert screen coordinates to OpenGL coordinates
-
+	
         float distance = distanceFormula(localpLocation, location);
-
-	std::cout << distance << '\n';
 
 	float getFeet[3] = {location[0], location[1], location[2]};
 	getFeet[2] -= 73;
 	float screenFeet[2];
-	WorldToScreen(gamePid, getFeet, screenFeet, viewMatrix); //get feet
-	
-	//line
-	//float rightX = (2.0 * ((screenRightOffset.x))) / ENGINE::screenX - 1.0; //head
-	float topY = 1.0 - (2.0 * ((out[1]))) / ENGINE::screenY; //head
+	WorldToScreen(gamePid, getFeet, screenFeet, viewMatrix); //get feet height
+
+	// Convert screen coordinates to OpenGL coordinates
+	float topY = 1.0 - (2.0 * ((out[1] + (1500/distance)))) / ENGINE::screenY;
+	float bottomY = 1.0 - (2.0 * ((screenFeet[1] + (1500/distance)))) / ENGINE::screenY;
       
 	float leftSideOffset[3] = {location[0], location[1], location[2]};
 	leftSideOffset[2] += 30;
 	float screenLeftOffset[2];
 	WorldToScreen(gamePid, leftSideOffset, screenLeftOffset, viewMatrix);
-      
-	float rightX = (10.f/distance) + ((2.0 * ((screenLeftOffset[0]))) / ENGINE::screenX - 1.0);
-	float leftX = ((2.0 * ((screenLeftOffset[0]))) / ENGINE::screenX - 1.0) - (10.f/distance);
-	float bottomY = 1.0 - (2.0 * ((screenFeet[1]))) / ENGINE::screenY;
 
-	/*
-	std::cout << "Name: " << name << '\n'
-	<< "Team: " << team << '\n'
-	<< "Index: " << index << '\n'
-	<< "Health: " << health << '\n'
-	<< "Coords: " << location[0] << ' ' << location[1] << ' ' << location[2] << '\n'
-	<< "WorldToScreen: " << WorldToScreen(gamePid, location, out, viewMatrix) << "\n\n";
-	*/
+	//Helped with box spacing: https://www.unknowncheats.me/forum/c-and-c-/76713-esp-box-size-calculation.html
+	
+	float rightX = ((2.0 * ((screenLeftOffset[0] + (9900/distance)))) / ENGINE::screenX - 1.0);
+	float leftX = ((2.0 * ((screenLeftOffset[0] - (9900/distance)))) / ENGINE::screenX - 1.0);
 
 
+	//float healthY = bottomY + 
+	float leftHealthX = ((2.0 * ((screenLeftOffset[0] - (12000/distance)))) / ENGINE::screenX - 1.0);
+
+	
 	glLineWidth(3);
 	glBegin(GL_LINE_LOOP);
-	glColor4f(color[0], color[1], color[2], 1);
+	if (health >= 95)
+	  glColor4f(0, 255, 0, 1);
+	else if (health <= 94 && health >= 51)
+	  glColor4f(50, 190, 0 , 1);
+	else if (health <= 50 && health >= 26)
+	  glColor4f(190, 90, 0, 1);
+	else if (health <= 25)
+	  glColor4f(255, 0, 0, 1);
+	glVertex2f(leftHealthX, topY);
+	glVertex2f(leftHealthX, bottomY);
+	glEnd();
+	
+
+	/*
+	glBegin(GL_POLYGON);
+	glVertex3f(leftX, topY, 0.0);
+	glVertex3f(leftX, bottomY, 0.0);
+	glVertex3f(rightX, topY, 0.0);
+	glVertex3f(rightX, bottomY, 0.0);
+	glEnd();
+	*/
+
+	
+	glLineWidth(1.5);
+	glBegin(GL_LINE_LOOP);
+	glColor3f(color[0], color[1], color[2]);
 	glVertex2f(rightX, topY);
 	glVertex2f(rightX, bottomY);
 	glEnd();
 	
-	glLineWidth(3);
+	glLineWidth(1.5);
 	glBegin(GL_LINE_LOOP);
-	glColor4f(color[0], color[1], color[2], 1);
+	glColor3f(color[0], color[1], color[2]);
 	glVertex2f(leftX, topY);
 	glVertex2f(leftX, bottomY);
 	glEnd();
 
-	glLineWidth(3);
+	glLineWidth(1.5);
 	glBegin(GL_LINE_LOOP);
-	glColor4f(color[0], color[1], color[2], 1);
+	glColor3f(color[0], color[1], color[2]);
 	glVertex2f(rightX, topY);
 	glVertex2f(leftX, topY);
 	glEnd();
 	
-      	glLineWidth(3);
+      	glLineWidth(1.5);
 	glBegin(GL_LINE_LOOP);
-	glColor4f(color[0], color[1], color[2], 1);
+	glColor3f(color[0], color[1], color[2]);
 	glVertex2f(rightX, bottomY);
 	glVertex2f(leftX, bottomY);
 	glEnd();
       }
+      
     }
 
   

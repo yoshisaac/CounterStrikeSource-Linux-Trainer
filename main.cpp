@@ -287,8 +287,6 @@ int main() {
   //But we want the iterator and drawer on seperate threads
   //And this will be accomplished soon, but OpenGL will just always sit on the main thread
   for (;;) {
-    
-    
     players(gamePid, d, win, playerList, viewMatrix); 
     std::this_thread::sleep_for(std::chrono::milliseconds(1));
   }
