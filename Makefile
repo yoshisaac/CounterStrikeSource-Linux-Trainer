@@ -2,7 +2,7 @@
 CC=g++
 
 # TODO: Add more warning flags like -Wall and -Wextra
-CFLAGS=-Wno-int-to-pointer-cast -O2 -fPIC
+CFLAGS=-Wno-int-to-pointer-cast -O2
 
 LDFLAGS=-L/usr/X11/lib -lX11 -lXext -lXfixes -lstdc++
 
@@ -23,7 +23,7 @@ clean:
 #-------------------------------------------------------------------------------
 
 $(BIN): $(OBJS)
-	$(CC) $(CFLAGS) -shared -o $@ $^ $(LDFLAGS)
+	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
 obj/%.cpp.o: %.cpp
 	@mkdir -p $(dir $@)
