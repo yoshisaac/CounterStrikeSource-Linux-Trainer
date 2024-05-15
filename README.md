@@ -17,7 +17,7 @@ If these are found to be incorrect, then contact me.
   
 ### 2.
 Go to the root directory of the project in your terminal (where main.cpp is located), and run:  
-`g++ main.cpp hacks/bhop.cpp hacks/playerInfo.cpp client/client.cpp -o hack -L/usr/X11/lib -lX11 -lXfixes -Xext -lstdc++ -Wno-int-to-pointer-cast`  
+`g++ main.cpp hacks/bhop.cpp hacks/playerInfo.cpp client/client.cpp -o hack -L/usr/X11/lib -lX11 -lXfixes -lXext -lstdc++ -Wno-int-to-pointer-cast`  
   
 This is very archaic, but hopefully in the future I will use make, cmake, or something similar.
 
