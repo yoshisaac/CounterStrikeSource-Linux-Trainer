@@ -38,8 +38,8 @@ No, it is very incomplete, and will change a lot over time. The program is ineff
 
 # TODO:
 Ordered by importance  
-- Render differently or ignore dormant (non networked) players
-- More visual features (player name, etc)
-- Fix ESP flickering in fullscreen
+- More visual features (bones, head dot, dynamic health bar)  
+- Display box correctly when player is crouched  
+- Render differently or ignore dormant (non networked) players  
+- Fix ESP flickering in fullscreen  
 - Automatic aiming  
-- Fix the X window from blocking all mouse clicks  

@@ -190,9 +190,7 @@ int main() {
   std::cout << "hl2_linux: " << std::hex << hl2_linux << '\n';
   std::cout << "viewMatrix: " << std::hex << viewMatrix << '\n';
   std::cout << "playerList: " << std::hex << playerList << '\n';
-  Memory::Read(gamePid, ClientObject + 0xBC3EC8, &CLIENT::fov, sizeof(float));
-  printf("%f\n", 90.f/CLIENT::fov);
-
+  
   std::string tmp = "";
   std::cout << "Please input your steam name: ";
   std::cin >> tmp;
