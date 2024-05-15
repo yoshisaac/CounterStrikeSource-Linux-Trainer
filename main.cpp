@@ -1,4 +1,3 @@
-//g++ main.cpp hacks/bhop.cpp hacks/playerInfo.cpp client/client.cpp -o hack -L/usr/X11/lib -lX11 -lXfixes -lGL -lGLU -lstdc++ -Wno-int-to-pointer-cast
 
 #include <stdio.h>
 #include <string>
@@ -55,14 +54,14 @@ std::string ReadFile(std::string filePath, bool firstLine=true) {
 pid_t getProcessByName(std::string strName) {
   if (strName.length() == 0)
     return -1;
- 
+
   //Try to open the /proc/ directory
   DIR *pDir = opendir("/proc/");
- 
+
   if (pDir == nullptr) { return -1; } // if that fails then exit
- 
+
   dirent* pDirent = nullptr;
-  
+
   //basically loop through all the processes
   while (pDirent = readdir(pDir), pDirent != nullptr) {
 
@@ -84,7 +83,7 @@ pid_t getProcessByName(std::string strName) {
       return pid;
     }
   }
-  
+
   return -1;
 }
 
@@ -106,7 +105,7 @@ unsigned int findPattern(pid_t procId, std::string moduleName, std::string Patte
   }
   Pattern = concatTemp;
 
-  
+
   bool found = true;
   unsigned int patternIter = 0;
   std::byte currentByte;
@@ -125,7 +124,7 @@ unsigned int findPattern(pid_t procId, std::string moduleName, std::string Patte
 	patternIter++;
 	continue;
       }
-      
+
       currentByteFromPattern = (std::byte) Memory::hexToInt( byte );
 
       std::cout << "currentByte: ";
@@ -133,7 +132,7 @@ unsigned int findPattern(pid_t procId, std::string moduleName, std::string Patte
       std::cout << "currentByteFromPattern: ";
       std::cout << std::hex << (int) currentByteFromPattern << '\n';
       std::cout << "patternIterator: " << patternIter << '\n';
-      
+
       if (currentByte != currentByteFromPattern) {
 	found = false;
 	break;
@@ -144,9 +143,9 @@ unsigned int findPattern(pid_t procId, std::string moduleName, std::string Patte
     if (found == true) {
       return i;
     }
-    
+
   }
-  
+
   return 0; //failed, cant return negative numbers due to signed-ness
 }
 */
@@ -156,41 +155,41 @@ int main() {
     printf("Please run as root\nExample: \"sudo ./hack\"\n");
     return 1;
   }
-  
+
   pid_t gamePid = getProcessByName("hl2_linux");
   if (gamePid == -1) { // check if we successfully got the game processes id
     printf("Please open the game\n");
     return 1;
   }
-  
+
   //Get memory addresses/offsets
-  const unsigned int ClientObject = Memory::getModuleBaseAddress(gamePid, "bin/client.so");
-  const unsigned int EngineObject = Memory::getModuleBaseAddress(gamePid, "bin/engine.so");
-  const unsigned int hl2_linux = Memory::getModuleBaseAddress(gamePid, "hl2_linux");
+  const uintptr_t ClientObject = Memory::getModuleBaseAddress(gamePid, "bin/client.so");
+  const uintptr_t EngineObject = Memory::getModuleBaseAddress(gamePid, "bin/engine.so");
+  const uintptr_t hl2_linux = Memory::getModuleBaseAddress(gamePid, "hl2_linux");
 
-  const unsigned int screenXLength = EngineObject + 0xD20014;
+  const uintptr_t screenXLength = EngineObject + 0xD20014;
   Memory::Read(gamePid, screenXLength, &ENGINE::screenX, sizeof(int));
-  
-  const unsigned int screenYLength = EngineObject + 0xD20018;
-  Memory::Read(gamePid, screenYLength, &ENGINE::screenY, sizeof(int));
-  
-  unsigned int playerList = -1;
-  Memory::Read(gamePid, ClientObject + 0xBE9380, &playerList, sizeof(unsigned int));
 
-  const unsigned int viewMatrix = EngineObject + 0xC7213C;
-  
-  const unsigned int dwForceJump = ClientObject + 0xBEE4E8;
-  const unsigned int dwForceAttack1 = ClientObject + 0xBEE578;
-  const unsigned int dwForceAttack2 = ClientObject + 0xBEE4C8;
-  
-  const unsigned int onGround = ClientObject + 0xB9E650;
+  const uintptr_t screenYLength = EngineObject + 0xD20018;
+  Memory::Read(gamePid, screenYLength, &ENGINE::screenY, sizeof(int));
+
+  uintptr_t playerList = -1;
+  Memory::Read(gamePid, ClientObject + 0xBE9380, &playerList, sizeof(uintptr_t));
+
+  const uintptr_t viewMatrix = EngineObject + 0xC7213C;
+
+  const uintptr_t dwForceJump = ClientObject + 0xBEE4E8;
+  const uintptr_t dwForceAttack1 = ClientObject + 0xBEE578;
+  const uintptr_t dwForceAttack2 = ClientObject + 0xBEE4C8;
+
+  const uintptr_t onGround = ClientObject + 0xB9E650;
 
   std::cout << "Client.so: " << std::hex << ClientObject << '\n';
   std::cout << "Engine.so: " << std::hex << EngineObject << '\n';
   std::cout << "hl2_linux: " << std::hex << hl2_linux << '\n';
   std::cout << "viewMatrix: " << std::hex << viewMatrix << '\n';
   std::cout << "playerList: " << std::hex << playerList << '\n';
-  
+
   std::string tmp = "";
   std::cout << "Please input your steam name: ";
   std::cin >> tmp;
@@ -199,7 +198,7 @@ int main() {
     ENGINE::pLocalName = "DoctorC";
   else
     ENGINE::pLocalName = tmp;
-  
+
   /* beginning of X initiation*/
   Display* d = XOpenDisplay(NULL);
   Display* clientDisplay = XOpenDisplay(NULL);
@@ -214,10 +213,10 @@ int main() {
 
   int shape_event_base;
   int shape_error_base;
-  
+
   if (!XShapeQueryExtension (d, &shape_event_base, &shape_error_base)) {
     printf("NO shape extension in your system !\n");
-    return 1;  
+    return 1;
   }
 
   XSetWindowAttributes wattr;
@@ -260,12 +259,12 @@ int main() {
   XFixesDestroyRegion (d, region);
 
   XdbeBackBuffer back_buffer = XdbeAllocateBackBufferName(d, window, 0);
-  
+
   XMapWindow(d, window);
 
-  
 
-  
+
+
   //Client fixes thread
   //std::thread clientThread(client, gamePid, clientDisplay, dwForceAttack1, dwForceAttack2);
   //pthread_setname_np(clientThread.native_handle(), "clientThread");
@@ -279,7 +278,7 @@ int main() {
   printf("    ,           ,   \n");
   printf("   /             \\ \n");
   printf("  ((__-^^-,-^^-__)) \n");
-  printf("   `-_---\' `---_-\' \n"); 
+  printf("   `-_---\' `---_-\' \n");
   printf("    `--|o` \'o|--\'   \n"); //GNU ascii :D
   printf("       \\  `  /        \n");
   printf("        ): :(         \n");
