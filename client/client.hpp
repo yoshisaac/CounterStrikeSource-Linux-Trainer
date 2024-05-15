@@ -6,6 +6,8 @@
 namespace CLIENT {
   static int DOSHOOT = 5;
   static int DONTSHOOT = 4;
+
+  static float fov;
 };
 
 void client(pid_t gamePid, Display* d, unsigned int dwForceAttack1, unsigned int dwForceAttack2);

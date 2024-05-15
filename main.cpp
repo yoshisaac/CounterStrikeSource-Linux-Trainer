@@ -10,6 +10,7 @@
 #include <unistd.h>
 #include <sstream>
 #include <iomanip>
+#include <X11/Xos.h>
 #include <X11/X.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
@@ -22,9 +23,6 @@
 #include <cstddef>
 #include <algorithm>
 #include <cctype>
-#include <GL/gl.h>
-#include <GL/glx.h>
-#include <GL/glu.h>
 
 #include "hacks/bhop.hpp"
 #include "hacks/playerInfo.hpp"
@@ -187,85 +185,92 @@ int main() {
   
   const unsigned int onGround = ClientObject + 0xB9E650;
 
-  /* beginning of X and OpenGL initiation*/
+  std::cout << "Client.so: " << std::hex << ClientObject << '\n';
+  std::cout << "Engine.so: " << std::hex << EngineObject << '\n';
+  std::cout << "hl2_linux: " << std::hex << hl2_linux << '\n';
+  std::cout << "viewMatrix: " << std::hex << viewMatrix << '\n';
+  std::cout << "playerList: " << std::hex << playerList << '\n';
+  Memory::Read(gamePid, ClientObject + 0xBC3EC8, &CLIENT::fov, sizeof(float));
+  printf("%f\n", 90.f/CLIENT::fov);
+
+  std::string tmp = "";
+  std::cout << "Please input your steam name: ";
+  std::cin >> tmp;
+
+  if (tmp == ",")
+    ENGINE::pLocalName = "DoctorC";
+  else
+    ENGINE::pLocalName = tmp;
+  
+  /* beginning of X initiation*/
   Display* d = XOpenDisplay(NULL);
   Display* clientDisplay = XOpenDisplay(NULL);
   Display* bhopDisplay = XOpenDisplay(NULL);
 
-  int screen = DefaultScreen(d);
-
-  Window root = DefaultRootWindow(d);
-
-  XVisualInfo* visual_info;
-  static int visual_attribs[] = { GLX_RGBA, None };
-  visual_info = glXChooseVisual(d, screen, visual_attribs);
-  if (!visual_info) {
-    printf("Failed it initiate visual_info\n");
+  if (!d || !clientDisplay || !bhopDisplay) {
+    printf("Please run startx/xinit\n");
     return 1;
   }
 
+  int screen = DefaultScreen(d);
+
+  int shape_event_base;
+  int shape_error_base;
+  
+  if (!XShapeQueryExtension (d, &shape_event_base, &shape_error_base)) {
+    printf("NO shape extension in your system !\n");
+    return 1;  
+  }
+
+  XSetWindowAttributes wattr;
+  XColor bgcolor = createXColorFromRGBA(0, 0, 0, 0, d, screen);
+
+  Window root = DefaultRootWindow(d);
+
+  Visual* visual = DefaultVisual(d, screen);
+
   XVisualInfo vinfo;
   XMatchVisualInfo(d, DefaultScreen(d), 32, TrueColor, &vinfo);
+  Colormap colormap = XCreateColormap(d, DefaultRootWindow(d), vinfo.visual, AllocNone);
 
   XSetWindowAttributes attr;
-  attr.colormap = XCreateColormap(d, DefaultRootWindow(d), vinfo.visual, AllocNone);
-  attr.border_pixel = 0;
-  attr.background_pixel = 0;
-  attr.override_redirect = True;
+  attr.background_pixmap = None;
+  attr.background_pixel = bgcolor.pixel;
+  attr.border_pixel=0;
+  attr.win_gravity=NorthWestGravity;
+  attr.bit_gravity=ForgetGravity;
+  attr.save_under=1;
+  attr.event_mask=BASIC_EVENT_MASK;
+  attr.do_not_propagate_mask=NOT_PROPAGATE_MASK;
+  attr.override_redirect=1; // OpenGL > 0
+  attr.colormap = colormap;
 
-  int gameX = 0, gameY = 0;
-  Window gameWin = waitUntilPidIsFocus(d, gamePid);
-  getWindowPosition(d, gameWin, gameX, gameY); //This will not work on some window managers, including but not limited to Mutter
-  
-  Window win = XCreateWindow(d, root, gameX, gameY, ENGINE::screenX, ENGINE::screenY, 0, vinfo.depth, InputOutput, vinfo.visual, CWColormap | CWBorderPixel | CWBackPixel, &attr);
-  XSelectInput(d, win, NoEventMask);
+  unsigned long mask = CWColormap | CWBorderPixel | CWBackPixel | CWEventMask | CWWinGravity|CWBitGravity | CWSaveUnder | CWDontPropagate | CWOverrideRedirect;
+
+  Window window = XCreateWindow(d, root, 0, 0, ENGINE::screenX, ENGINE::screenY, 0, vinfo.depth, InputOutput, vinfo.visual, mask, &attr);
+
+  XShapeCombineMask(d, window, ShapeInput, 0, 0, None, ShapeSet );
+
+#define SHAPE_MASK ShapeNotifyMask
+  XShapeSelectInput (d, window, SHAPE_MASK );
+
+  //wattr.override_redirect = 1;
+  //XChangeWindowAttributes(d, window, CWOverrideRedirect, &wattr);
 
   XserverRegion region = XFixesCreateRegion (d, NULL, 0);
-
-  XFixesSetWindowShapeRegion (d, win, ShapeBounding, 0, 0, 0);
-  XFixesSetWindowShapeRegion (d, win, ShapeInput, 0, 0, region);
-
+  XFixesSetWindowShapeRegion (d, window, ShapeInput, 0, 0, region);
   XFixesDestroyRegion (d, region);
 
-  GC gc = XCreateGC(d, win, 0, 0);
+  XdbeBackBuffer back_buffer = XdbeAllocateBackBufferName(d, window, 0);
+  
+  XMapWindow(d, window);
 
-  GLXContext gl_context = glXCreateContext(d, visual_info, NULL, GL_TRUE);
-  glXMakeCurrent(d, win, gl_context);
-
-
-  Atom wm_delete_window = XInternAtom(d, "WM_DELETE_WINDOW", 0);
-  XSetWMProtocols(d, win, &wm_delete_window, 1);
-
-  Atom always_on_top = XInternAtom(d, "_NET_WM_STATE_ABOVE", False);
-  XChangeProperty(d, win, XInternAtom(d, "_NET_WM_STATE", False),
-  		  XA_ATOM, 32, PropModeReplace, (unsigned char *)&always_on_top, 1);
-
-  glViewport(0, 0, ENGINE::screenX, ENGINE::screenY); // Set the viewport size
-  glMatrixMode(GL_PROJECTION);
-  glLoadIdentity();
-  gluPerspective(90.0f, (GLfloat)ENGINE::screenX / (GLfloat)ENGINE::screenY, 0.1f, 100.0f); // Set the projection matrix
-  glMatrixMode(GL_MODELVIEW);
-  glLoadIdentity();
-
-  GLXContext context = glXCreateContext(d, visual_info, NULL, GL_TRUE);
-  glXMakeCurrent(d, win, context);
-
-  glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-
-  XMapWindow(d, win);
-
-  XGrabPointer(d, win, False, ButtonPressMask | ButtonReleaseMask,
-	       GrabModeAsync, GrabModeAsync, None, None, CurrentTime);
-
-  XInitThreads();
-  /* End of X and OpenGL initiation */
-
-
+  
 
   
   //Client fixes thread
-  std::thread clientThread(client, gamePid, clientDisplay, dwForceAttack1, dwForceAttack2);
-  pthread_setname_np(clientThread.native_handle(), "clientThread");
+  //std::thread clientThread(client, gamePid, clientDisplay, dwForceAttack1, dwForceAttack2);
+  //pthread_setname_np(clientThread.native_handle(), "clientThread");
 
   //bhop thread
   std::thread bhopThread(bhop, gamePid, bhopDisplay, onGround, dwForceJump);
@@ -287,8 +292,10 @@ int main() {
   //But we want the iterator and drawer on seperate threads
   //And this will be accomplished soon, but OpenGL will just always sit on the main thread
   for (;;) {
-    players(gamePid, d, win, playerList, viewMatrix); 
-    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    if (isKeyDown(d, XK_Delete)) { XCloseDisplay(d); } //close the program with a segfault!!!!!!!!1
+    players(gamePid, back_buffer, d, window, playerList, viewMatrix);
+    usleep(100*100/300);
+    //std::this_thread::sleep_for(std::chrono::milliseconds(1));
   }
 
   return 0;

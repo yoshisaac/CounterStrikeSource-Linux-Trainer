@@ -1,7 +1,13 @@
 #include <sys/types.h>
+#include <X11/Xos.h>
 #include <X11/X.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
+#include <X11/Xatom.h>
+#include <X11/extensions/shape.h>
+#include <X11/extensions/Xfixes.h>
+#include <X11/extensions/Xcomposite.h>
+#include <X11/extensions/Xdbe.h>
 
 namespace playerOffset {
   constexpr unsigned int health = 0x34;
@@ -14,7 +20,7 @@ namespace playerOffset {
   constexpr unsigned int team = 0x30;
 };
 
-void players(pid_t gamePid, Display* d, Window win, unsigned int playerList, unsigned int viewMatrix);
+void players(pid_t gamePid, XdbeBackBuffer back_buffer, Display* d, Window win, unsigned int playerList, unsigned int viewMatrix);
 
 
 //playerlist math

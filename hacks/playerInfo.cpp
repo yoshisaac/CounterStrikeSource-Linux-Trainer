@@ -1,22 +1,28 @@
 #include "playerInfo.hpp"
 
 #include <iostream>
-#include <GL/gl.h>
-#include <GL/glx.h>
-#include <GL/glu.h>
+#include <X11/Xos.h>
 #include <X11/X.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
+#include <X11/Xatom.h>
+#include <X11/extensions/shape.h>
+#include <X11/extensions/Xfixes.h>
+#include <X11/extensions/Xcomposite.h>
+#include <X11/extensions/Xdbe.h>
 #include <cmath>
 #include <stdlib.h>
 #include <cfenv>
 #include <thread>
+#include <stdlib.h>
 
 #include "../memory.hpp"
 #include "../vector.hpp"
 #include "../math.hpp"
+#include "../xutil.hpp"
 
 #include "../engine/engine.hpp"
+#include "../client/client.hpp"
 
 //https://github.com/ALittlePatate/CSS-external/blob/b17e083a4f0d0e4406d49d55c9c761cedab1ad66/ImGuiExternal/Memory.h#L61
 float vmatrix[4][4];
@@ -53,36 +59,61 @@ bool WorldToScreen(pid_t gamePid, const float vIn[3], float vOut[2], unsigned in
   return true;
 }
 
-void players(pid_t gamePid, Display* d, Window win, unsigned int playerList, unsigned int viewMatrix) {
+float pLocalLocation[3] = {0, 0, 0};
+int pLocalTeam = 0;
+void players(pid_t gamePid, XdbeBackBuffer back_buffer, Display* d, Window win, unsigned int playerList, unsigned int viewMatrix) {
+  XColor red = createXColorFromRGB(255, 0, 0, d, DefaultScreen(d));
+  XColor black = createXColorFromRGB(0, 0, 0, d, DefaultScreen(d));
+  XColor white = createXColorFromRGBA(255, 255, 255, 255, d, DefaultScreen(d));
+  XColor green = createXColorFromRGB(0, 255, 0, d, DefaultScreen(d));
+  XColor yellow = createXColorFromRGB(255, 255, 0, d, DefaultScreen(d));
+  XColor tColor = createXColorFromRGB(230, 35, 35, d, DefaultScreen(d));
+  XColor ctColor = createXColorFromRGB(148, 196, 248, d, DefaultScreen(d));
 
+  GC gc;
+  XGCValues gcv;
+
+  gc = XCreateGC(d, win, 0, 0);
+  XSetBackground(d, gc, white.pixel);
+
+  const char * fontname = "fixed";
+  XFontStruct * font = XLoadQueryFont(d, fontname);
+  if (!font) {
+    std::cout << "default font not found" << std::endl;
+    return;
+  }
+  XSetFont(d, gc, font->fid);
+
+
+  db_clear(back_buffer, d, win, gc);
+  
   playerList += 0x28; //I don't know, my playerlist ptr is most likely wrong, but it works. For the most part...
-
-    glClear(GL_COLOR_BUFFER_BIT); // Clear the color buffer
-
-    int teamOfLocalPlayer = 0;
-    Memory::Read(gamePid, playerList + playerOffset::team, &teamOfLocalPlayer, sizeof(int)); //Remember now, the first index of the playerlist is the local player
-    for (int i = 1; i < 32; i++) {
+    for (int i = 0; i < 32; i++) {
       unsigned int player = playerList + (i * 0x140);
+
+      std::string name = "";
+      for (int h = 0; h < 256; h++) {
+	char currentCharacter;
+	Memory::Read(gamePid, player + playerOffset::name + h, &currentCharacter, sizeof(char));
+
+	if (currentCharacter == '\0') { break; } //strings in c/c++ are terminated via a null character
+
+	name += currentCharacter;
+      }
+      
+      if (name == ENGINE::pLocalName)
+	Memory::Read(gamePid, player + playerOffset::x, &pLocalLocation, sizeof(float[3]));
+      if (pLocalLocation[0] == 0 && pLocalLocation[1] == 0 && pLocalLocation[2] == 0) continue;
+
+      
+      if (name == ENGINE::pLocalName)
+	Memory::Read(gamePid, player + playerOffset::team, &pLocalTeam, sizeof(int));
 
       float color[4];
       int team = -1;
       Memory::Read(gamePid, player + playerOffset::team, &team, sizeof(int));
-      //if (team == teamOfLocalPlayer) continue; //dont render team mates
+      if (team == pLocalTeam) continue; //dont render team mates
 
-      switch (team) {
-      case 2:
-	color[0] = 0.506f;
-	color[1] = 0.243f;
-	color[2] = 0.259f;
-	break;
-      case 3:
-	color[0] = 0.333f;
-	color[1] = 0.431f;
-	color[2] = 0.506f;
-	break;
-      }
-      
-      
       
       int index = -1;
       Memory::Read(gamePid, player, &index, sizeof(int));
@@ -100,10 +131,6 @@ void players(pid_t gamePid, Display* d, Window win, unsigned int playerList, uns
 	float yaw = 0;
 	Memory::Read(gamePid, player + playerOffset::yaw, &yaw, sizeof(float));
       */
-
-      float localpLocation[3];
-      Memory::Read(gamePid, playerList + playerOffset::x, &localpLocation, sizeof(float[3]));
-      if (localpLocation[0] == 0 && localpLocation[1] == 0 && localpLocation[2] == 0) continue;
     
       //This needs to be optimized to a single Read call
       float location[3];
@@ -111,104 +138,84 @@ void players(pid_t gamePid, Display* d, Window win, unsigned int playerList, uns
       if (location[0] == 0 && location[1] == 0 && location[2] == 0) continue; //here is that "for the most part" kicking in.
       //This is a check for if the player is even in the server, because players that leave still stay in the list.
       float out[2];                                                       //Why tf does this happen? God do I know.
-    
-      std::string name = "";
-      for (int h = 0; h < 256; h++) {
-	char currentCharacter;
-	Memory::Read(gamePid, player + playerOffset::name + h, &currentCharacter, sizeof(char));
-
-	if (currentCharacter == '\0') { break; } //strings in c/c++ are terminated via a null character
-
-	name += currentCharacter;
-      }
 
       location[2] += 8;
 
-      if (WorldToScreen(gamePid, location, out, viewMatrix)) {      
+      if (WorldToScreen(gamePid, location, out, viewMatrix) && name != ENGINE::pLocalName) {      
 	
-        float distance = distanceFormula(localpLocation, location);
+        float distance = distanceFormula3D(pLocalLocation, location);
 
 	float getFeet[3] = {location[0], location[1], location[2]};
-	getFeet[2] -= 73;
+	getFeet[2] -= 78;
 	float screenFeet[2];
-	WorldToScreen(gamePid, getFeet, screenFeet, viewMatrix); //get feet height
-
-	// Convert screen coordinates to OpenGL coordinates
-	float topY = 1.0 - (2.0 * ((out[1] + (1500/distance)))) / ENGINE::screenY;
-	float bottomY = 1.0 - (2.0 * ((screenFeet[1] + (1500/distance)))) / ENGINE::screenY;
+	if (!WorldToScreen(gamePid, getFeet, screenFeet, viewMatrix)) continue; //get feet height
+	
+	float topY = out[1];
+	float bottomY = screenFeet[1];
       
 	float leftSideOffset[3] = {location[0], location[1], location[2]};
 	leftSideOffset[2] += 30;
 	float screenLeftOffset[2];
-	WorldToScreen(gamePid, leftSideOffset, screenLeftOffset, viewMatrix);
+	if (!WorldToScreen(gamePid, leftSideOffset, screenLeftOffset, viewMatrix)) continue;
 
 	//Helped with box spacing: https://www.unknowncheats.me/forum/c-and-c-/76713-esp-box-size-calculation.html
-	
-	float rightX = ((2.0 * ((screenLeftOffset[0] + (9900/distance)))) / ENGINE::screenX - 1.0);
-	float leftX = ((2.0 * ((screenLeftOffset[0] - (9900/distance)))) / ENGINE::screenX - 1.0);
+
+	//db_fillrect(back_buffer, d, win, gc, out[0] - (9800/distance), topY, (15000/distance), (19600/distance));
 
 
-	//float healthY = bottomY + 
-	float leftHealthX = ((2.0 * ((screenLeftOffset[0] - (12000/distance)))) / ENGINE::screenX - 1.0);
-
-	
-	glLineWidth(3);
-	glBegin(GL_LINE_LOOP);
-	if (health >= 95)
-	  glColor4f(0, 255, 0, 1);
-	else if (health <= 94 && health >= 51)
-	  glColor4f(50, 190, 0 , 1);
-	else if (health <= 50 && health >= 26)
-	  glColor4f(190, 90, 0, 1);
-	else if (health <= 25)
-	  glColor4f(255, 0, 0, 1);
-	glVertex2f(leftHealthX, topY);
-	glVertex2f(leftHealthX, bottomY);
-	glEnd();
-	
-
+	//BOX
+	XSetForeground(d, gc, black.pixel);
+	db_thickline(back_buffer, d, gc, out[0] - (9800/distance), topY, out[0] - (9800/distance), bottomY, 4, distance, true);
+	db_thickline(back_buffer, d, gc, out[0] + (9800/distance), topY, out[0] + (9800/distance), bottomY, 4, distance, true);
+	db_thickline(back_buffer, d, gc, out[0] + (9800/distance), topY, out[0] - (9800/distance), topY, 4, distance, true);
+	db_thickline(back_buffer, d, gc, out[0] - (9800/distance), bottomY, out[0] + (9800/distance), bottomY, 4, distance, true);
 	/*
-	glBegin(GL_POLYGON);
-	glVertex3f(leftX, topY, 0.0);
-	glVertex3f(leftX, bottomY, 0.0);
-	glVertex3f(rightX, topY, 0.0);
-	glVertex3f(rightX, bottomY, 0.0);
-	glEnd();
+	switch (team) {
+	case 2:
+	  XSetForeground(d, gc, tColor.pixel);
+	  break;
+	case 3:
+	  XSetForeground(d, gc, ctColor.pixel);
+	  break;
+	default:
+	  XSetForeground(d, gc, white.pixel);
+	  break;
+	}
 	*/
+	XSetForeground(d, gc, tColor.pixel);
+	db_thickline(back_buffer, d, gc, (out[0] - (9800/distance) * 1), topY, (out[0] - (9800/distance) * 1), bottomY, 2, distance);
+	db_thickline(back_buffer, d, gc, (out[0] + (9800/distance) * 90.f/CLIENT::fov), topY, (out[0] + (9800/distance) * 1), bottomY, 2, distance);
+	db_thickline(back_buffer, d, gc, out[0] + (9800/distance), topY, out[0] - (9800/distance), topY, 2, distance);
+	db_thickline(back_buffer, d, gc, out[0] - (9800/distance), bottomY, out[0] + (9800/distance), bottomY, 2, distance);
 
-	
-	glLineWidth(1.5);
-	glBegin(GL_LINE_LOOP);
-	glColor3f(color[0], color[1], color[2]);
-	glVertex2f(rightX, topY);
-	glVertex2f(rightX, bottomY);
-	glEnd();
-	
-	glLineWidth(1.5);
-	glBegin(GL_LINE_LOOP);
-	glColor3f(color[0], color[1], color[2]);
-	glVertex2f(leftX, topY);
-	glVertex2f(leftX, bottomY);
-	glEnd();
+	//Name
+	const char * text = name.c_str();
 
-	glLineWidth(1.5);
-	glBegin(GL_LINE_LOOP);
-	glColor3f(color[0], color[1], color[2]);
-	glVertex2f(rightX, topY);
-	glVertex2f(leftX, topY);
-	glEnd();
+	location[2] += 3;
+	float screenName[2];
+	WorldToScreen(gamePid, location, screenName, viewMatrix);
 	
-      	glLineWidth(1.5);
-	glBegin(GL_LINE_LOOP);
-	glColor3f(color[0], color[1], color[2]);
-	glVertex2f(rightX, bottomY);
-	glVertex2f(leftX, bottomY);
-	glEnd();
+	XDrawString(d, back_buffer, gc, out[0], screenName[1], text, strlen(text));
+
+	//Health indicators
+	XSetForeground(d, gc, black.pixel);
+	db_thickline(back_buffer, d, gc, out[0] - (11500/distance), topY, out[0] - (11500/distance), bottomY, 4, distance, true);
+
+	if (health >= 95)
+	  XSetForeground(d, gc, green.pixel);
+	else if (health < 95 && health > 25)
+	  XSetForeground(d, gc, yellow.pixel);
+	else if (health <= 25 )
+	  XSetForeground(d, gc, red.pixel);
+
+	db_thickline(back_buffer, d, gc, out[0] - (11500/distance), topY, out[0] - (11500/distance), bottomY, 2, distance);
+
+	XDrawString(d, back_buffer, gc, out[0] - (11500/distance), screenName[1], std::to_string(health).c_str(), strlen(std::to_string(health).c_str()));
       }
       
     }
 
-  
-    glXSwapBuffers(d, win); // Swap buffers
-  
+    db_swap_buffers(d, win);
+
+    XFreeGC(d, gc);
 }
