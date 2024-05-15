@@ -17,7 +17,7 @@ If these are found to be incorrect, then contact me.
   
 ### 2.
 Go to the root directory of the project in your terminal (where main.cpp is located), and run:  
-`g++ main.cpp hacks/bhop.cpp hacks/playerInfo.cpp client/client.cpp -o hack -L/usr/X11/lib -lX11 -lXfixes -lGL -lGLU -lstdc++ -Wno-int-to-pointer-cast`  
+`g++ main.cpp hacks/bhop.cpp hacks/playerInfo.cpp client/client.cpp -o hack -L/usr/X11/lib -lX11 -lXfixes -Xext -lstdc++ -Wno-int-to-pointer-cast`  
   
 This is very archaic, but hopefully in the future I will use make, cmake, or something similar.
 
@@ -31,7 +31,7 @@ The only distribution I have tested (and currently use) is Linux Mint 21.3
 - Bunny hop (automatically jump after hitting the ground)  
 - Player ESP
 
-!["picture of ESP is supposed to display here"](https://cdn.discordapp.com/attachments/1111619033784127500/1236821015376560178/image.png?ex=663966d5&is=66381555&hm=4c7b1cc076c1c551b5e378faf9c9cfc39651424091979b28531e70654b1fde79&)
+!["picture of ESP is supposed to display here"](https://cdn.discordapp.com/attachments/1091542098471293092/1240117651804651530/image.png?ex=66456510&is=66441390&hm=2670c4bb277b93a0df5fcaf7f3f64fdb0441121a89d43f3e3a54cb237c569b7a&)
 
 # Is this finished?
 No, it is very incomplete, and will change a lot over time. The program is inefficient, and commented out code is all over the place. Features such as ESP are very incomplete but work on a crude level.
