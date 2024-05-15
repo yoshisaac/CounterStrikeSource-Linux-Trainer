@@ -8,35 +8,42 @@ As a way to render information inside a window to the screen, it uses OpenGL, th
 
 # How to compile
   
-### 1.
+### Installing dependencies
 Install the necessary packages.  
   
-Debian/Ubuntu/LinuxMint:  
-`sudo apt install libglu1-mesa-dev freeglut3-dev mesa-common-dev libx11-dev libxfixes-dev gcc g++`  
+Debian/Ubuntu/LinuxMint:
+
+```console
+$ sudo apt install libglu1-mesa-dev freeglut3-dev mesa-common-dev libx11-dev libxfixes-dev gcc g++ make
+```
+
 If these are found to be incorrect, then contact me.  
   
-### 2.
+### Compiling
 Go to the root directory of the project in your terminal (where main.cpp is located), and run:  
-`g++ main.cpp hacks/bhop.cpp hacks/playerInfo.cpp client/client.cpp -o hack -L/usr/X11/lib -lX11 -lXfixes -lXext -lstdc++ -Wno-int-to-pointer-cast`  
-  
-This is very archaic, but hopefully in the future I will use make, cmake, or something similar.
+
+```console
+$ make
+...
+```
 
 # How to use
-After compilation, there will be a program created in the root directory of the project called "`hack`"  
-To run the software, go to the root directory of the project and type `sudo ./hack` in your terminal. What this does is it runs the software as `root`, which is required for reading and writing memory on an external level.  
+After compilation, there will be a program created in the root directory of the project called `cs-source-hack`.
+
+To run the software, go to the root directory of the project and type `sudo ./cs-source-hack` in your terminal. What this does is it runs the software as `root`, which is required for reading and writing memory on an external level.  
 
 The only distribution I have tested (and currently use) is Linux Mint 21.3
 
-# Features:
+# Features
 - Bunny hop (automatically jump after hitting the ground)  
 - Player ESP
 
-!["picture of ESP is supposed to display here"](https://cdn.discordapp.com/attachments/1091542098471293092/1240117651804651530/image.png?ex=66456510&is=66441390&hm=2670c4bb277b93a0df5fcaf7f3f64fdb0441121a89d43f3e3a54cb237c569b7a&)
+![Screenshot of ESP](https://cdn.discordapp.com/attachments/1091542098471293092/1240117651804651530/image.png?ex=66456510&is=66441390&hm=2670c4bb277b93a0df5fcaf7f3f64fdb0441121a89d43f3e3a54cb237c569b7a&)
 
 # Is this finished?
 No, it is very incomplete, and will change a lot over time. The program is inefficient, and commented out code is all over the place. Features such as ESP are very incomplete but work on a crude level.
 
-# TODO:
+# TODO
 Ordered by importance  
 - More visual features (bones, head dot, dynamic health bar)  
 - Display box correctly when player is crouched  
