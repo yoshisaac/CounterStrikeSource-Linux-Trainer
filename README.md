@@ -45,8 +45,8 @@ No, it is very incomplete, and will change a lot over time. The program is ineff
 
 # TODO
 Ordered by importance  
-- More visual features (bones, head dot, dynamic health bar)  
+- More visual features (bones, proper head dot, dynamic health bar)  
 - Display box correctly when player is crouched  
 - Render differently or ignore dormant (non networked) players  
-- Fix ESP flickering in fullscreen  
+- Fix ESP flickering  
 - Automatic aiming  
