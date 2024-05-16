@@ -24,6 +24,8 @@
 #include "../engine/engine.hpp"
 #include "../client/client.hpp"
 
+#include "ESP.hpp"
+
 //https://github.com/ALittlePatate/CSS-external/blob/b17e083a4f0d0e4406d49d55c9c761cedab1ad66/ImGuiExternal/Memory.h#L61
 float vmatrix[4][4];
 bool WorldToScreen(pid_t gamePid, const float vIn[3], float vOut[2], unsigned int viewMatrix)
@@ -62,27 +64,16 @@ bool WorldToScreen(pid_t gamePid, const float vIn[3], float vOut[2], unsigned in
 float pLocalLocation[3] = {0, 0, 0};
 int pLocalTeam = 0;
 void players(pid_t gamePid, XdbeBackBuffer back_buffer, Display* d, Window win, unsigned int playerList, unsigned int viewMatrix) {
-  XColor red = createXColorFromRGB(255, 0, 0, d, DefaultScreen(d));
-  XColor black = createXColorFromRGB(0, 0, 0, d, DefaultScreen(d));
-  XColor white = createXColorFromRGB(255, 255, 255, d, DefaultScreen(d));
-  XColor green = createXColorFromRGB(0, 255, 0, d, DefaultScreen(d));
-  XColor yellow = createXColorFromRGB(255, 255, 0, d, DefaultScreen(d));
-  XColor tColor = createXColorFromRGB(230, 35, 35, d, DefaultScreen(d));
-  XColor ctColor = createXColorFromRGB(148, 196, 248, d, DefaultScreen(d));
-  XColor cyan = createXColorFromRGB(11, 192, 212, d, DefaultScreen(d));
-
   GC gc;
   XGCValues gcv;
 
-  XFontStruct * shadowfont = XLoadQueryFont(d, "6x13bold");
-  XFontStruct * font = XLoadQueryFont(d, "6x13");
-  if (!font || !shadowfont) {
-    std::cout << "default font not found, using fallbacks\n" << std::endl;
-    font = XLoadQueryFont(d, "fixed");
+  if (!ESP::font || !ESP::shadowfont) {
+    std::cout << "font not found, aborting." << std::endl;
+    return;
   }
 
   gc = XCreateGC(d, win, 0, 0);
-  XSetBackground(d, gc, white.pixel);
+  XSetBackground(d, gc, ESP::white.pixel);
 
   db_clear(back_buffer, d, win, gc);
   
@@ -165,8 +156,8 @@ void players(pid_t gamePid, XdbeBackBuffer back_buffer, Display* d, Window win, 
 
 	//background shadow for text and ESP
 	//text shadow
-	XSetFont(d, gc, shadowfont->fid);
-	XSetForeground(d, gc, black.pixel);
+	XSetFont(d, gc, ESP::shadowfont->fid);
+	XSetForeground(d, gc, ESP::black.pixel);
 	//name shadow
 	XDrawString(d, back_buffer, gc, out[0] + 1, screenText[1] + 1, name.c_str(), strlen(name.c_str()));
 	//health number shadow
@@ -179,10 +170,10 @@ void players(pid_t gamePid, XdbeBackBuffer back_buffer, Display* d, Window win, 
 	db_thickline(back_buffer, d, gc, out[0] + (9800/distance), topY, out[0] - (9800/distance), topY, 4, distance, true);
 	db_thickline(back_buffer, d, gc, out[0] - (9800/distance), bottomY, out[0] + (9800/distance), bottomY, 4, distance, true);
 
-	XSetFont(d, gc, font->fid);
+	XSetFont(d, gc, ESP::font->fid);
 	
 	//Name
-	XSetForeground(d, gc, white.pixel);
+	XSetForeground(d, gc, ESP::white.pixel);
 	XDrawString(d, back_buffer, gc, out[0], screenText[1], name.c_str(), strlen(name.c_str()));
 
 	//BOX
@@ -199,26 +190,26 @@ void players(pid_t gamePid, XdbeBackBuffer back_buffer, Display* d, Window win, 
 	  break;
 	}
 	*/
-	XSetForeground(d, gc, tColor.pixel);
+	XSetForeground(d, gc, ESP::tColor.pixel);
 	db_thickline(back_buffer, d, gc, (out[0] - (9800/distance)), topY, (out[0] - (9800/distance)), bottomY, 2, distance);
 	db_thickline(back_buffer, d, gc, (out[0] + (9800/distance)), topY, (out[0] + (9800/distance)), bottomY, 2, distance);
 	db_thickline(back_buffer, d, gc, out[0] + (9800/distance), topY, out[0] - (9800/distance), topY, 2, distance);
 	db_thickline(back_buffer, d, gc, out[0] - (9800/distance), bottomY, out[0] + (9800/distance), bottomY, 2, distance);
 
 	//Health indicators
-	if (health >= 95)
-	  XSetForeground(d, gc, green.pixel);
-	else if (health < 95 && health > 25)
-	  XSetForeground(d, gc, yellow.pixel);
-	else if (health <= 25 )
-	  XSetForeground(d, gc, red.pixel);
+	if (health >= 85)
+	  XSetForeground(d, gc, ESP::green.pixel);
+	else if (health < 85 && health > 35)
+	  XSetForeground(d, gc, ESP::yellow.pixel);
+	else if (health <= 35 )
+	  XSetForeground(d, gc, ESP::red.pixel);
 
 	db_thickline(back_buffer, d, gc, out[0] - (11500/distance), topY, out[0] - (11500/distance), bottomY, 2, distance);
 
 	XDrawString(d, back_buffer, gc, out[0] - (11500/distance), screenText[1], std::to_string(health).c_str(), strlen(std::to_string(health).c_str()));
 
 	//head indicator
-	XSetForeground(d, gc, cyan.pixel);
+	XSetForeground(d, gc, ESP::cyan.pixel);
 	XFillArc(d, back_buffer, gc, out[0] - ((9800/distance)/2), out[1], (9500/distance), (9500/distance), 0, 360*64);
       }
       

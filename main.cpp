@@ -25,6 +25,7 @@
 
 #include "hacks/bhop.hpp"
 #include "hacks/playerInfo.hpp"
+#include "hacks/ESP.hpp"
 #include "client/client.hpp"
 #include "engine/engine.hpp"
 
@@ -263,6 +264,18 @@ int main() {
   XdbeBackBuffer back_buffer = XdbeAllocateBackBufferName(d, window, 0);
 
   XMapWindow(d, window);
+
+  ESP::shadowfont = XLoadQueryFont(d, "6x13bold");
+  ESP::font = XLoadQueryFont(d, "6x13");
+
+  ESP::red = createXColorFromRGB(255, 0, 0, d, DefaultScreen(d));
+  ESP::black = createXColorFromRGB(0, 0, 0, d, DefaultScreen(d));
+  ESP::white = createXColorFromRGB(255, 255, 255, d, DefaultScreen(d));
+  ESP::green = createXColorFromRGB(0, 255, 0, d, DefaultScreen(d));
+  ESP::yellow = createXColorFromRGB(255, 255, 0, d, DefaultScreen(d));
+  ESP::tColor = createXColorFromRGB(230, 35, 35, d, DefaultScreen(d));
+  ESP::ctColor = createXColorFromRGB(148, 196, 248, d, DefaultScreen(d));
+  ESP::cyan = createXColorFromRGB(11, 192, 212, d, DefaultScreen(d));
   /* end of X initiation */
 
 
