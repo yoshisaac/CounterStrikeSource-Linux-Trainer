@@ -4,7 +4,7 @@ This is a program that is intended to automate tasks such as movement, and displ
 # How does it work?
 It externally (as a seperate program from the video game) reads and writes memory using system calls that the Linux kernel graciously gives us. Those system calls include functions like `processes_vm_readv()` and `process_vm_writev()`. 
   
-As a way to render information inside a window to the screen, it uses OpenGL, the Open Graphics Library. To create windows, it also uses the X11 protocol. That can be a problem if you are using a display server/client such as Wayland or its variants, so make sure your desktop environment/floating window manager is set to a Xorg session. There may also be other issues your window manager or desktop environment can cause, such as overriding placement of windows.
+To display a window and draw information inside of it, the program uses the X11 protocol. That can be a problem if you are using a display server/client such as Wayland or its variants, so make sure your desktop environment/floating window manager is set to a Xorg session. There may also be other issues your window manager or desktop environment can cause, such as overriding placement of windows.
 
 # How to compile
   
@@ -14,7 +14,7 @@ Install the necessary packages.
 Debian/Ubuntu/LinuxMint:
 
 ```console
-$ sudo apt install libglu1-mesa-dev freeglut3-dev mesa-common-dev libx11-dev libxfixes-dev gcc g++ make
+$ sudo apt install mesa-common-dev libx11-dev libxfixes-dev libxcomposite-dev gcc g++ make
 ```
 
 If these are found to be incorrect, then contact me.  

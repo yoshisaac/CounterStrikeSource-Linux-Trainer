@@ -190,6 +190,7 @@ int main() {
   std::cout << "viewMatrix: " << std::hex << viewMatrix << '\n';
   std::cout << "playerList: " << std::hex << playerList << '\n';
 
+  //Dumb bodge I put in for myself. Can't find the local player pointer.
   std::string tmp = "";
   std::cout << "Please input your steam name: ";
   std::cin >> tmp;
@@ -199,6 +200,7 @@ int main() {
   else
     ENGINE::pLocalName = tmp;
 
+  //https://gist.github.com/ericek111/774a1661be69387de846f5f5a5977a46 great piece of source code. 
   /* beginning of X initiation*/
   Display* d = XOpenDisplay(NULL);
   Display* clientDisplay = XOpenDisplay(NULL);
@@ -261,10 +263,12 @@ int main() {
   XdbeBackBuffer back_buffer = XdbeAllocateBackBufferName(d, window, 0);
 
   XMapWindow(d, window);
+  /* end of X initiation */
 
 
 
 
+  //Is not needed anymore until something like triggerbot or aimbot is added
   //Client fixes thread
   //std::thread clientThread(client, gamePid, clientDisplay, dwForceAttack1, dwForceAttack2);
   //pthread_setname_np(clientThread.native_handle(), "clientThread");
@@ -285,14 +289,10 @@ int main() {
   printf("        :o_o:         \n");
   printf("         \"-\"         \n");
   //Drawer/player iterator thread
-  //OpenGL can only have calls from a single thread
-  //But we want the iterator and drawer on seperate threads
-  //And this will be accomplished soon, but OpenGL will just always sit on the main thread
   for (;;) {
     if (isKeyDown(d, XK_Delete)) { XCloseDisplay(d); } //close the program with a segfault!!!!!!!!1
     players(gamePid, back_buffer, d, window, playerList, viewMatrix);
-    usleep(100*100/300);
-    //std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    usleep(100*100/300); //my game runs at 300fps. Need to make this dynamic so it updates properly for slower screens
   }
 
   return 0;

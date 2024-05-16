@@ -64,26 +64,25 @@ int pLocalTeam = 0;
 void players(pid_t gamePid, XdbeBackBuffer back_buffer, Display* d, Window win, unsigned int playerList, unsigned int viewMatrix) {
   XColor red = createXColorFromRGB(255, 0, 0, d, DefaultScreen(d));
   XColor black = createXColorFromRGB(0, 0, 0, d, DefaultScreen(d));
-  XColor white = createXColorFromRGBA(255, 255, 255, 255, d, DefaultScreen(d));
+  XColor white = createXColorFromRGB(255, 255, 255, d, DefaultScreen(d));
   XColor green = createXColorFromRGB(0, 255, 0, d, DefaultScreen(d));
   XColor yellow = createXColorFromRGB(255, 255, 0, d, DefaultScreen(d));
   XColor tColor = createXColorFromRGB(230, 35, 35, d, DefaultScreen(d));
   XColor ctColor = createXColorFromRGB(148, 196, 248, d, DefaultScreen(d));
+  XColor cyan = createXColorFromRGB(11, 192, 212, d, DefaultScreen(d));
 
   GC gc;
   XGCValues gcv;
 
+  XFontStruct * shadowfont = XLoadQueryFont(d, "6x13bold");
+  XFontStruct * font = XLoadQueryFont(d, "6x13");
+  if (!font || !shadowfont) {
+    std::cout << "default font not found, using fallbacks\n" << std::endl;
+    font = XLoadQueryFont(d, "fixed");
+  }
+
   gc = XCreateGC(d, win, 0, 0);
   XSetBackground(d, gc, white.pixel);
-
-  const char * fontname = "fixed";
-  XFontStruct * font = XLoadQueryFont(d, fontname);
-  if (!font) {
-    std::cout << "default font not found" << std::endl;
-    return;
-  }
-  XSetFont(d, gc, font->fid);
-
 
   db_clear(back_buffer, d, win, gc);
   
@@ -96,7 +95,7 @@ void players(pid_t gamePid, XdbeBackBuffer back_buffer, Display* d, Window win, 
 	char currentCharacter;
 	Memory::Read(gamePid, player + playerOffset::name + h, &currentCharacter, sizeof(char));
 
-	if (currentCharacter == '\0') { break; } //strings in c/c++ are terminated via a null character
+	if (currentCharacter == '\0') { break; } //strings in c/c++ are terminated via a null ascii character
 
 	name += currentCharacter;
       }
@@ -131,17 +130,16 @@ void players(pid_t gamePid, XdbeBackBuffer back_buffer, Display* d, Window win, 
 	float yaw = 0;
 	Memory::Read(gamePid, player + playerOffset::yaw, &yaw, sizeof(float));
       */
-    
-      //This needs to be optimized to a single Read call
+      
       float location[3];
       Memory::Read(gamePid, player + playerOffset::x, &location, sizeof(float[3]));
       if (location[0] == 0 && location[1] == 0 && location[2] == 0) continue; //here is that "for the most part" kicking in.
-      //This is a check for if the player is even in the server, because players that leave still stay in the list.
+                                                                            //This is a check for if the player is even in the server, because players that leave still stay in the list.
       float out[2];                                                       //Why tf does this happen? God do I know.
 
       location[2] += 8;
 
-      if (WorldToScreen(gamePid, location, out, viewMatrix) && name != ENGINE::pLocalName) {      
+      if (WorldToScreen(gamePid, location, out, viewMatrix) && name != ENGINE::pLocalName /*local player check*/) {      
 	
         float distance = distanceFormula3D(pLocalLocation, location);
 
@@ -160,15 +158,34 @@ void players(pid_t gamePid, XdbeBackBuffer back_buffer, Display* d, Window win, 
 
 	//Helped with box spacing: https://www.unknowncheats.me/forum/c-and-c-/76713-esp-box-size-calculation.html
 
-	//db_fillrect(back_buffer, d, win, gc, out[0] - (9800/distance), topY, (15000/distance), (19600/distance));
+	//text screen offset
+	location[2] += 3;
+	float screenText[2];
+	WorldToScreen(gamePid, location, screenText, viewMatrix);
 
-
-	//BOX
+	//background shadow for text and ESP
+	//text shadow
+	XSetFont(d, gc, shadowfont->fid);
 	XSetForeground(d, gc, black.pixel);
+	//name shadow
+	XDrawString(d, back_buffer, gc, out[0] + 1, screenText[1] + 1, name.c_str(), strlen(name.c_str()));
+	//health number shadow
+	XDrawString(d, back_buffer, gc, (out[0] - (11500/distance)) + 1, screenText[1] + 1, std::to_string(health).c_str(), strlen(std::to_string(health).c_str()));
+	//health bar shadow
+	db_thickline(back_buffer, d, gc, out[0] - (11500/distance), topY, out[0] - (11500/distance), bottomY, 4, distance, true);
+	//box shadow
 	db_thickline(back_buffer, d, gc, out[0] - (9800/distance), topY, out[0] - (9800/distance), bottomY, 4, distance, true);
 	db_thickline(back_buffer, d, gc, out[0] + (9800/distance), topY, out[0] + (9800/distance), bottomY, 4, distance, true);
 	db_thickline(back_buffer, d, gc, out[0] + (9800/distance), topY, out[0] - (9800/distance), topY, 4, distance, true);
 	db_thickline(back_buffer, d, gc, out[0] - (9800/distance), bottomY, out[0] + (9800/distance), bottomY, 4, distance, true);
+
+	XSetFont(d, gc, font->fid);
+	
+	//Name
+	XSetForeground(d, gc, white.pixel);
+	XDrawString(d, back_buffer, gc, out[0], screenText[1], name.c_str(), strlen(name.c_str()));
+
+	//BOX
 	/*
 	switch (team) {
 	case 2:
@@ -183,24 +200,12 @@ void players(pid_t gamePid, XdbeBackBuffer back_buffer, Display* d, Window win, 
 	}
 	*/
 	XSetForeground(d, gc, tColor.pixel);
-	db_thickline(back_buffer, d, gc, (out[0] - (9800/distance) * 1), topY, (out[0] - (9800/distance) * 1), bottomY, 2, distance);
-	db_thickline(back_buffer, d, gc, (out[0] + (9800/distance) * 90.f/CLIENT::fov), topY, (out[0] + (9800/distance) * 1), bottomY, 2, distance);
+	db_thickline(back_buffer, d, gc, (out[0] - (9800/distance)), topY, (out[0] - (9800/distance)), bottomY, 2, distance);
+	db_thickline(back_buffer, d, gc, (out[0] + (9800/distance)), topY, (out[0] + (9800/distance)), bottomY, 2, distance);
 	db_thickline(back_buffer, d, gc, out[0] + (9800/distance), topY, out[0] - (9800/distance), topY, 2, distance);
 	db_thickline(back_buffer, d, gc, out[0] - (9800/distance), bottomY, out[0] + (9800/distance), bottomY, 2, distance);
 
-	//Name
-	const char * text = name.c_str();
-
-	location[2] += 3;
-	float screenName[2];
-	WorldToScreen(gamePid, location, screenName, viewMatrix);
-	
-	XDrawString(d, back_buffer, gc, out[0], screenName[1], text, strlen(text));
-
 	//Health indicators
-	XSetForeground(d, gc, black.pixel);
-	db_thickline(back_buffer, d, gc, out[0] - (11500/distance), topY, out[0] - (11500/distance), bottomY, 4, distance, true);
-
 	if (health >= 95)
 	  XSetForeground(d, gc, green.pixel);
 	else if (health < 95 && health > 25)
@@ -210,7 +215,11 @@ void players(pid_t gamePid, XdbeBackBuffer back_buffer, Display* d, Window win, 
 
 	db_thickline(back_buffer, d, gc, out[0] - (11500/distance), topY, out[0] - (11500/distance), bottomY, 2, distance);
 
-	XDrawString(d, back_buffer, gc, out[0] - (11500/distance), screenName[1], std::to_string(health).c_str(), strlen(std::to_string(health).c_str()));
+	XDrawString(d, back_buffer, gc, out[0] - (11500/distance), screenText[1], std::to_string(health).c_str(), strlen(std::to_string(health).c_str()));
+
+	//head indicator
+	XSetForeground(d, gc, cyan.pixel);
+	XFillArc(d, back_buffer, gc, out[0] - ((9800/distance)/2), out[1], (9500/distance), (9500/distance), 0, 360*64);
       }
       
     }

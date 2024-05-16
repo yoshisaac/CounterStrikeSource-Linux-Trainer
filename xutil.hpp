@@ -168,10 +168,8 @@ inline void db_line(XdbeBackBuffer back_buffer, Display* d, GC gc, int x1, int y
 inline void db_thickline(XdbeBackBuffer back_buffer, Display* d, GC gc, int x1, int y1, int x2, int y2, int thickness, int distance, bool sides=false) {
   for (int i = 0; i < thickness; i++) {
     if (y1 == y2) {
-
       XDrawLine(d, back_buffer, gc, x1, y1+(i*((distance*0.66f)/distance)), x2, y2+(i*((distance*0.66f)/distance)));
       XDrawLine(d, back_buffer, gc, x1, y1-(i*((distance*0.66f)/distance)), x2, y2-(i*((distance*0.66f)/distance)));
-
     } else {
       XDrawLine(d, back_buffer, gc, x1+(i*((distance*0.66f)/distance)), y1, x2+(i*((distance*0.66f)/distance)), y2);
       XDrawLine(d, back_buffer, gc, x1-(i*((distance*0.66f)/distance)), y1, x2-(i*((distance*0.66f)/distance)), y2);
