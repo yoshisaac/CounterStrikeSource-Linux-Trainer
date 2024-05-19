@@ -16,6 +16,11 @@ Debian/Ubuntu/LinuxMint:
 ```console
 $ sudo apt install mesa-common-dev libx11-dev libxfixes-dev libxcomposite-dev gcc g++ make
 ```
+ArchLinux:  
+
+```console
+$ sudo pacman -S xorg-fonts-misc
+```
 
 If these are found to be incorrect, then contact me.  
   
