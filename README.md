@@ -19,7 +19,7 @@ $ sudo apt install mesa-common-dev libx11-dev libxfixes-dev libxcomposite-dev gc
 ArchLinux:  
 
 ```console
-$ sudo pacman -S xorg-fonts-misc
+$ sudo pacman -S base-devel xorg-fonts-misc
 ```
 
 If these are found to be incorrect, then contact me.  
