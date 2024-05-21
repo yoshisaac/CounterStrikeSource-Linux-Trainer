@@ -4,9 +4,9 @@ CC=g++
 # TODO: Add more warning flags like -Wall and -Wextra
 CFLAGS=-Wno-int-to-pointer-cast -O2
 
-LDFLAGS=-L/usr/X11/lib -lX11 -lXext -lXfixes -lstdc++
+LDFLAGS=-L/usr/X11/lib -lX11 -lXext -lXfixes -Wall -Wextra -Werror -lstdc++
 
-OBJ_FILES=main.cpp.o hacks/bhop.cpp.o hacks/playerInfo.cpp.o client/client.cpp.o
+OBJ_FILES=main.cpp.o hacks/bhop.cpp.o hacks/playerInfo.cpp.o
 OBJS=$(addprefix obj/, $(OBJ_FILES))
 BIN=cs-source-hack
 

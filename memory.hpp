@@ -19,6 +19,7 @@ namespace Memory {
 
     if (process_vm_writev(pid, local, 1, remote, 1, 0) == -1) {
       std::cout << "Error write: " << errno << '\n';
+      std::cout << "Error write address: " << std::hex << address << '\n';
     }
 
     return (process_vm_writev(pid, local, 1, remote, 1, 0) == size);
@@ -36,6 +37,7 @@ namespace Memory {
 
     if (process_vm_readv(pid, local, 1, remote, 1, 0) == -1) {
       std::cout << "Error read: " << errno << '\n';
+      std::cout << "Error read address: " << std::hex << address << '\n';
     }
   
     return (process_vm_readv(pid, local, 1, remote, 1, 0) == size);
@@ -53,7 +55,7 @@ namespace Memory {
     return result;
   }
   
-    inline unsigned int getModuleBaseAddress(pid_t procPid, std::string moduleName) {
+  inline unsigned int getModuleBaseAddress(pid_t procPid, std::string moduleName) {
     
     std::ifstream infile(("/proc/" + std::to_string(procPid) + "/maps").c_str());
     std::string line;
@@ -82,6 +84,7 @@ namespace Memory {
     return hexToInt("0x"+concatTemp);
   }
 
+  /*
   inline unsigned int getModuleSize(pid_t procPid, std::string moduleName) {
     
     std::ifstream infile(("/proc/" + std::to_string(procPid) + "/maps").c_str());
@@ -127,4 +130,5 @@ namespace Memory {
 
     return (hexToInt("0x"+concatTemp2) - hexToInt("0x"+concatTemp));
   }
+  */
 };

@@ -33,7 +33,7 @@
 #include "xutil.hpp"
 
 //Reads the data of a file
-std::string ReadFile(std::string filePath, bool firstLine=true) {
+std::string readFile(std::string filePath, bool firstLine=true) {
   std::ifstream file;
 
   file.open(filePath, std::ifstream::in);
@@ -75,7 +75,7 @@ pid_t getProcessByName(std::string strName) {
     std::string strProcID(pDirent->d_name);
 
     //Get the name of the processes
-    std::string strComm{ ReadFile("/proc/" + strProcID + "/comm") };
+    std::string strComm{ readFile("/proc/" + strProcID + "/comm") };
 
 
     //Check if the currently iterated processes is the one we want
@@ -168,27 +168,27 @@ int main() {
   const uintptr_t EngineObject = Memory::getModuleBaseAddress(gamePid, "bin/engine.so");
   const uintptr_t hl2_linux = Memory::getModuleBaseAddress(gamePid, "hl2_linux");
 
-  const uintptr_t screenXLength = EngineObject + 0xD20014;
-  Memory::Read(gamePid, screenXLength, &ENGINE::screenX, sizeof(int));
-
-  const uintptr_t screenYLength = EngineObject + 0xD20018;
-  Memory::Read(gamePid, screenYLength, &ENGINE::screenY, sizeof(int));
+  Memory::Read(gamePid, EngineObject + 0xD20014, &ENGINE::screenX, sizeof(int));
+  Memory::Read(gamePid, EngineObject + 0xD20018, &ENGINE::screenY, sizeof(int));
 
   uintptr_t playerList = -1;
   Memory::Read(gamePid, ClientObject + 0xBE9380, &playerList, sizeof(uintptr_t));
 
-  const uintptr_t viewMatrix = EngineObject + 0xC7213C;
+  ENGINE::viewMatrix = EngineObject + 0xC7213C;
 
-  const uintptr_t dwForceJump = ClientObject + 0xBEE4E8;
-  const uintptr_t dwForceAttack1 = ClientObject + 0xBEE578;
-  const uintptr_t dwForceAttack2 = ClientObject + 0xBEE4C8;
+  CLIENT::dwForceJump = ClientObject + 0xBEE4E8;
+  CLIENT::dwForceAttack1 = ClientObject + 0xBEE578;
+  CLIENT::dwForceAttack2 = ClientObject + 0xBEE4C8;
 
-  const uintptr_t onGround = ClientObject + 0xB9E650;
+  CLIENT::onGround = ClientObject + 0xB9E650;
+  
+  ENGINE::pLocalYaw = EngineObject + 0xB3349C;
+  ENGINE::pLocalPitch = EngineObject + 0xB33498;
 
   std::cout << "Client.so: " << std::hex << ClientObject << '\n';
   std::cout << "Engine.so: " << std::hex << EngineObject << '\n';
   std::cout << "hl2_linux: " << std::hex << hl2_linux << '\n';
-  std::cout << "viewMatrix: " << std::hex << viewMatrix << '\n';
+  std::cout << "viewMatrix: " << std::hex << ENGINE::viewMatrix << '\n';
   std::cout << "playerList: " << std::hex << playerList << '\n';
 
   //Dumb bodge I put in for myself. Can't find the local player pointer.
@@ -201,7 +201,7 @@ int main() {
   else
     ENGINE::pLocalName = tmp;
 
-  //https://gist.github.com/ericek111/774a1661be69387de846f5f5a5977a46 great piece of source code. 
+  //https://gist.github.com/ericek111/774a1661be69387de846f5f5a5977a46 great piece of black magic.
   /* beginning of X initiation*/
   Display* d = XOpenDisplay(NULL);
   Display* clientDisplay = XOpenDisplay(NULL);
@@ -249,10 +249,9 @@ int main() {
 
   Window window = XCreateWindow(d, root, 0, 0, ENGINE::screenX, ENGINE::screenY, 0, vinfo.depth, InputOutput, vinfo.visual, mask, &attr);
 
-  XShapeCombineMask(d, window, ShapeInput, 0, 0, None, ShapeSet );
+  XShapeCombineMask(d, window, ShapeInput, 0, 0, None, ShapeSet);
 
-#define SHAPE_MASK ShapeNotifyMask
-  XShapeSelectInput (d, window, SHAPE_MASK );
+  XShapeSelectInput(d, window, ShapeNotifyMask);
 
   //wattr.override_redirect = 1;
   //XChangeWindowAttributes(d, window, CWOverrideRedirect, &wattr);
@@ -278,16 +277,8 @@ int main() {
   ESP::cyan = createXColorFromRGB(11, 192, 212, d, DefaultScreen(d));
   /* end of X initiation */
 
-
-
-
-  //Is not needed anymore until something like triggerbot or aimbot is added
-  //Client fixes thread
-  //std::thread clientThread(client, gamePid, clientDisplay, dwForceAttack1, dwForceAttack2);
-  //pthread_setname_np(clientThread.native_handle(), "clientThread");
-
   //bhop thread
-  std::thread bhopThread(bhop, gamePid, bhopDisplay, onGround, dwForceJump);
+  std::thread bhopThread(bhop, gamePid, bhopDisplay);
   pthread_setname_np(bhopThread.native_handle(), "bhopThread");
 
   printf("Ready\n");
@@ -304,8 +295,8 @@ int main() {
   //Drawer/player iterator thread
   for (;;) {
     if (isKeyDown(d, XK_Delete)) { XCloseDisplay(d); } //close the program with a segfault!!!!!!!!1
-    players(gamePid, back_buffer, d, window, playerList, viewMatrix);
-    usleep(100*100/300); //my game runs at 300fps. Need to make this dynamic so it updates properly for slower screens
+    players(gamePid, back_buffer, d, window, playerList);
+    usleep(100*100/300); //my game runs at 300fps. Need to make this dynamic so it updates properly for slower screens. Idk though because I can't test it myself
   }
 
   return 0;

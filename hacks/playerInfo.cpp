@@ -1,6 +1,7 @@
 #include "playerInfo.hpp"
 
 #include <iostream>
+#include <cstdint>
 #include <X11/Xos.h>
 #include <X11/X.h>
 #include <X11/Xlib.h>
@@ -11,7 +12,6 @@
 #include <X11/extensions/Xcomposite.h>
 #include <X11/extensions/Xdbe.h>
 #include <cmath>
-#include <stdlib.h>
 #include <cfenv>
 #include <thread>
 #include <stdlib.h>
@@ -28,9 +28,9 @@
 
 //https://github.com/ALittlePatate/CSS-external/blob/b17e083a4f0d0e4406d49d55c9c761cedab1ad66/ImGuiExternal/Memory.h#L61
 float vmatrix[4][4];
-bool WorldToScreen(pid_t gamePid, const float vIn[3], float vOut[2], unsigned int viewMatrix)
+bool WorldToScreen(pid_t gamePid, const float vIn[3], float vOut[2])
 {
-  Memory::Read(gamePid, viewMatrix, &vmatrix, sizeof(vmatrix));
+  Memory::Read(gamePid, ENGINE::viewMatrix, &vmatrix, sizeof(vmatrix));
 
   float w = vmatrix[3][0] * vIn[0] + vmatrix[3][1] * vIn[1] + vmatrix[3][2] * vIn[2] + vmatrix[3][3];
 
@@ -63,7 +63,8 @@ bool WorldToScreen(pid_t gamePid, const float vIn[3], float vOut[2], unsigned in
 
 float pLocalLocation[3] = {0, 0, 0};
 int pLocalTeam = 0;
-void players(pid_t gamePid, XdbeBackBuffer back_buffer, Display* d, Window win, unsigned int playerList, unsigned int viewMatrix) {
+int aimIndex = 0;
+void players(pid_t gamePid, XdbeBackBuffer back_buffer, Display* d, Window win, unsigned int playerList) {
   GC gc;
   XGCValues gcv;
 
@@ -78,7 +79,7 @@ void players(pid_t gamePid, XdbeBackBuffer back_buffer, Display* d, Window win, 
   db_clear(back_buffer, d, win, gc);
   
   playerList += 0x28; //I don't know, my playerlist ptr is most likely wrong, but it works. For the most part...
-    for (int i = 0; i < 32; i++) {
+    for (int i = 0; i < 64; i++) {
       unsigned int player = playerList + (i * 0x140);
 
       std::string name = "";
@@ -108,19 +109,22 @@ void players(pid_t gamePid, XdbeBackBuffer back_buffer, Display* d, Window win, 
       int index = -1;
       Memory::Read(gamePid, player, &index, sizeof(int));
       if (index == -1) continue; //read failed
-      if (i > 0 && index == 0) continue; //index out of bounds of how many players exist
+      if (index == 0 && i > 0) continue; //index out of bounds of how many players exist
       
       int health = 0;
       Memory::Read(gamePid, player + playerOffset::health, &health, sizeof(int));
       if (health <= 0) continue; //if they are dead
 
-      /*
-	float pitch = 0;
-	Memory::Read(gamePid, player + playerOffset::pitch, &pitch, sizeof(float));
 
-	float yaw = 0;
-	Memory::Read(gamePid, player + playerOffset::yaw, &yaw, sizeof(float));
-      */
+      float pitch = 0;
+      Memory::Read(gamePid, player + playerOffset::pitch, &pitch, sizeof(float));
+
+      float yaw = 0;
+      Memory::Read(gamePid, player + playerOffset::yaw, &yaw, sizeof(float));
+
+      float roll = 0; //we might have to worry about this later
+      
+      float viewAngle[3] = {pitch, yaw, roll};
       
       float location[3];
       Memory::Read(gamePid, player + playerOffset::x, &location, sizeof(float[3]));
@@ -130,29 +134,24 @@ void players(pid_t gamePid, XdbeBackBuffer back_buffer, Display* d, Window win, 
 
       location[2] += 8;
 
-      if (WorldToScreen(gamePid, location, out, viewMatrix) && name != ENGINE::pLocalName /*local player check*/) {      
+      if (WorldToScreen(gamePid, location, out) && name != ENGINE::pLocalName /*local player check*/) {      
 	
         float distance = distanceFormula3D(pLocalLocation, location);
 
 	float getFeet[3] = {location[0], location[1], location[2]};
 	getFeet[2] -= 78;
 	float screenFeet[2];
-	if (!WorldToScreen(gamePid, getFeet, screenFeet, viewMatrix)) continue; //get feet height
+	if (!WorldToScreen(gamePid, getFeet, screenFeet)) continue; //get feet height
 	
 	float topY = out[1];
 	float bottomY = screenFeet[1];
-      
-	float leftSideOffset[3] = {location[0], location[1], location[2]};
-	leftSideOffset[2] += 30;
-	float screenLeftOffset[2];
-	if (!WorldToScreen(gamePid, leftSideOffset, screenLeftOffset, viewMatrix)) continue;
 
 	//Helped with box spacing: https://www.unknowncheats.me/forum/c-and-c-/76713-esp-box-size-calculation.html
 
 	//text screen offset
 	location[2] += 3;
 	float screenText[2];
-	WorldToScreen(gamePid, location, screenText, viewMatrix);
+	WorldToScreen(gamePid, location, screenText);
 
 	//background shadow for text and ESP
 	//text shadow
@@ -201,16 +200,68 @@ void players(pid_t gamePid, XdbeBackBuffer back_buffer, Display* d, Window win, 
 	  XSetForeground(d, gc, ESP::green.pixel);
 	else if (health < 85 && health > 35)
 	  XSetForeground(d, gc, ESP::yellow.pixel);
-	else if (health <= 35 )
+	else if (health <= 35)
 	  XSetForeground(d, gc, ESP::red.pixel);
 
 	db_thickline(back_buffer, d, gc, out[0] - (11500/distance), topY, out[0] - (11500/distance), bottomY, 2, distance);
 
 	XDrawString(d, back_buffer, gc, out[0] - (11500/distance), screenText[1], std::to_string(health).c_str(), strlen(std::to_string(health).c_str()));
+	
+	//aim
+	//some awful code. Proof of concept.
+	constexpr float zero = 0;
 
-	//head indicator
-	XSetForeground(d, gc, ESP::cyan.pixel);
-	XFillArc(d, back_buffer, gc, out[0] - ((9800/distance)/2), out[1], (9500/distance), (9500/distance), 0, 360*64);
+	float plocal_v[3];
+	Memory::Read(gamePid, ENGINE::pLocalPitch, &plocal_v[0], sizeof(float));
+	Memory::Read(gamePid, ENGINE::pLocalYaw, &plocal_v[1], sizeof(float));
+	plocal_v[2] = 0;
+
+	if (aimIndex == index) {
+	  
+	  if (isKeyDown(d, XK_Alt_L) && isMouseDown(d, Button1Mask)) {
+	    location[2] -= 45; //aim body area
+	  } else if (isMouseDown(d, Button1Mask)) {
+	    location[2] -= 9; //aim head area
+	  }
+
+	  float deltaLocation[3] = { float(pLocalLocation[0] - location[0]),
+	    float(pLocalLocation[1] - location[1]),
+	    float(pLocalLocation[2] - location[2]) };
+
+	  float hyp = sqrt(deltaLocation[0] * deltaLocation[0] + deltaLocation[1] * deltaLocation[1]);
+
+	  plocal_v[0] = (float)(atan(deltaLocation[2] / hyp) * radpi);
+	  plocal_v[1] = (float)(atan(deltaLocation[1] / deltaLocation[0]) * radpi);
+	
+	  if (deltaLocation[0] >= 0.0f) {
+	    plocal_v[1] += 180.0f;
+	  }
+
+	  while (plocal_v[0] > 89)
+	    plocal_v[0] -= 180;
+
+	  while (plocal_v[0] < -89)
+	    plocal_v[0] += 180;
+
+	  while (plocal_v[1] > 180)
+	    plocal_v[1] -= 360;
+
+	  while (plocal_v[1] < -180)
+	    plocal_v[1] += 360;
+	}
+
+	
+	float screencenter[2] = {ENGINE::screenX/2, ENGINE::screenY/2};
+
+        if (isMouseDown(d, Button1Mask)) {
+	  if (distanceFormula2D(screencenter, out) < 50) {
+	    Memory::Write(gamePid, ENGINE::pLocalPitch, &plocal_v[0], sizeof(float));
+	    Memory::Write(gamePid, ENGINE::pLocalYaw, &plocal_v[1], sizeof(float));
+	  }
+	} else {
+	  if (distanceFormula2D(screencenter, out) < 50)
+	    aimIndex = index;
+	}
       }
       
     }

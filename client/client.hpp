@@ -1,13 +1,17 @@
 #include <sys/types.h>
+#include <cstdint>
 #include <X11/X.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 
 namespace CLIENT {
-  static int DOSHOOT = 5;
-  static int DONTSHOOT = 4;
+  inline static int DO = 5;
+  inline static int DONT = 4;
 
-  static float fov;
+  inline uintptr_t onGround;
+
+  //networked variables
+  inline uintptr_t dwForceJump;
+  inline uintptr_t dwForceAttack1;
+  inline uintptr_t dwForceAttack2;
 };
-
-void client(pid_t gamePid, Display* d, unsigned int dwForceAttack1, unsigned int dwForceAttack2);
