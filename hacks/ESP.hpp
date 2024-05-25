@@ -3,6 +3,7 @@ namespace ESP {
   inline XFontStruct* font;
 
   inline XColor red;
+  inline XColor orange;
   inline XColor black;
   inline XColor white;
   inline XColor green;

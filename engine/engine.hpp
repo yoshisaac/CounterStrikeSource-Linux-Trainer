@@ -6,6 +6,7 @@ namespace ENGINE {
   inline uintptr_t viewMatrix;
   
   inline std::string pLocalName = "";
+  inline int pLocalIndex = -1;
   inline uintptr_t pLocalPitch;
   inline uintptr_t pLocalYaw;
 };

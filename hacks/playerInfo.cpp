@@ -55,8 +55,8 @@ bool WorldToScreen(pid_t gamePid, const float vIn[3], float vOut[2])
   x += 0.5f * vOutTmp[0] * width + 0.5f;
   y -= 0.5f * vOutTmp[1] * height + 0.5f;
   
-  vOut[0] = x;
-  vOut[1] = y;
+  vOut[0] = std::floor(x * 100.f) / 100.f;
+  vOut[1] = std::floor(y * 100.f) / 100.f;
 
   return true;
 }
@@ -79,8 +79,13 @@ void players(pid_t gamePid, XdbeBackBuffer back_buffer, Display* d, Window win, 
   db_clear(back_buffer, d, win, gc);
   
   playerList += 0x28; //I don't know, my playerlist ptr is most likely wrong, but it works. For the most part...
-    for (int i = 0; i < 64; i++) {
+    for (int i = 0; i < 32; i++) {
       unsigned int player = playerList + (i * 0x140);
+
+      int index = -1;
+      Memory::Read(gamePid, player, &index, sizeof(int));
+      if (index == -1) continue; //read failed
+      if (index == 0 && i > 0) continue; //index out of bounds of how many players exist
 
       std::string name = "";
       for (int h = 0; h < 256; h++) {
@@ -92,24 +97,17 @@ void players(pid_t gamePid, XdbeBackBuffer back_buffer, Display* d, Window win, 
 	name += currentCharacter;
       }
       
-      if (name == ENGINE::pLocalName)
+      if (name == ENGINE::pLocalName) {
 	Memory::Read(gamePid, player + playerOffset::x, &pLocalLocation, sizeof(float[3]));
-      if (pLocalLocation[0] == 0 && pLocalLocation[1] == 0 && pLocalLocation[2] == 0) continue;
-
-      
-      if (name == ENGINE::pLocalName)
 	Memory::Read(gamePid, player + playerOffset::team, &pLocalTeam, sizeof(int));
+	ENGINE::pLocalIndex = index;
+      }
+      if (pLocalLocation[0] == 0 && pLocalLocation[1] == 0 && pLocalLocation[2] == 0) continue;
 
       float color[4];
       int team = -1;
       Memory::Read(gamePid, player + playerOffset::team, &team, sizeof(int));
-      if (team == pLocalTeam) continue; //dont render team mates
-
-      
-      int index = -1;
-      Memory::Read(gamePid, player, &index, sizeof(int));
-      if (index == -1) continue; //read failed
-      if (index == 0 && i > 0) continue; //index out of bounds of how many players exist
+      if (team == pLocalTeam && index != ENGINE::pLocalIndex) continue; //dont render team mates
       
       int health = 0;
       Memory::Read(gamePid, player + playerOffset::health, &health, sizeof(int));
@@ -138,6 +136,9 @@ void players(pid_t gamePid, XdbeBackBuffer back_buffer, Display* d, Window win, 
 	
         float distance = distanceFormula3D(pLocalLocation, location);
 
+	if (name == ENGINE::pLocalName) distance = 100;
+
+	
 	float getFeet[3] = {location[0], location[1], location[2]};
 	getFeet[2] -= 78;
 	float screenFeet[2];
@@ -196,10 +197,12 @@ void players(pid_t gamePid, XdbeBackBuffer back_buffer, Display* d, Window win, 
 	db_thickline(back_buffer, d, gc, out[0] - (9800/distance), bottomY, out[0] + (9800/distance), bottomY, 2, distance);
 
 	//Health indicators
-	if (health >= 85)
+	if (health >= 90)
 	  XSetForeground(d, gc, ESP::green.pixel);
-	else if (health < 85 && health > 35)
+	else if (health < 90 && health > 60)
 	  XSetForeground(d, gc, ESP::yellow.pixel);
+	else if (health < 60 && health > 35)
+	  XSetForeground(d, gc, ESP::orange.pixel);
 	else if (health <= 35)
 	  XSetForeground(d, gc, ESP::red.pixel);
 
@@ -208,25 +211,20 @@ void players(pid_t gamePid, XdbeBackBuffer back_buffer, Display* d, Window win, 
 	XDrawString(d, back_buffer, gc, out[0] - (11500/distance), screenText[1], std::to_string(health).c_str(), strlen(std::to_string(health).c_str()));
 	
 	//aim
-	//some awful code. Proof of concept.
-	constexpr float zero = 0;
-
+	//some awful code. Proof of concept. Need the bone matrix to actually aim at their head.
 	float plocal_v[3];
 	Memory::Read(gamePid, ENGINE::pLocalPitch, &plocal_v[0], sizeof(float));
 	Memory::Read(gamePid, ENGINE::pLocalYaw, &plocal_v[1], sizeof(float));
 	plocal_v[2] = 0;
 
 	if (aimIndex == index) {
-	  
-	  if (isKeyDown(d, XK_Alt_L) && isMouseDown(d, Button1Mask)) {
-	    location[2] -= 45; //aim body area
-	  } else if (isMouseDown(d, Button1Mask)) {
-	    location[2] -= 9; //aim head area
+	  if (isKeyDown(d, XK_Alt_L)) {
+	    location[2] -= 10; //aim head area
 	  }
 
 	  float deltaLocation[3] = { float(pLocalLocation[0] - location[0]),
-	    float(pLocalLocation[1] - location[1]),
-	    float(pLocalLocation[2] - location[2]) };
+				     float(pLocalLocation[1] - location[1]),
+				     float(pLocalLocation[2] - location[2]) };
 
 	  float hyp = sqrt(deltaLocation[0] * deltaLocation[0] + deltaLocation[1] * deltaLocation[1]);
 
@@ -253,16 +251,16 @@ void players(pid_t gamePid, XdbeBackBuffer back_buffer, Display* d, Window win, 
 	
 	float screencenter[2] = {ENGINE::screenX/2, ENGINE::screenY/2};
 
-        if (isMouseDown(d, Button1Mask)) {
-	  if (distanceFormula2D(screencenter, out) < 50) {
-	    Memory::Write(gamePid, ENGINE::pLocalPitch, &plocal_v[0], sizeof(float));
-	    Memory::Write(gamePid, ENGINE::pLocalYaw, &plocal_v[1], sizeof(float));
-	  }
+        if (isKeyDown(d, XK_Alt_L)) {
+	  Memory::Write(gamePid, ENGINE::pLocalPitch, &plocal_v[0], sizeof(float));
+	  Memory::Write(gamePid, ENGINE::pLocalYaw, &plocal_v[1], sizeof(float));   
 	} else {
-	  if (distanceFormula2D(screencenter, out) < 50)
+	  if (distanceFormula2D(screencenter, out) <= 50)
 	    aimIndex = index;
 	}
+
       }
+	
       
     }
 

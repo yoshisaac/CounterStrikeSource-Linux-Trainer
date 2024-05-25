@@ -41,7 +41,8 @@ The only distribution I have tested (and currently use) is Linux Mint 21.3
 
 # Features
 - Bunny hop (automatically jump after hitting the ground)  
-- Player ESP
+- Player ESP  
+- Aim lock  
 
 ![Screenshot of ESP](https://cdn.discordapp.com/attachments/1091542098471293092/1240117651804651530/image.png?ex=66456510&is=66441390&hm=2670c4bb277b93a0df5fcaf7f3f64fdb0441121a89d43f3e3a54cb237c569b7a&)
 
@@ -54,4 +55,4 @@ Ordered by importance
 - Display box correctly when player is crouched  
 - Render differently or ignore dormant (non networked) players  
 - Fix ESP flickering  
-- Automatic aiming  
+- Automatically aim at hit box  

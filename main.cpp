@@ -174,7 +174,7 @@ int main() {
   uintptr_t playerList = -1;
   Memory::Read(gamePid, ClientObject + 0xBE9380, &playerList, sizeof(uintptr_t));
 
-  ENGINE::viewMatrix = EngineObject + 0xC7213C;
+  ENGINE::viewMatrix = EngineObject + 0xC9B160;//EngineObject + 0xC7213C;
 
   CLIENT::dwForceJump = ClientObject + 0xBEE4E8;
   CLIENT::dwForceAttack1 = ClientObject + 0xBEE578;
@@ -190,6 +190,8 @@ int main() {
   std::cout << "hl2_linux: " << std::hex << hl2_linux << '\n';
   std::cout << "viewMatrix: " << std::hex << ENGINE::viewMatrix << '\n';
   std::cout << "playerList: " << std::hex << playerList << '\n';
+  std::cout << "pLocalYaw: " << std::hex << ENGINE::pLocalYaw << '\n';
+  std::cout << "pLocalPitch: " << std::hex << ENGINE::pLocalPitch << '\n';
 
   //Dumb bodge I put in for myself. Can't find the local player pointer.
   std::string tmp = "";
@@ -268,6 +270,7 @@ int main() {
   ESP::font = XLoadQueryFont(d, "6x13");
 
   ESP::red = createXColorFromRGB(255, 0, 0, d, DefaultScreen(d));
+  ESP::orange = createXColorFromRGB(255, 170, 0, d, DefaultScreen(d)); 
   ESP::black = createXColorFromRGB(0, 0, 0, d, DefaultScreen(d));
   ESP::white = createXColorFromRGB(255, 255, 255, d, DefaultScreen(d));
   ESP::green = createXColorFromRGB(0, 255, 0, d, DefaultScreen(d));
