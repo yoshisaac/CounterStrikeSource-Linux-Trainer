@@ -44,8 +44,7 @@ The only distribution I have tested (and currently use) is Linux Mint 21.3
 - Player ESP  
 - Aim lock (Hold left ALT)  
 
-![Screenshot of ESP](![image](https://github.com/yoshisaac/CounterStrikeSource-Linux-Trainer/assets/54870332/eb9d66e0-9888-4998-a6b2-15e310c9f319)
-)
+![Screenshot of ESP](![image](https://cdn.discordapp.com/attachments/1096254320594391065/1251279069106929865/image.png?ex=666dfff1&is=666cae71&hm=faca0fe6015bfb60d30b0a9ddf6ef2575aa1e74c097f73ad33ff8f6f61511422&))
 
 # Is this finished?
 No, it is very incomplete, and will change a lot over time. The program is inefficient, and commented out code is all over the place. Features such as ESP are very incomplete but work on a crude level.
