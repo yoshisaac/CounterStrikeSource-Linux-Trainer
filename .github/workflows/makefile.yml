@@ -15,6 +15,9 @@ jobs:
     - uses: actions/checkout@v4
 
     - name: Install dependencies
+      run: apt install mesa-common-dev libx11-dev libxfixes-dev libxcomposite-dev gcc g++ make
+    
+    - name: Build
       run: make
 
     - name: Run check
