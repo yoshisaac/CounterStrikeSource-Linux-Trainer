@@ -13,7 +13,7 @@ jobs:
 
     steps:
     - name: move
-      run: cd ../../
+      run: cd ../
     - name: make
       run: make
     - name: make check
