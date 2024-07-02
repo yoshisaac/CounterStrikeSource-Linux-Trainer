@@ -12,8 +12,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: move
-      run: cd ../
+    - name: list
+      run: ls
     - name: make
       run: make
     - name: make check
