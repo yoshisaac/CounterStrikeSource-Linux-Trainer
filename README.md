@@ -8,18 +8,18 @@ To display a window and draw information inside of it, the program uses the X11 
 
 # Does my distro or DE work with this?
 Most likely. Any problems you will have are primarily going to be the desktop environment's fault, or your distro will not package the required dependencies.  
-Here is a list of desktops and distributions that are known to work:  
+Here is a list of desktops and distributions that are known to work  
   
 Distributions:  
-Arch Linux  
-Linux Mint  
+- Arch Linux  
+- Linux Mint  
   
 Desktops:  
-Cinnamon (X11 only)  
-KDE Plasma (Wayland only)  
-Gnome (X11, Wayland untested)  
-Xfce4 (X11, does not support Wayland yet)  
-Dwm (X11, does not support Wayland)  
+- Cinnamon (X11 only)  
+- KDE Plasma (Wayland only)  
+- Gnome (X11, Wayland untested)  
+- Xfce4 (X11, does not support Wayland yet)  
+- Dwm (X11, does not support Wayland)  
 
 # How to compile
   
