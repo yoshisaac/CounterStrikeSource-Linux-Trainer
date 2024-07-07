@@ -4,7 +4,7 @@ This is a program intended to automate tasks such as movement, and display infor
 # How does it work?
 It externally (as a seperate program from the video game) reads and writes memory using system calls that the Linux kernel graciously gives us. Those system calls include functions like `processes_vm_readv()` and `process_vm_writev()`. 
   
-To display a window and draw information inside of it, the program uses the X11 protocol. If you are using Wayland, this isn't an issue as Xwayland will translate the X11 calls just fine. There may also be other issues your window manager or desktop environment can cause, such as overriding placement of windows, or preventing programs from having transparent backgrounds.
+To display a window and draw information inside of it, the program uses the X11 protocol. If you are using Wayland, then there is a chance Xwayland will not handle it correctly. There may also be other issues your window manager or desktop environment can cause, such as overriding placement of windows, or preventing programs from having transparent backgrounds.
 
 # Does my distro or DE work with this?
 Most likely. Any problems you will have are primarily going to be the desktop environment's fault, or your distro will not package the required dependencies.  
