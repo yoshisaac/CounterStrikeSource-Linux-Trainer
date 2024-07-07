@@ -7,8 +7,7 @@ It externally (as a seperate program from the video game) reads and writes memor
 To display a window and draw information inside of it, the program uses the X11 protocol. If you are using Wayland, then there is a chance Xwayland will not handle it correctly. There may also be other issues your window manager or desktop environment can cause, such as overriding placement of windows, or preventing programs from having transparent backgrounds.
 
 # Does my distro or DE work with this?
-Most likely. Any problems you will have are primarily going to be the desktop environment's fault, or your distro will not package the required dependencies.  
-Here is a list of desktops and distributions that are known to work  
+Most likely. Any problems you will have are primarily going to be the desktop environment's fault, or your distro will not package the required dependencies. Here is a list of desktops and distributions that are known to work.  
   
 Distributions:  
 - Arch Linux  
