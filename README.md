@@ -42,9 +42,14 @@ The only distribution I have tested (and currently use) is Linux Mint 21.3
 # Features
 - Bunny hop (automatically jump after hitting the ground)  
 - Player ESP  
-- Aim lock (Hold left ALT)  
+  * Box  
+  * Name  
+  * Health  
+- Aimbot (Hold left ALT)  
 
-![Screenshot of ESP](https://cdn.discordapp.com/attachments/1091542098471293092/1243730595641692261/image.png?ex=665289e1&is=66513861&hm=98050a2f1e201ca2c671744ff66b57f4a99b6fde275bad420e1b16f5dc6cf78c&)
+![Screenshot of ESP](https://r2.e-z.host/bb3dfc85-7f7f-4dcb-8b0b-3a4af0aa57e4/kdw5ujpgc78pjxtv2b.png)
+![Screenshot of dormant ESP](https://r2.e-z.host/bb3dfc85-7f7f-4dcb-8b0b-3a4af0aa57e4/hm7b14y2ehbcuy0or8.png)
+![Screenshot of menu](https://r2.e-z.host/bb3dfc85-7f7f-4dcb-8b0b-3a4af0aa57e4/rcsdv5y34xbbw7a1p6.png)
 
 # Is this finished?
 No, it is very incomplete, and will change a lot over time. The program is inefficient, and commented out code is all over the place. Features such as ESP are very incomplete but work on a crude level.
