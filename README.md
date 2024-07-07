@@ -1,10 +1,25 @@
 # What is this?
-This is a program that is intended to automate tasks such as movement, and display information to us that wasn't originally intended to be shown. In a nutshell, this is a video game hack/cheat.
+This is a program intended to automate tasks such as movement, and display information to us that wasn't originally intended to be shown. In a nutshell, this is a video game hack/cheat.
 
 # How does it work?
 It externally (as a seperate program from the video game) reads and writes memory using system calls that the Linux kernel graciously gives us. Those system calls include functions like `processes_vm_readv()` and `process_vm_writev()`. 
   
-To display a window and draw information inside of it, the program uses the X11 protocol. That can be a problem if you are using a display server/client such as Wayland or its variants, so make sure your desktop environment/floating window manager is set to a Xorg session. There may also be other issues your window manager or desktop environment can cause, such as overriding placement of windows.
+To display a window and draw information inside of it, the program uses the X11 protocol. If you are using Wayland, this isn't an issue as Xwayland will translate the X11 calls just fine. There may also be other issues your window manager or desktop environment can cause, such as overriding placement of windows, or preventing programs from having transparent backgrounds.
+
+# Does my distro or DE work with this?
+Most likely. Any problems you will have are primarily going to be the desktop environment's fault, or your distro will not package the required dependencies.  
+Here is a list of desktops and distributions that are known to work:  
+  
+Distributions:  
+Arch Linux  
+Linux Mint  
+  
+Desktops:  
+Cinnamon (X11 only)  
+KDE Plasma (Wayland only)  
+Gnome (X11, Wayland untested)  
+Xfce4 (X11, does not support Wayland yet)  
+Dwm (X11, does not support Wayland)  
 
 # How to compile
   
@@ -36,8 +51,6 @@ $ make
 After compilation, there will be a program created in the root directory of the project called `cs-source-hack`.
 
 To run the software, go to the root directory of the project and type `sudo ./cs-source-hack` in your terminal. What this does is it runs the software as `root`, which is required for reading and writing memory on an external level.  
-
-The only distribution I have tested (and currently use) is Linux Mint 21.3
 
 # Features
 - Bunny hop (automatically jump after hitting the ground)  
