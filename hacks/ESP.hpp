@@ -1,3 +1,15 @@
+#include <X11/Xos.h>
+#include <X11/X.h>
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
+#include <X11/Xatom.h>
+#include <X11/extensions/shape.h>
+#include <X11/extensions/Xfixes.h>
+#include <X11/extensions/Xcomposite.h>
+#include <X11/extensions/Xdbe.h>
+
+#include "../memory.hpp"
+
 namespace ESP {
   inline XFontStruct* shadowfont;
   inline XFontStruct* font;
@@ -11,4 +23,7 @@ namespace ESP {
   inline XColor tColor;
   inline XColor ctColor;
   inline XColor cyan;
+  inline XColor gray;
 }
+
+void esp(pid_t, XdbeBackBuffer, Display*, Window);

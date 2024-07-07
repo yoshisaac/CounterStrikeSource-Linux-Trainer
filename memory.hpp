@@ -17,11 +17,11 @@ namespace Memory {
     remote[0].iov_base = (void*)address;
     remote[0].iov_len = size;
 
-    if (process_vm_writev(pid, local, 1, remote, 1, 0) == -1) {
-      std::cout << "Error write: " << errno << '\n';
-      std::cout << "Error write address: " << std::hex << address << '\n';
-    }
-
+    // if (process_vm_writev(pid, local, 1, remote, 1, 0) == -1) {
+    //   std::cout << "Error write: " << errno << '\n';
+    //   std::cout << "Error write address: " << std::hex << address << '\n';
+    // }
+    
     return (process_vm_writev(pid, local, 1, remote, 1, 0) == size);
   }
 
@@ -35,10 +35,10 @@ namespace Memory {
     remote[0].iov_base = (void*)address;
     remote[0].iov_len = size;
 
-    if (process_vm_readv(pid, local, 1, remote, 1, 0) == -1) {
-      std::cout << "Error read: " << errno << '\n';
-      std::cout << "Error read address: " << std::hex << address << '\n';
-    }
+    // if (process_vm_readv(pid, local, 1, remote, 1, 0) == -1) {
+    //   std::cout << "Error read: " << errno << '\n';
+    //   std::cout << "Error read address: " << std::hex << address << '\n';
+    // }
   
     return (process_vm_readv(pid, local, 1, remote, 1, 0) == size);
   }

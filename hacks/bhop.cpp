@@ -7,8 +7,12 @@
 
 #include "../client/client.hpp"
 
+#include "../GUI/config.hpp"
+
 void bhop(pid_t gamePid, Display* d) {
   for (;;) {
+    if (!config->BHOP) continue;
+    
     pid_t currentWindowPid = getPidByWindow(d, getFocusedWindow(d)); //get the current processes id of the window we are focused into
 
     if (currentWindowPid != gamePid) { continue; } //dont read, write, or get key states if we aren't focused into the game

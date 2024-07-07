@@ -24,10 +24,12 @@
 #include <cctype>
 
 #include "hacks/bhop.hpp"
+#include "hacks/aimbot.hpp"
 #include "hacks/playerInfo.hpp"
 #include "hacks/ESP.hpp"
 #include "client/client.hpp"
 #include "engine/engine.hpp"
+#include "GUI/GUI.hpp"
 
 #include "memory.hpp"
 #include "xutil.hpp"
@@ -171,10 +173,14 @@ int main() {
   Memory::Read(gamePid, EngineObject + 0xD20014, &ENGINE::screenX, sizeof(int));
   Memory::Read(gamePid, EngineObject + 0xD20018, &ENGINE::screenY, sizeof(int));
 
-  uintptr_t playerList = -1;
-  Memory::Read(gamePid, ClientObject + 0xBE9380, &playerList, sizeof(uintptr_t));
+  //uintptr_t playerList = -1;
+  //actual playerlist offset: ClientObject + 0xBA5FB4
+  //Memory::Read(gamePid, ClientObject + 0xBE9380, &playerList, sizeof(uintptr_t));
 
-  ENGINE::viewMatrix = EngineObject + 0xC9B160;//EngineObject + 0xC7213C;
+  CLIENT::playerList = ClientObject + 0xBA5FB4;
+  CLIENT::localPlayer = ClientObject + 0xBD0750;
+  
+  ENGINE::viewMatrix = EngineObject + 0xC9B160;
 
   CLIENT::dwForceJump = ClientObject + 0xBEE4E8;
   CLIENT::dwForceAttack1 = ClientObject + 0xBEE578;
@@ -189,28 +195,19 @@ int main() {
   std::cout << "Engine.so: " << std::hex << EngineObject << '\n';
   std::cout << "hl2_linux: " << std::hex << hl2_linux << '\n';
   std::cout << "viewMatrix: " << std::hex << ENGINE::viewMatrix << '\n';
-  std::cout << "playerList: " << std::hex << playerList << '\n';
+  std::cout << "playerList: " << std::hex << CLIENT::playerList << '\n';
   std::cout << "pLocalYaw: " << std::hex << ENGINE::pLocalYaw << '\n';
   std::cout << "pLocalPitch: " << std::hex << ENGINE::pLocalPitch << '\n';
-
-  //Dumb bodge I put in for myself. Can't find the local player pointer.
-  std::string tmp = "";
-  std::cout << "Please input your steam name: ";
-  std::cin >> tmp;
-
-  if (tmp == ",")
-    ENGINE::pLocalName = "DoctorC";
-  else
-    ENGINE::pLocalName = tmp;
 
   //https://gist.github.com/ericek111/774a1661be69387de846f5f5a5977a46 great piece of black magic.
   /* beginning of X initiation*/
   Display* d = XOpenDisplay(NULL);
-  Display* clientDisplay = XOpenDisplay(NULL);
   Display* bhopDisplay = XOpenDisplay(NULL);
+  Display* aimDisplay = XOpenDisplay(NULL);
+  Display* espDisplay = XOpenDisplay(NULL);
 
-  if (!d || !clientDisplay || !bhopDisplay) {
-    printf("Please run startx/xinit\n");
+  if (!d) {
+    printf("Please run startx/xinit\nIf you are running this program from SSH, it won't work.\n");
     return 1;
   }
 
@@ -224,7 +221,6 @@ int main() {
     return 1;
   }
 
-  XSetWindowAttributes wattr;
   XColor bgcolor = createXColorFromRGBA(0, 0, 0, 0, d, screen);
 
   Window root = DefaultRootWindow(d);
@@ -278,28 +274,44 @@ int main() {
   ESP::tColor = createXColorFromRGB(230, 35, 35, d, DefaultScreen(d));
   ESP::ctColor = createXColorFromRGB(148, 196, 248, d, DefaultScreen(d));
   ESP::cyan = createXColorFromRGB(11, 192, 212, d, DefaultScreen(d));
+  ESP::gray = createXColorFromRGB(90, 90, 90, d, DefaultScreen(d));
   /* end of X initiation */
+
+  //configuration GUI thread
+  pthread_t pGUI;
+  pthread_create(&pGUI, NULL, guiThread, NULL);
+  pthread_setname_np(pGUI, "guiThread");
 
   //bhop thread
   std::thread bhopThread(bhop, gamePid, bhopDisplay);
   pthread_setname_np(bhopThread.native_handle(), "bhopThread");
 
+  //aimbot thread
+  std::thread aimbotThread(aimbot, gamePid, aimDisplay);
+  pthread_setname_np(aimbotThread.native_handle(), "aimbotThread");
+
+  //esp thread
+  std::thread espThread(esp, gamePid, back_buffer, espDisplay, window);
+  pthread_setname_np(espThread.native_handle(), "espThread");
+  
   printf("Ready\n");
   printf("The Free and Open Source no-name GNU CS:S cheat, made with GNU Emacs, for your GNU operating system.\n");
-  printf("    ,           ,   \n");
-  printf("   /             \\ \n");
-  printf("  ((__-^^-,-^^-__)) \n");
+  printf("    ,           ,    \n");
+  printf("   /             \\  \n");
+  printf("  ((__-^^-,-^^-__))  \n");
   printf("   `-_---\' `---_-\' \n");
-  printf("    `--|o` \'o|--\'   \n"); //GNU ascii :D
-  printf("       \\  `  /        \n");
-  printf("        ): :(         \n");
-  printf("        :o_o:         \n");
-  printf("         \"-\"         \n");
-  //Drawer/player iterator thread
+  printf("    `--|o` \'o|--\'  \n"); //GNU ascii :D
+  printf("       \\  `  /      \n");
+  printf("        ): :(        \n");
+  printf("        :o_o:        \n");
+  printf("         \"-\"       \n");
+  //player iterator thread
   for (;;) {
-    if (isKeyDown(d, XK_Delete)) { XCloseDisplay(d); } //close the program with a segfault!!!!!!!!1
-    players(gamePid, back_buffer, d, window, playerList);
-    usleep(100*100/300); //my game runs at 300fps. Need to make this dynamic so it updates properly for slower screens. Idk though because I can't test it myself
+    if (isKeyDown(d, XK_Delete)) {
+      printf("Closing now");
+      exit(0);
+    }
+    players(gamePid);
   }
 
   return 0;

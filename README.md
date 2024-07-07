@@ -14,7 +14,7 @@ Install the necessary packages.
 Debian/Ubuntu/LinuxMint:
 
 ```console
-$ sudo apt install mesa-common-dev libx11-dev libxfixes-dev libxcomposite-dev gcc g++ make
+$ sudo apt install mesa-common-dev libx11-dev libxfixes-dev libxcomposite-dev gcc g++ make libgtk-3-dev:i386
 ```
 ArchLinux:  
 

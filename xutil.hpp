@@ -66,7 +66,6 @@ inline bool isKeyDown(Display* d, int key) {
 
 //chatgpt assisted
 inline bool isMouseDown(Display* d, int mouse) {
-  unsigned int button_state;
   Window root = DefaultRootWindow(d);
   XEvent event;
   XQueryPointer(d, root, &event.xbutton.root, &event.xbutton.subwindow, &event.xbutton.x_root, &event.xbutton.y_root, &event.xbutton.x, &event.xbutton.y, &event.xbutton.state);
@@ -141,7 +140,7 @@ inline pid_t getPidByWindow(Display *display, Window window) {
 }
 
 //double buffering examples: https://github.com/tsoding/x11-double-buffering/blob/master/db_xdbe.c
-inline void db_clear(XdbeBackBuffer back_buffer, Display* d, Window win, GC gc)
+inline void db_clear(XdbeBackBuffer back_buffer, Display* d, GC gc)
 {
   XSetForeground(d, gc, 0);
   XFillRectangle(d, back_buffer, gc, 0, 0, 1920, 1080);
@@ -163,7 +162,7 @@ inline void db_line(XdbeBackBuffer back_buffer, Display* d, GC gc, int x1, int y
 }
 
 //chatgipidy assisted
-inline void db_thickline(XdbeBackBuffer back_buffer, Display* d, GC gc, int x1, int y1, int x2, int y2, int thickness, int distance, bool sides=false) {
+inline void db_thickline(XdbeBackBuffer back_buffer, Display* d, GC gc, int x1, int y1, int x2, int y2, int thickness, int distance) {
   for (int i = 0; i < thickness; i++) {
     if (y1 == y2) {
       XDrawLine(d, back_buffer, gc, x1, y1+(i*((distance*0.66f)/distance)), x2, y2+(i*((distance*0.66f)/distance)));
