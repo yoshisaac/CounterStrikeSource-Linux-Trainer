@@ -9,13 +9,16 @@ on:
 jobs:
   build:
 
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v4
 
     - name: Install dependencies
-      run: sudo apt install mesa-common-dev libx11-dev libxfixes-dev libxcomposite-dev gcc g++ make libgtk-3-dev:i386
+      run: wget http://launchpadlibrarian.net/365941753/libgtk-3-dev_3.22.30-1ubuntu1_i386.deb
+      run: chmod +x libgtk-3-dev_3.22.30-1ubuntu1_i386.deb
+      run: sudo apt install ./libgtk-3-dev_3.22.30-1ubuntu1_i386.deb
+      run: sudo apt install mesa-common-dev libx11-dev libxfixes-dev libxcomposite-dev gcc g++ make
     
     - name: Build
       run: make
