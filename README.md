@@ -51,8 +51,6 @@ No, it is very incomplete, and will change a lot over time. The program is ineff
 
 # TODO
 Ordered by importance  
-- More visual features (bones, proper head dot, dynamic health bar)  
-- Display box correctly when player is crouched  
-- Render differently or ignore dormant (non networked) players  
-- Sync ESP frame rate to game frame rate  
 - Automatically aim at hit box  
+- More visual features (bones, proper head dot, dynamic health bar)  
+- Sync ESP frame rate to game frame rate  
