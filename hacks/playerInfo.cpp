@@ -38,6 +38,17 @@ void players(pid_t gamePid) {
     if (player == localPlayerAddr)
       CLIENT::pLocalIndex = i;
 
+    
+    std::string name = "";
+    for (int h = 0; h < 256; h++) {
+      char currentCharacter;
+      Memory::Read(gamePid, (CLIENT::radarList + 0x28 + (i * 0x140)) + 0x10 + h, &currentCharacter, sizeof(char));
+
+      if (currentCharacter == '\0') { break; } //strings in c/c++ are terminated via a null ascii character
+
+      name += currentCharacter;
+    }
+
     int team = -1;
     Memory::Read(gamePid, player + playerOffset::team, &team, sizeof(int));
 
@@ -59,7 +70,7 @@ void players(pid_t gamePid) {
     bool dormant = false;
     Memory::Read(gamePid, player + playerOffset::dormant, &dormant, sizeof(bool));
  
-    playerInfo::l_players[i] = Player(i, health, "", viewAngle, location, team, isDead, height, dormant);
+    playerInfo::l_players[i] = Player(i, health, name, viewAngle, location, team, isDead, height, dormant);
 
    }
 }

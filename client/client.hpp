@@ -11,6 +11,7 @@ namespace CLIENT {
   inline static int DO = 5;
   inline static int DONT = 4;
 
+  inline uintptr_t radarList;
   inline uintptr_t playerList;
 
   inline uintptr_t onGround;

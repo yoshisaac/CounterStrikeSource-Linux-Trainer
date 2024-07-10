@@ -22,12 +22,6 @@
 void esp(pid_t gamePid, XdbeBackBuffer back_buffer, Display* espDisplay, Window window) {
   GC gc;
 
-  if (!ESP::font || !ESP::shadowfont) {
-    std::cout << "font not found, aborting." << std::endl;
-    exit(1);
-  }
-
-
   for (;;) {    
     gc = XCreateGC(espDisplay, window, 0, 0);
     XSetBackground(espDisplay, gc, ESP::white.pixel);
@@ -71,7 +65,7 @@ void esp(pid_t gamePid, XdbeBackBuffer back_buffer, Display* espDisplay, Window 
 	player.absLocation[2] += player.height + 14;
 	float screenText[2];
 	WorldToScreen(gamePid, player.absLocation, screenText);
-	/*
+
 	if (config->ESPname) {
 	  //name shadow
 	  XSetFont(espDisplay, gc, ESP::shadowfont->fid);
@@ -82,7 +76,7 @@ void esp(pid_t gamePid, XdbeBackBuffer back_buffer, Display* espDisplay, Window 
 	  XSetForeground(espDisplay, gc, ESP::white.pixel);
 	  XDrawString(espDisplay, back_buffer, gc, out[0], screenText[1], player.name.c_str(), strlen(player.name.c_str()));
 	}
-	*/
+
 	
 	if (config->ESPbox) {
 	  //box shadow

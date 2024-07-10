@@ -173,10 +173,8 @@ int main() {
   Memory::Read(gamePid, EngineObject + 0xD20014, &ENGINE::screenX, sizeof(int));
   Memory::Read(gamePid, EngineObject + 0xD20018, &ENGINE::screenY, sizeof(int));
 
-  //uintptr_t playerList = -1;
-  //actual playerlist offset: ClientObject + 0xBA5FB4
-  //Memory::Read(gamePid, ClientObject + 0xBE9380, &playerList, sizeof(uintptr_t));
-
+  Memory::Read(gamePid, ClientObject + 0xBE9380, &CLIENT::radarList, sizeof(uintptr_t));
+  
   CLIENT::playerList = ClientObject + 0xBA5FB4;
   CLIENT::localPlayer = ClientObject + 0xBD0750;
   
@@ -264,6 +262,11 @@ int main() {
 
   ESP::shadowfont = XLoadQueryFont(d, "6x13bold");
   ESP::font = XLoadQueryFont(d, "6x13");
+
+  if (!ESP::font || !ESP::shadowfont) {
+    std::cout << "fonts not found, aborting." << std::endl;
+    return 1;
+  }
 
   ESP::red = createXColorFromRGB(255, 0, 0, d, DefaultScreen(d));
   ESP::orange = createXColorFromRGB(255, 170, 0, d, DefaultScreen(d)); 
