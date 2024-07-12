@@ -15,7 +15,7 @@ jobs:
     - uses: actions/checkout@v4
 
     - name: Install dependencies
-      run: wget http://launchpadlibrarian.net/365941753/libgtk-3-dev_3.22.30-1ubuntu1_i386.deb && chmod +x libgtk-3-dev_3.22.30-1ubuntu1_i386.deb && sudo apt install ./libgtk-3-dev_3.22.30-1ubuntu1_i386.deb && sudo apt install mesa-common-dev libx11-dev libxfixes-dev libxcomposite-dev gcc g++ make
+      run: sudo apt update && sudo apt install mesa-common-dev libx11-dev libxfixes-dev gcc-multilib g++-multilib libxcomposite-dev libc6-dev-i386 libgtk-3-dev libc6-dev gcc g++ make
     
     - name: Build
       run: make
