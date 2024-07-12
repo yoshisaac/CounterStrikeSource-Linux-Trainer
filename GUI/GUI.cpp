@@ -7,6 +7,8 @@ static void activate(GtkApplication* app, gpointer user_data) {
   
   GtkWidget* ESPmaster;
   GtkWidget* ESPbox;
+  GtkWidget* ESPskeleton;
+  GtkWidget* ESPdot;
   GtkWidget* ESPname;
   GtkWidget* ESPhealthbar;
   GtkWidget* ESPhealthtext;
@@ -14,6 +16,7 @@ static void activate(GtkApplication* app, gpointer user_data) {
   GtkWidget* AIMmaster;
 
   GtkWidget* AIMsmooth;
+  GtkWidget* AIMbone;
 
   GtkWidget* BHOPmaster;
   
@@ -37,20 +40,30 @@ static void activate(GtkApplication* app, gpointer user_data) {
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ESPbox), true);
   gtk_grid_attach(GTK_GRID(grid), ESPbox, 0, 2, 2, 1);
 
+  ESPskeleton = gtk_check_button_new_with_label("Skeleton");
+  g_signal_connect(ESPskeleton, "toggled", G_CALLBACK(esp_skeleton_toggle), NULL);
+  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ESPskeleton), false);
+  gtk_grid_attach(GTK_GRID(grid), ESPskeleton, 0, 3, 2, 1);
+
+  ESPdot = gtk_check_button_new_with_label("Head Dot");
+  g_signal_connect(ESPdot, "toggled", G_CALLBACK(esp_dot_toggle), NULL);
+  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ESPdot), false);
+  gtk_grid_attach(GTK_GRID(grid), ESPdot, 0, 4, 2, 1);
+  
   ESPname = gtk_check_button_new_with_label("Name");
   g_signal_connect(ESPname, "toggled", G_CALLBACK(esp_name_toggle), NULL);
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ESPname), false);
-  gtk_grid_attach(GTK_GRID(grid), ESPname, 0, 3, 2, 1);
+  gtk_grid_attach(GTK_GRID(grid), ESPname, 0, 5, 2, 1);
 
   ESPhealthbar = gtk_check_button_new_with_label("Health Bar");
   g_signal_connect(ESPhealthbar, "toggled", G_CALLBACK(esp_health_bar_toggle), NULL);
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ESPhealthbar), false);
-  gtk_grid_attach(GTK_GRID(grid), ESPhealthbar, 0, 4, 2, 1);
+  gtk_grid_attach(GTK_GRID(grid), ESPhealthbar, 0, 6, 2, 1);
 
   ESPhealthtext = gtk_check_button_new_with_label("Health Text");
   g_signal_connect(ESPhealthtext, "toggled", G_CALLBACK(esp_health_text_toggle), NULL);
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ESPhealthtext), true);
-  gtk_grid_attach(GTK_GRID(grid), ESPhealthtext, 0, 5, 2, 1);
+  gtk_grid_attach(GTK_GRID(grid), ESPhealthtext, 0, 7, 2, 1);
   
   /* AIMBOT GUI configuration */
   AIMmaster = gtk_check_button_new_with_label("Aimbot Master Toggle");

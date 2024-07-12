@@ -7,13 +7,16 @@ public:
   //everything here should be false.
   bool ESP = false;
   bool ESPbox = false;
+  bool ESPskeleton = false;
+  bool ESPdot = false;
   bool ESPname = false;
   bool ESPhealthbar = false;
   bool ESPhealthtext = false;
 
   bool AIM = false;
   float AIMsmooth = 0;
-
+  float AIMbone = 0;
+  
   bool BHOP = false;
 };
 
@@ -25,6 +28,14 @@ static void esp_master_toggle() {
 
 static void esp_box_toggle() {
   config->ESPbox = !config->ESPbox; 
+}
+
+static void esp_skeleton_toggle() {
+  config->ESPskeleton = !config->ESPskeleton; 
+}
+
+static void esp_dot_toggle() {
+  config->ESPdot = !config->ESPdot; 
 }
 
 static void esp_name_toggle() {
@@ -45,6 +56,10 @@ static void aim_master_toggle() {
 
 static void aim_smooth_slider(GtkRange* self) {
   config->AIMsmooth = gtk_range_get_value(self);
+}
+
+static void aim_bone_slider(GtkRange* self) {
+  config->AIMbone = gtk_range_get_value(self);
 }
 
 static void bhop_master_toggle() {

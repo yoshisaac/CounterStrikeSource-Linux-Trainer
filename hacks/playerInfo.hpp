@@ -22,6 +22,7 @@ namespace playerOffset {
   inline uintptr_t isDead = 0x83;
   inline uintptr_t height = 0x1C0;
   inline uintptr_t dormant = 0x16E;
+  inline uintptr_t boneMatrixPtr = 0x810;
 };
 
 class Player {
@@ -35,6 +36,7 @@ public:
   bool isDead;
   float height;
   bool dormant;
+  float boneMatrix[48][3];
 
   Player() {
     this->index = -1;
@@ -49,12 +51,13 @@ public:
     this->isDead = true;
     this->height = 0;
     this->dormant = true;
+    this->boneMatrix;
   }
   
   Player(int index, int health, std::string name,
 	 float viewAngles[2], float absLocation[3],
 	 int team, bool isDead, float height,
-	 bool dormant) {
+	 bool dormant, float boneMatrix[48][3]) {
 
     this->index = index;
     this->health = health;
@@ -68,6 +71,9 @@ public:
     this->isDead = isDead;
     this->height = height;
     this->dormant = dormant;
+    for (int i = 0; i < 48; ++i)
+      for (int h = 0; h < 3; ++h)
+      this->boneMatrix[i][h] = boneMatrix[i][h];
   }
 };
 

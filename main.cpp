@@ -196,6 +196,7 @@ int main() {
   std::cout << "playerList: " << std::hex << CLIENT::playerList << '\n';
   std::cout << "pLocalYaw: " << std::hex << ENGINE::pLocalYaw << '\n';
   std::cout << "pLocalPitch: " << std::hex << ENGINE::pLocalPitch << '\n';
+  std::cout << "localPlayer: " << std::hex << CLIENT::localPlayer << '\n';
 
   //https://gist.github.com/ericek111/774a1661be69387de846f5f5a5977a46 great piece of black magic.
   /* beginning of X initiation*/

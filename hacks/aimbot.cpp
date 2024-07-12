@@ -16,6 +16,8 @@ void aimbot(pid_t gamePid, Display* aimDisplay) {
       Player p_local = getLocalPlayer();
 
       if (!config->AIM) continue;
+
+      // if (getPidByWindow(aimDisplay, getFocusedWindow(aimDisplay)) != gamePid) continue;
       
       if (player.isDead == true || player.health <= 0) continue;
       if (player.dormant == true) continue;
@@ -23,17 +25,17 @@ void aimbot(pid_t gamePid, Display* aimDisplay) {
       float screen_center[2] = {ENGINE::screenX/2.f, ENGINE::screenY/2.f};
     
       float enemy_screen[2];
-      WorldToScreen(gamePid, player.absLocation, enemy_screen);
+      WorldToScreen(gamePid, player.boneMatrix[14], enemy_screen);
 
-      float screenIndex_screen[2];
-      Player closestToScreen = getPlayerByIndex(AIMBOT::closestScreenIndex);
-      WorldToScreen(gamePid, closestToScreen.absLocation, screenIndex_screen);
+      // float screenIndex_screen[2];
+      // Player closestToScreen = getPlayerByIndex(AIMBOT::closestScreenIndex);
+      // WorldToScreen(gamePid, closestToScreen.absLocation, screenIndex_screen);
 
-      if (distanceFormula2D(enemy_screen, screen_center) < distanceFormula2D(screenIndex_screen, screen_center))
-	AIMBOT::closestScreenIndex = i;
+      // if (distanceFormula2D(enemy_screen, screen_center) < distanceFormula2D(screenIndex_screen, screen_center))
+      // 	AIMBOT::closestScreenIndex = i;
 
       if (distanceFormula3D(player.absLocation, p_local.absLocation) < distanceFormula3D(getPlayerByIndex(AIMBOT::closestDistanceIndex).absLocation, p_local.absLocation))
-	AIMBOT::closestDistanceIndex = i;
+       	AIMBOT::closestDistanceIndex = i;
 
       if (getPlayerByIndex(AIMBOT::aimIndex).isDead == true) AIMBOT::aimIndex = -1;
       
@@ -45,9 +47,9 @@ void aimbot(pid_t gamePid, Display* aimDisplay) {
       
 	if (AIMBOT::aimIndex == i) {
 
-	  float deltaLocation[3] = { float(p_local.absLocation[0] - player.absLocation[0]),
-				     float(p_local.absLocation[1] - player.absLocation[1]),
-				     float(p_local.absLocation[2] - player.absLocation[2]) };
+	  float deltaLocation[3] = { float(p_local.absLocation[0] - player.boneMatrix[14][0]),
+				     float(p_local.absLocation[1] - player.boneMatrix[14][1]),
+				     float((p_local.absLocation[2] + p_local.height ) - player.boneMatrix[14][2]) };
 
 	  float hyp = sqrt(deltaLocation[0] * deltaLocation[0] + deltaLocation[1] * deltaLocation[1]);
 
@@ -78,7 +80,6 @@ void aimbot(pid_t gamePid, Display* aimDisplay) {
 	    plocal_v[0] = plocal_vo[0];
 	    plocal_v[1] = plocal_vo[1];
 	  }
-
 
 	  while (plocal_v[0] > 89)
 	    plocal_v[0] -= 180;

@@ -23,6 +23,8 @@
 #include "../engine/engine.hpp"
 #include "../client/client.hpp"
 
+#include "../GUI/config.hpp"
+
 void players(pid_t gamePid) {
 
   for (int i = 0; i < 32; i++) {
@@ -69,8 +71,19 @@ void players(pid_t gamePid) {
 
     bool dormant = false;
     Memory::Read(gamePid, player + playerOffset::dormant, &dormant, sizeof(bool));
- 
-    playerInfo::l_players[i] = Player(i, health, name, viewAngle, location, team, isDead, height, dormant);
+
+    uintptr_t boneMatrixPtr; 
+    Memory::Read(gamePid, player + playerOffset::boneMatrixPtr, &boneMatrixPtr, sizeof(uintptr_t));
+
+    float boneMatrix[48][3];
+    for (int i = 0; i < 48; ++i) {
+      uintptr_t bone = 0xC + boneMatrixPtr + (0x30 * i); // NO iterating past 48
+      Memory::Read(gamePid, bone, &boneMatrix[i][0], sizeof(float));
+      Memory::Read(gamePid, bone + 0x10, &boneMatrix[i][1], sizeof(float));
+      Memory::Read(gamePid, bone + 0x10*2, &boneMatrix[i][2], sizeof(float));
+    }
+    
+    playerInfo::l_players[i] = Player(i, health, name, viewAngle, location, team, isDead, height, dormant, boneMatrix);
 
    }
 }
