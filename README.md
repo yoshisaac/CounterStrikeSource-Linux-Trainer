@@ -55,6 +55,7 @@ To run the software, go to the root directory of the project and type `sudo ./cs
 - Bunny hop (automatically jump after hitting the ground)  
 - Player ESP  
   * Box  
+  * Skeleton
   * Name  
   * Health  
 - Aimbot (Hold left ALT)  
