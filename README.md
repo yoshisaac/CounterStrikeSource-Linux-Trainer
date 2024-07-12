@@ -68,6 +68,6 @@ No, it is very incomplete, and will change a lot over time. The program is ineff
 
 # TODO
 Ordered by importance  
-- Automatically aim at hit box  
-- More visual features (bones, proper head dot, dynamic health bar)  
+- Better aimbot hitbox selection
+- Redo skeleton ESP
 - Sync ESP frame rate to game frame rate  
