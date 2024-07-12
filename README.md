@@ -59,7 +59,7 @@ To run the software, go to the root directory of the project and type `sudo ./cs
   * Health  
 - Aimbot (Hold left ALT)  
 
-![Screenshot of ESP](https://r2.e-z.host/bb3dfc85-7f7f-4dcb-8b0b-3a4af0aa57e4/kdw5ujpgc78pjxtv2b.png)
+![Screenshot of ESP](https://r2.e-z.host/bb3dfc85-7f7f-4dcb-8b0b-3a4af0aa57e4/e3091q4iv1scf6hhvs.png)
 ![Screenshot of dormant ESP](https://r2.e-z.host/bb3dfc85-7f7f-4dcb-8b0b-3a4af0aa57e4/hm7b14y2ehbcuy0or8.png)
 ![Screenshot of menu](https://r2.e-z.host/bb3dfc85-7f7f-4dcb-8b0b-3a4af0aa57e4/rcsdv5y34xbbw7a1p6.png)
 
