@@ -12,7 +12,8 @@ static void activate(GtkApplication* app, gpointer user_data) {
   GtkWidget* ESPname;
   GtkWidget* ESPhealthbar;
   GtkWidget* ESPhealthtext;
-
+  GtkWidget* ESPboxcolor;
+  GtkWidget* ESPskeletoncolor;
   GtkWidget* AIMmaster;
 
   GtkWidget* AIMsmooth;
@@ -64,6 +65,14 @@ static void activate(GtkApplication* app, gpointer user_data) {
   g_signal_connect(ESPhealthtext, "toggled", G_CALLBACK(esp_health_text_toggle), NULL);
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ESPhealthtext), true);
   gtk_grid_attach(GTK_GRID(grid), ESPhealthtext, 0, 7, 2, 1);
+
+  ESPboxcolor = gtk_color_button_new();
+  g_signal_connect(ESPboxcolor, "color-set", G_CALLBACK(esp_box_color), NULL);
+  gtk_grid_attach(GTK_GRID(grid), ESPboxcolor, 0, 8, 2, 1);
+
+  ESPskeletoncolor = gtk_color_button_new();
+  g_signal_connect(ESPskeletoncolor, "color-set", G_CALLBACK(esp_skeleton_color), NULL);
+  gtk_grid_attach(GTK_GRID(grid), ESPskeletoncolor, 0, 9, 2, 1);
   
   /* AIMBOT GUI configuration */
   AIMmaster = gtk_check_button_new_with_label("Aimbot Master Toggle");
@@ -92,6 +101,5 @@ void* guiThread(void*) {
   status = g_application_run(G_APPLICATION(app), 0, NULL); //thread halts here until GUI is closed
   g_object_unref(app);
   pthread_kill(pthread_self(), SIGTERM); //we reach this point once they press the X on the window
-  return NULL;
-  
+  return NULL;  
 }

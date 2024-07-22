@@ -36,6 +36,8 @@ public:
   bool isDead;
   float height;
   bool dormant;
+  int dormant_frames;
+  short dormant_alpha;
   float boneMatrix[48][3];
 
   Player() {
@@ -52,12 +54,14 @@ public:
     this->height = 0;
     this->dormant = true;
     this->boneMatrix;
+    this->dormant_frames = 0;
   }
   
   Player(int index, int health, std::string name,
 	 float viewAngles[2], float absLocation[3],
 	 int team, bool isDead, float height,
-	 bool dormant, float boneMatrix[48][3]) {
+	 bool dormant, float boneMatrix[48][3],
+	 int dormant_frames, short dormant_alpha) {
 
     this->index = index;
     this->health = health;
@@ -71,19 +75,28 @@ public:
     this->isDead = isDead;
     this->height = height;
     this->dormant = dormant;
+
     for (int i = 0; i < 48; ++i)
       for (int h = 0; h < 3; ++h)
       this->boneMatrix[i][h] = boneMatrix[i][h];
+
+    this->dormant_frames = dormant_frames;
+    this->dormant_alpha = dormant_alpha;
   }
 };
 
 namespace playerInfo {
-  inline Player l_players[32];
+  inline Player l_players[64];
 };
 
 inline Player getPlayerByIndex(unsigned int i) {
   if (i > 32) return Player();
   else return playerInfo::l_players[i];
+}
+
+inline Player* getPlayerReferenceByIndex(unsigned int i) {
+  if (i > 32) return nullptr;
+  else return &playerInfo::l_players[i];
 }
 
 inline Player getLocalPlayer(void) {

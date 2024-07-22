@@ -36,7 +36,7 @@ void esp(pid_t gamePid, XdbeBackBuffer back_buffer, Display* espDisplay, Window 
       continue;
     }
 
-    for(int i = 0; i < 32; ++i) {
+    for(int i = 0; i < 64; ++i) {
       Player player = getPlayerByIndex(i);
       Player p_local = getLocalPlayer();
 
@@ -63,25 +63,35 @@ void esp(pid_t gamePid, XdbeBackBuffer back_buffer, Display* espDisplay, Window 
 	float screenText[2];
 	WorldToScreen(gamePid, player.absLocation, screenText);
 
-	if (config->ESPname) {
-	  //name shadow
-	  XSetFont(espDisplay, gc, ESP::shadowfont->fid);
-	  XSetForeground(espDisplay, gc, ESP::black.pixel);
-	  XDrawString(espDisplay, back_buffer, gc, out[0] + 1, screenText[1] + 1, player.name.c_str(), strlen(player.name.c_str()));
-	  //name
-	  XSetFont(espDisplay, gc, ESP::font->fid);
-	  XSetForeground(espDisplay, gc, ESP::white.pixel);
-	  XDrawString(espDisplay, back_buffer, gc, out[0], screenText[1], player.name.c_str(), strlen(player.name.c_str()));
-	}
+	XColor dormant_color;
+	if (player.dormant == true) {
+	  playerInfo::l_players[i].dormant_frames += 1;
 
+	  if (player.dormant_alpha-5 > 0 && player.dormant_frames%15 == 0)
+	    playerInfo::l_players[i].dormant_alpha -= 5;
+
+	  if (player.dormant_alpha-5 <= 55)
+	    continue;
+	      
+	  dormant_color = createXColorFromRGB(player.dormant_alpha,
+						     player.dormant_alpha,
+						     player.dormant_alpha,
+						     espDisplay, DefaultScreen(espDisplay));
+	}	    
+	else {
+	  playerInfo::l_players[i].dormant_frames = 0;
+	  playerInfo::l_players[i].dormant_alpha = 220;
+	}
 	
 	if (config->ESPbox) {
 	  //box shadow
-	  XSetForeground(espDisplay, gc, ESP::black.pixel);
-	  db_thickline(back_buffer, espDisplay, gc, out[0] - (9800/distance), topY, out[0] - (9800/distance), bottomY, 4, distance);
-	  db_thickline(back_buffer, espDisplay, gc, out[0] + (9800/distance), topY, out[0] + (9800/distance), bottomY, 4, distance);
-	  db_thickline(back_buffer, espDisplay, gc, out[0] + (9800/distance), topY, out[0] - (9800/distance), topY, 4, distance);
-	  db_thickline(back_buffer, espDisplay, gc, out[0] - (9800/distance), bottomY, out[0] + (9800/distance), bottomY, 4, distance);
+	  if (player.dormant == false) {
+	    XSetForeground(espDisplay, gc, ESP::black.pixel);
+	    db_thickline(back_buffer, espDisplay, gc, out[0] - (9800/distance), topY, out[0] - (9800/distance), bottomY, 4, distance);
+	    db_thickline(back_buffer, espDisplay, gc, out[0] + (9800/distance), topY, out[0] + (9800/distance), bottomY, 4, distance);
+	    db_thickline(back_buffer, espDisplay, gc, out[0] + (9800/distance), topY, out[0] - (9800/distance), topY, 4, distance);
+	    db_thickline(back_buffer, espDisplay, gc, out[0] - (9800/distance), bottomY, out[0] + (9800/distance), bottomY, 4, distance);
+	  }
 	  //box
 	  /*
 	    switch (team) {
@@ -98,15 +108,33 @@ void esp(pid_t gamePid, XdbeBackBuffer back_buffer, Display* espDisplay, Window 
 	  */
 
 	  if (player.dormant == true)
-	    XSetForeground(espDisplay, gc, ESP::gray.pixel);
+	    XSetForeground(espDisplay, gc, dormant_color.pixel);
 	  else
-	    XSetForeground(espDisplay, gc, ESP::tColor.pixel);
-
+	    XSetForeground(espDisplay, gc, createXColorFromRGB(config->ESPboxcolor[0],
+							       config->ESPboxcolor[1],
+							       config->ESPboxcolor[2],
+							       espDisplay, DefaultScreen(espDisplay)).pixel);
+	  
 	  db_thickline(back_buffer, espDisplay, gc, (out[0] - (9800/distance)), topY, (out[0] - (9800/distance)), bottomY, 2, distance);
 	  db_thickline(back_buffer, espDisplay, gc, (out[0] + (9800/distance)), topY, (out[0] + (9800/distance)), bottomY, 2, distance);
 	  db_thickline(back_buffer, espDisplay, gc, out[0] + (9800/distance), topY, out[0] - (9800/distance), topY, 2, distance);
 	  db_thickline(back_buffer, espDisplay, gc, out[0] - (9800/distance), bottomY, out[0] + (9800/distance), bottomY, 2, distance);
+
+	  //printf("%d\n", player.dormant_frames);
+	  
 	}
+	
+	if (config->ESPname) {
+	  //name shadow
+	  XSetFont(espDisplay, gc, ESP::shadowfont->fid);
+	  XSetForeground(espDisplay, gc, ESP::black.pixel);
+	  XDrawString(espDisplay, back_buffer, gc, out[0] + 1, screenText[1] + 1, player.name.c_str(), strlen(player.name.c_str()));
+	  //name
+	  XSetFont(espDisplay, gc, ESP::font->fid);
+	  XSetForeground(espDisplay, gc, ESP::white.pixel);
+	  XDrawString(espDisplay, back_buffer, gc, out[0], screenText[1], player.name.c_str(), strlen(player.name.c_str()));
+	}	
+
 
 	if (config->ESPhealthbar) {
 	  //health bar shadow
@@ -160,8 +188,15 @@ void esp(pid_t gamePid, XdbeBackBuffer back_buffer, Display* espDisplay, Window 
 	//   //last_bone = {*bone};
 	// }
 
+
+	if (player.dormant == true)
+	  XSetForeground(espDisplay, gc, dormant_color.pixel);
+	else
+	  XSetForeground(espDisplay, gc, createXColorFromRGB(config->ESPskeletoncolor[0],
+							     config->ESPskeletoncolor[1],
+							     config->ESPskeletoncolor[2],
+							     espDisplay, DefaultScreen(espDisplay)).pixel);
 	
-	XSetForeground(espDisplay, gc, ESP::white.pixel);
 	//ideally, there would be a loop for this. Works, but awful
 	float bone_screen0[2], bone_screen1[2], bone_screen2[2], bone_screen3[2], bone_screen4[2];
 	float bone_screen5[2], bone_screen6[2], bone_screen7[2], bone_screen8[2], bone_screen9[2];
@@ -181,17 +216,17 @@ void esp(pid_t gamePid, XdbeBackBuffer back_buffer, Display* espDisplay, Window 
 	      WorldToScreen(gamePid, player.boneMatrix[43], bone_screen43) && WorldToScreen(gamePid, player.boneMatrix[18], bone_screen18) &&
 	      WorldToScreen(gamePid, player.boneMatrix[28], bone_screen28) && WorldToScreen(gamePid, player.boneMatrix[29], bone_screen29) &&
 	      WorldToScreen(gamePid, player.boneMatrix[30], bone_screen30) && WorldToScreen(gamePid, player.boneMatrix[44], bone_screen44) &&
-	      WorldToScreen(gamePid, player.boneMatrix[31], bone_screen31)) {
+	      WorldToScreen(gamePid, player.boneMatrix[31], bone_screen31) && (player.boneMatrix[0][0] != 0 && player.boneMatrix[0][1] != 0 && player.boneMatrix[0][2] != 0)) {
 	    //left leg
 	    XDrawLine(espDisplay, back_buffer, gc, bone_screen0[0], bone_screen0[1], bone_screen1[0], bone_screen1[1]);
 	    XDrawLine(espDisplay, back_buffer, gc, bone_screen1[0], bone_screen1[1], bone_screen2[0], bone_screen2[1]);
-	    XDrawLine(espDisplay, back_buffer, gc, bone_screen2[0], bone_screen2[1], bone_screen3[0], bone_screen3[1]);
+	    //XDrawLine(espDisplay, back_buffer, gc, bone_screen2[0], bone_screen2[1], bone_screen3[0], bone_screen3[1]);
 	    //XDrawLine(espDisplay, back_buffer, gc, bone_screen3[0], bone_screen3[1], bone_screen4[0], bone_screen4[1]);
 	  
 	    //right leg
 	    XDrawLine(espDisplay, back_buffer, gc, bone_screen0[0], bone_screen0[1], bone_screen5[0], bone_screen5[1]);
 	    XDrawLine(espDisplay, back_buffer, gc, bone_screen5[0], bone_screen5[1], bone_screen6[0], bone_screen6[1]);
-	    XDrawLine(espDisplay, back_buffer, gc, bone_screen6[0], bone_screen6[1], bone_screen7[0], bone_screen7[1]);
+	    //XDrawLine(espDisplay, back_buffer, gc, bone_screen6[0], bone_screen6[1], bone_screen7[0], bone_screen7[1]);
 	    //XDrawLine(espDisplay, back_buffer, gc, bone_screen7[0], bone_screen7[1], bone_screen8[0], bone_screen8[1]);
 	  
 	    //back
@@ -220,12 +255,11 @@ void esp(pid_t gamePid, XdbeBackBuffer back_buffer, Display* espDisplay, Window 
 	  }
 	}
 	player.boneMatrix[14][2] += 9;
-	WorldToScreen(gamePid, player.boneMatrix[14], bone_screen14);
-	if (config->ESPdot)
+	if (config->ESPdot && WorldToScreen(gamePid, player.boneMatrix[14], bone_screen14))
 	  XFillArc(espDisplay, back_buffer, gc, bone_screen14[0] - ((9800/distance)/2), bone_screen14[1], (9500/distance), (9500/distance), 0, 360*64);
 	
       }
-      
+
     }
     
     db_swap_buffers(espDisplay, window);

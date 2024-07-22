@@ -194,6 +194,7 @@ int main() {
   std::cout << "hl2_linux: " << std::hex << hl2_linux << '\n';
   std::cout << "viewMatrix: " << std::hex << ENGINE::viewMatrix << '\n';
   std::cout << "playerList: " << std::hex << CLIENT::playerList << '\n';
+  std::cout << "radarList: " << std::hex << CLIENT::radarList << '\n';
   std::cout << "pLocalYaw: " << std::hex << ENGINE::pLocalYaw << '\n';
   std::cout << "pLocalPitch: " << std::hex << ENGINE::pLocalPitch << '\n';
   std::cout << "localPlayer: " << std::hex << CLIENT::localPlayer << '\n';
@@ -278,7 +279,7 @@ int main() {
   ESP::tColor = createXColorFromRGB(230, 35, 35, d, DefaultScreen(d));
   ESP::ctColor = createXColorFromRGB(148, 196, 248, d, DefaultScreen(d));
   ESP::cyan = createXColorFromRGB(11, 192, 212, d, DefaultScreen(d));
-  ESP::gray = createXColorFromRGB(90, 90, 90, d, DefaultScreen(d));
+  ESP::gray = createXColorFromRGBA(90, 90, 90, -1, d, DefaultScreen(d));
   /* end of X initiation */
 
   //configuration GUI thread
