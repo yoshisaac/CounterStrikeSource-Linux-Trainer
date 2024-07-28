@@ -128,11 +128,11 @@ void esp(pid_t gamePid, XdbeBackBuffer back_buffer, Display* espDisplay, Window 
 	  //name shadow
 	  XSetFont(espDisplay, gc, ESP::shadowfont->fid);
 	  XSetForeground(espDisplay, gc, ESP::black.pixel);
-	  XDrawString(espDisplay, back_buffer, gc, out[0] + 1, screenText[1] + 1, player.name.c_str(), strlen(player.name.c_str()));
+	  XDrawString(espDisplay, back_buffer, gc, out[0] - (11500/distance) + 20 + 1, screenText[1] + 1, player.name.c_str(), strlen(player.name.c_str()));
 	  //name
 	  XSetFont(espDisplay, gc, ESP::font->fid);
 	  XSetForeground(espDisplay, gc, ESP::white.pixel);
-	  XDrawString(espDisplay, back_buffer, gc, out[0], screenText[1], player.name.c_str(), strlen(player.name.c_str()));
+	  XDrawString(espDisplay, back_buffer, gc, out[0] - (11500/distance) + 20, screenText[1], player.name.c_str(), strlen(player.name.c_str()));
 	}	
 
 
