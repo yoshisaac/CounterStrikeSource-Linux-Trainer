@@ -82,11 +82,15 @@ void players(pid_t gamePid) {
       Memory::Read(gamePid, bone + 0x10, &boneMatrix[i][1], sizeof(float));
       Memory::Read(gamePid, bone + 0x10*2, &boneMatrix[i][2], sizeof(float));
     }
+
+    float aimPunch[3];
+    Memory::Read(gamePid, player + playerOffset::aimPunch, &aimPunch, sizeof(float[3]));
     
     playerInfo::l_players[i] = Player(i, health, name, viewAngle,
 				      location, team, isDead, height,
 				      dormant, boneMatrix, playerInfo::l_players[i].dormant_frames,
-				      playerInfo::l_players[i].dormant_alpha);
+				      playerInfo::l_players[i].dormant_alpha,
+				      aimPunch);
 
    }
 }

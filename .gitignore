@@ -33,3 +33,6 @@ cs-source-hack
 *.exe
 *.out
 *.app
+
+# Emacs tilde files
+*~

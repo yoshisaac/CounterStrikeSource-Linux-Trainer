@@ -8,6 +8,4 @@
 #include <X11/extensions/Xcomposite.h>
 #include <X11/extensions/Xdbe.h>
 
-#include "../memory.hpp"
-
-void esp(pid_t, XdbeBackBuffer, Display*, Window, GC);
+void crosshair(pid_t, XdbeBackBuffer, Display*, Window, GC);

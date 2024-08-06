@@ -11,7 +11,9 @@
 
 void bhop(pid_t gamePid, Display* d) {
   for (;;) {
+
     if (!config->BHOP) continue;
+
     
     pid_t currentWindowPid = getPidByWindow(d, getFocusedWindow(d)); //get the current processes id of the window we are focused into
 

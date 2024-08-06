@@ -27,6 +27,7 @@
 #include "hacks/aimbot.hpp"
 #include "hacks/playerInfo.hpp"
 #include "hacks/ESP.hpp"
+#include "hacks/draw.hpp"
 #include "client/client.hpp"
 #include "engine/engine.hpp"
 #include "GUI/GUI.hpp"
@@ -204,7 +205,7 @@ int main() {
   Display* d = XOpenDisplay(NULL);
   Display* bhopDisplay = XOpenDisplay(NULL);
   Display* aimDisplay = XOpenDisplay(NULL);
-  Display* espDisplay = XOpenDisplay(NULL);
+  Display* drawDisplay = XOpenDisplay(NULL);
 
   if (!d) {
     printf("Please run startx/xinit\nIf you are running this program from SSH, it won't work.\n");
@@ -262,24 +263,24 @@ int main() {
 
   XMapWindow(d, window);
 
-  ESP::shadowfont = XLoadQueryFont(d, "6x13bold");
-  ESP::font = XLoadQueryFont(d, "6x13");
+  DRAW::shadowfont = XLoadQueryFont(d, "6x13bold");
+  DRAW::font = XLoadQueryFont(d, "6x13");
 
-  if (!ESP::font || !ESP::shadowfont) {
+  if (!DRAW::font || !DRAW::shadowfont) {
     std::cout << "fonts not found, aborting." << std::endl;
     return 1;
   }
 
-  ESP::red = createXColorFromRGB(255, 0, 0, d, DefaultScreen(d));
-  ESP::orange = createXColorFromRGB(255, 170, 0, d, DefaultScreen(d)); 
-  ESP::black = createXColorFromRGB(0, 0, 0, d, DefaultScreen(d));
-  ESP::white = createXColorFromRGB(255, 255, 255, d, DefaultScreen(d));
-  ESP::green = createXColorFromRGB(0, 255, 0, d, DefaultScreen(d));
-  ESP::yellow = createXColorFromRGB(255, 255, 0, d, DefaultScreen(d));
-  ESP::tColor = createXColorFromRGB(230, 35, 35, d, DefaultScreen(d));
-  ESP::ctColor = createXColorFromRGB(148, 196, 248, d, DefaultScreen(d));
-  ESP::cyan = createXColorFromRGB(11, 192, 212, d, DefaultScreen(d));
-  ESP::gray = createXColorFromRGBA(90, 90, 90, -1, d, DefaultScreen(d));
+  DRAW::red = createXColorFromRGB(255, 0, 0, d, DefaultScreen(d));
+  DRAW::orange = createXColorFromRGB(255, 170, 0, d, DefaultScreen(d)); 
+  DRAW::black = createXColorFromRGB(0, 0, 0, d, DefaultScreen(d));
+  DRAW::white = createXColorFromRGB(255, 255, 255, d, DefaultScreen(d));
+  DRAW::green = createXColorFromRGB(0, 255, 0, d, DefaultScreen(d));
+  DRAW::yellow = createXColorFromRGB(255, 255, 0, d, DefaultScreen(d));
+  DRAW::tColor = createXColorFromRGB(230, 35, 35, d, DefaultScreen(d));
+  DRAW::ctColor = createXColorFromRGB(148, 196, 248, d, DefaultScreen(d));
+  DRAW::cyan = createXColorFromRGB(11, 192, 212, d, DefaultScreen(d));
+  DRAW::gray = createXColorFromRGBA(90, 90, 90, -1, d, DefaultScreen(d));
   /* end of X initiation */
 
   //configuration GUI thread
@@ -295,9 +296,9 @@ int main() {
   std::thread aimbotThread(aimbot, gamePid, aimDisplay);
   pthread_setname_np(aimbotThread.native_handle(), "aimbotThread");
 
-  //esp thread
-  std::thread espThread(esp, gamePid, back_buffer, espDisplay, window);
-  pthread_setname_np(espThread.native_handle(), "espThread");
+  //draw thread for esp and such
+  std::thread drawThread(draw, gamePid, back_buffer, drawDisplay, window);
+  pthread_setname_np(drawThread.native_handle(), "drawThread");
   
   printf("Ready\n");
   printf("The Free and Open Source no-name GNU CS:S cheat, made with GNU Emacs, for your GNU operating system.\n");

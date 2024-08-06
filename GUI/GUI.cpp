@@ -14,11 +14,16 @@ static void activate(GtkApplication* app, gpointer user_data) {
   GtkWidget* ESPhealthtext;
   GtkWidget* ESPboxcolor;
   GtkWidget* ESPskeletoncolor;
+  GtkWidget* ESPcrosshair;
+  GtkWidget* ESPcrosshaircolor;
+  GtkWidget* ESPcrosshairRCS;
+  GtkWidget* ESPcrosshairRCScolor;
+  
   GtkWidget* AIMmaster;
-
   GtkWidget* AIMsmooth;
-  GtkWidget* AIMbone;
-
+  GtkWidget* AIMrecoilcompensation;
+  GtkWidget* AIMhitbox;
+  
   GtkWidget* BHOPmaster;
   
   GtkWidget* grid = gtk_grid_new();
@@ -39,12 +44,28 @@ static void activate(GtkApplication* app, gpointer user_data) {
   ESPbox = gtk_check_button_new_with_label("Box");
   g_signal_connect(ESPbox, "toggled", G_CALLBACK(esp_box_toggle), NULL);
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ESPbox), true);
-  gtk_grid_attach(GTK_GRID(grid), ESPbox, 0, 2, 2, 1);
+  gtk_grid_attach(GTK_GRID(grid), ESPbox, 0, 2, 1, 1);
+
+  ESPboxcolor = gtk_color_button_new();
+  g_signal_connect(ESPboxcolor, "color-set", G_CALLBACK(esp_box_color), NULL);
+  GdkRGBA boxdefcolor; boxdefcolor.red = (230.f/255.f);
+  boxdefcolor.green = (35.f/255.f); boxdefcolor.blue = (35.f/255.f);
+  boxdefcolor.alpha = 1.0f;
+  gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(ESPboxcolor), &boxdefcolor);
+  gtk_grid_attach(GTK_GRID(grid), ESPboxcolor, 1, 2, 1, 1);
 
   ESPskeleton = gtk_check_button_new_with_label("Skeleton");
   g_signal_connect(ESPskeleton, "toggled", G_CALLBACK(esp_skeleton_toggle), NULL);
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ESPskeleton), false);
-  gtk_grid_attach(GTK_GRID(grid), ESPskeleton, 0, 3, 2, 1);
+  gtk_grid_attach(GTK_GRID(grid), ESPskeleton, 0, 3, 1, 1);
+   
+  ESPskeletoncolor = gtk_color_button_new();
+  g_signal_connect(ESPskeletoncolor, "color-set", G_CALLBACK(esp_skeleton_color), NULL);
+  GdkRGBA skeletondefcolor; skeletondefcolor.red = 1.0f;
+  skeletondefcolor.green = 1.0f; skeletondefcolor.blue = 1.0f;
+  skeletondefcolor.alpha = 1.0f;
+  gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(ESPskeletoncolor), &skeletondefcolor);
+  gtk_grid_attach(GTK_GRID(grid), ESPskeletoncolor, 1, 3, 1, 1);
 
   ESPdot = gtk_check_button_new_with_label("Head Dot");
   g_signal_connect(ESPdot, "toggled", G_CALLBACK(esp_dot_toggle), NULL);
@@ -66,13 +87,31 @@ static void activate(GtkApplication* app, gpointer user_data) {
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ESPhealthtext), true);
   gtk_grid_attach(GTK_GRID(grid), ESPhealthtext, 0, 7, 2, 1);
 
-  ESPboxcolor = gtk_color_button_new();
-  g_signal_connect(ESPboxcolor, "color-set", G_CALLBACK(esp_box_color), NULL);
-  gtk_grid_attach(GTK_GRID(grid), ESPboxcolor, 0, 8, 2, 1);
+  ESPcrosshair = gtk_check_button_new_with_label("Crosshair");
+  g_signal_connect(ESPcrosshair, "toggled", G_CALLBACK(esp_crosshair_toggle), NULL);
+  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ESPcrosshair), false);
+  gtk_grid_attach(GTK_GRID(grid), ESPcrosshair, 0, 8, 1, 1);
 
-  ESPskeletoncolor = gtk_color_button_new();
-  g_signal_connect(ESPskeletoncolor, "color-set", G_CALLBACK(esp_skeleton_color), NULL);
-  gtk_grid_attach(GTK_GRID(grid), ESPskeletoncolor, 0, 9, 2, 1);
+  ESPcrosshaircolor = gtk_color_button_new();
+  g_signal_connect(ESPcrosshaircolor, "color-set", G_CALLBACK(esp_crosshair_color), NULL);
+  GdkRGBA crosshairdefcolor; crosshairdefcolor.red = 1.0f;
+  crosshairdefcolor.green = 1.0f; crosshairdefcolor.blue = 0.0f;
+  crosshairdefcolor.alpha = 1.0f;
+  gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(ESPcrosshaircolor), &crosshairdefcolor);
+  gtk_grid_attach(GTK_GRID(grid), ESPcrosshaircolor, 1, 8, 1, 1);
+
+  ESPcrosshairRCS = gtk_check_button_new_with_label("Crosshair RCS");
+  g_signal_connect(ESPcrosshairRCS, "toggled", G_CALLBACK(esp_crosshair_rcs_toggle), NULL);
+  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ESPcrosshairRCS), false);
+  gtk_grid_attach(GTK_GRID(grid), ESPcrosshairRCS, 0, 9, 1, 1);
+  
+  ESPcrosshairRCScolor = gtk_color_button_new();
+  g_signal_connect(ESPcrosshairRCScolor, "color-set", G_CALLBACK(esp_crosshair_rcs_color), NULL);
+  GdkRGBA crosshairRCSdefcolor; crosshairRCSdefcolor.red = (11.f/255.f);
+  crosshairRCSdefcolor.green = (192.f/255.f); crosshairRCSdefcolor.blue = (212.f/255.f);
+  crosshairRCSdefcolor.alpha = 1.0f;
+  gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(ESPcrosshairRCScolor), &crosshairRCSdefcolor);
+  gtk_grid_attach(GTK_GRID(grid), ESPcrosshairRCScolor, 1, 9, 1, 1);
   
   /* AIMBOT GUI configuration */
   AIMmaster = gtk_check_button_new_with_label("Aimbot Master Toggle");
@@ -84,6 +123,19 @@ static void activate(GtkApplication* app, gpointer user_data) {
   g_signal_connect(AIMsmooth, "value-changed", G_CALLBACK(aim_smooth_slider), AIMsmooth);
   gtk_grid_attach(GTK_GRID(grid), AIMsmooth, 2, 2, 2, 1);
 
+  AIMrecoilcompensation = gtk_check_button_new_with_label("Recoil Compensation");
+  g_signal_connect(AIMrecoilcompensation, "toggled", G_CALLBACK(aim_recoil_compensation_toggle), NULL);
+  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(AIMrecoilcompensation), false);
+  gtk_grid_attach(GTK_GRID(grid), AIMrecoilcompensation, 2, 3, 2, 1);
+
+  AIMhitbox = gtk_combo_box_text_new();
+  gtk_combo_box_text_append(GTK_COMBO_BOX_TEXT(AIMhitbox), NULL, "Head");
+  gtk_combo_box_text_append(GTK_COMBO_BOX_TEXT(AIMhitbox), NULL, "Upper Body");
+  gtk_combo_box_text_append(GTK_COMBO_BOX_TEXT(AIMhitbox), NULL, "Lower Body");
+  gtk_combo_box_set_active(GTK_COMBO_BOX(AIMhitbox), 0);
+  g_signal_connect(AIMhitbox, "changed", G_CALLBACK(aim_hitbox_dropdown), NULL);
+  gtk_grid_attach(GTK_GRID(grid), AIMhitbox, 2, 4, 2, 1);
+  
   /* BHOP GUI configuration */
   BHOPmaster = gtk_check_button_new_with_label("Bhop Master Toggle");
   g_signal_connect(BHOPmaster, "toggled", G_CALLBACK(bhop_master_toggle), NULL);

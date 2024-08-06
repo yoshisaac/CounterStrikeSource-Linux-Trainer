@@ -17,6 +17,19 @@ void aimbot(pid_t gamePid, Display* aimDisplay) {
 
       if (!config->AIM) continue;
 
+      int aimbot_bone = 14;
+      switch (config->AIMhitbox) {
+      case 0: //head
+	aimbot_bone = 14;
+	break;
+      case 1: //upper body
+	aimbot_bone = 12;
+	break;
+      case 2: //lower body
+        aimbot_bone = 11;
+	break;
+      }
+      
       // if (getPidByWindow(aimDisplay, getFocusedWindow(aimDisplay)) != gamePid) continue;
       
       if (player.isDead == true || player.health <= 0) continue;
@@ -25,7 +38,7 @@ void aimbot(pid_t gamePid, Display* aimDisplay) {
       float screen_center[2] = {ENGINE::screenX/2.f, ENGINE::screenY/2.f};
     
       float enemy_screen[2];
-      WorldToScreen(gamePid, player.boneMatrix[14], enemy_screen);
+      WorldToScreen(gamePid, player.boneMatrix[aimbot_bone], enemy_screen);
 
       // float screenIndex_screen[2];
       // Player closestToScreen = getPlayerByIndex(AIMBOT::closestScreenIndex);
@@ -47,9 +60,9 @@ void aimbot(pid_t gamePid, Display* aimDisplay) {
       
 	if (AIMBOT::aimIndex == i) {
 
-	  float deltaLocation[3] = { float(p_local.absLocation[0] - player.boneMatrix[14][0]),
-				     float(p_local.absLocation[1] - player.boneMatrix[14][1]),
-				     float((p_local.absLocation[2] + p_local.height ) - player.boneMatrix[14][2]) };
+	  float deltaLocation[3] = { float(p_local.absLocation[0] - player.boneMatrix[aimbot_bone][0]),
+				     float(p_local.absLocation[1] - player.boneMatrix[aimbot_bone][1]),
+				     float((p_local.absLocation[2] + p_local.height ) - player.boneMatrix[aimbot_bone][2]) };
 
 	  float hyp = sqrt(deltaLocation[0] * deltaLocation[0] + deltaLocation[1] * deltaLocation[1]);
 
@@ -98,7 +111,15 @@ void aimbot(pid_t gamePid, Display* aimDisplay) {
 
 	  if (isNaN(plocal_v[1]))
 	    plocal_v[1] = 0;
+
+	  // https://github.com/GhostsOfHiroshima/Counter-Strike-Source-Hack/blob/master/Aimbot.cpp#L65
+	  if (config->AIMrecoilcompensation) {
+	    plocal_v[0] -= p_local.aimPunch[0] * 2.f;
+	    plocal_v[1] -= p_local.aimPunch[1] * 2.f;
+	  }
+	
 	}
+
 
 	if (AIMBOT::aimIndex != -1 && isKeyDown(aimDisplay, XK_Alt_L)) {
 	  if (config->AIMsmooth > 0) usleep(1000*1000/300);

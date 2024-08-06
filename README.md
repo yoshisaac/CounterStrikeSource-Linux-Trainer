@@ -35,8 +35,8 @@ ArchLinux:
 ```console
 $ sudo pacman -S base-devel xorg-fonts-misc lib32-gtk3
 ```
-
-If these are found to be incorrect, then contact me.  
+On Arch, once you install `xorg-fonts-misc` you need to restart your computer.  
+If these are found to be incorrect, then please contact me.  
   
 ### Compiling
 Go to the root directory of the project in your terminal (where main.cpp is located), and run:  
@@ -60,15 +60,14 @@ To run the software, go to the root directory of the project and type `sudo ./cs
   * Health  
 - Aimbot (Hold left ALT)  
 
-![Screenshot of ESP](https://r2.e-z.host/bb3dfc85-7f7f-4dcb-8b0b-3a4af0aa57e4/e3091q4iv1scf6hhvs.png)
+![Screenshot of ESP](https://r2.e-z.host/bb3dfc85-7f7f-4dcb-8b0b-3a4af0aa57e4/wtpq31477kcc20rfpa.png)
 ![Screenshot of dormant ESP](https://r2.e-z.host/bb3dfc85-7f7f-4dcb-8b0b-3a4af0aa57e4/hm7b14y2ehbcuy0or8.png)
-![Screenshot of menu](https://i.imgur.com/DD3y3oj.png)
+![Screenshot of menu](https://r2.e-z.host/bb3dfc85-7f7f-4dcb-8b0b-3a4af0aa57e4/s82uf3r72i5f5d2m1h.png)
 
 # Is this finished?
-No, it is very incomplete, and will change a lot over time. The program is inefficient, and commented out code is all over the place. Features such as ESP are very incomplete but work on a crude level.
+No, it is very incomplete, and will change a lot over time. The program is inefficient, and commented out code is all over the place.
 
 # TODO
 Ordered by importance  
-- Better aimbot hitbox selection
 - Redo skeleton ESP
 - Sync ESP frame rate to game frame rate  
