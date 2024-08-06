@@ -53,6 +53,9 @@ To run the software, go to the root directory of the project and type `sudo ./cs
 
 # Features
 - Bunny hop (automatically jump after hitting the ground)  
+- Visual  
+  * External crosshair
+  * RCS Crosshair
 - Player ESP  
   * Box  
   * Skeleton
