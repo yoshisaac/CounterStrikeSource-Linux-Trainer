@@ -65,7 +65,7 @@ To run the software, go to the root directory of the project and type `sudo ./cs
 
 ![Screenshot of ESP](https://r2.e-z.host/bb3dfc85-7f7f-4dcb-8b0b-3a4af0aa57e4/wtpq31477kcc20rfpa.png)
 ![Screenshot of dormant ESP](https://r2.e-z.host/bb3dfc85-7f7f-4dcb-8b0b-3a4af0aa57e4/hm7b14y2ehbcuy0or8.png)
-![Screenshot of menu](https://r2.e-z.host/bb3dfc85-7f7f-4dcb-8b0b-3a4af0aa57e4/s82uf3r72i5f5d2m1h.png)
+![Screenshot of menu](https://r2.e-z.host/bb3dfc85-7f7f-4dcb-8b0b-3a4af0aa57e4/mxaejoj82j8hj92j4f.png)
 
 # Is this finished?
 No, it is very incomplete, and will change a lot over time. The program is inefficient, and commented out code is all over the place.
