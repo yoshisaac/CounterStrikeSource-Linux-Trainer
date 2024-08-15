@@ -1,4 +1,3 @@
-
 #include <stdio.h>
 #include <string>
 #include <thread>
@@ -22,6 +21,7 @@
 #include <cstddef>
 #include <algorithm>
 #include <cctype>
+#include <linux/uinput.h>
 
 #include "hacks/bhop.hpp"
 #include "hacks/aimbot.hpp"
@@ -156,7 +156,7 @@ unsigned int findPattern(pid_t procId, std::string moduleName, std::string Patte
 
 int main() {
   if (getuid()) { //check if we are root or not
-    printf("Please run as root\nExample: \"sudo ./hack\"\n");
+    printf("Please run as root\nExample: \"sudo ./cs-source-hack\"\n");
     return 1;
   }
 
@@ -199,6 +199,8 @@ int main() {
   std::cout << "pLocalYaw: " << std::hex << ENGINE::pLocalYaw << '\n';
   std::cout << "pLocalPitch: " << std::hex << ENGINE::pLocalPitch << '\n';
   std::cout << "localPlayer: " << std::hex << CLIENT::localPlayer << '\n';
+  printf("screenX: %d\n", ENGINE::screenX);
+  printf("screenY: %d\n", ENGINE::screenY);
 
   //https://gist.github.com/ericek111/774a1661be69387de846f5f5a5977a46 great piece of black magic.
   /* beginning of X initiation*/
@@ -206,6 +208,16 @@ int main() {
   Display* bhopDisplay = XOpenDisplay(NULL);
   Display* aimDisplay = XOpenDisplay(NULL);
   Display* drawDisplay = XOpenDisplay(NULL);
+
+  Screen* s = DefaultScreenOfDisplay(d);
+
+  printf("s->width %d\n", s->width);
+  printf("s->height %d\n", s->height);
+
+  if (s->width < ENGINE::screenX && s->height < ENGINE::screenY) { //bleh, in a nutshell: If you use over scanning on nvidia, then the game's resolution lies
+    ENGINE::screenX = s->width;                                                                                            // and will be larger than the screen
+    ENGINE::screenY = s->height;                                                                                            
+  }
 
   if (!d) {
     printf("Please run startx/xinit\nIf you are running this program from SSH, it won't work.\n");
@@ -283,13 +295,30 @@ int main() {
   DRAW::gray = createXColorFromRGBA(90, 90, 90, -1, d, DefaultScreen(d));
   /* end of X initiation */
 
+  /* uinput initiation */
+  //file handle
+  int dev_uinput = open("/dev/uinput", O_WRONLY | O_NONBLOCK);
+
+  //make a pretend USB input device
+  struct uinput_setup usetup;
+  ioctl(dev_uinput, UI_SET_EVBIT, EV_KEY);
+  ioctl(dev_uinput, UI_SET_KEYBIT, KEY_SPACE);
+  memset(&usetup, 0, sizeof(usetup));
+  usetup.id.bustype = BUS_USB;
+  usetup.id.vendor = 0x1234; /* sample vendor */
+  usetup.id.product = 0x5678; /* sample product */
+  strcpy(usetup.name, "input device CSS");
+  ioctl(dev_uinput, UI_DEV_SETUP, &usetup);
+  ioctl(dev_uinput, UI_DEV_CREATE);
+  
+
   //configuration GUI thread
   pthread_t pGUI;
   pthread_create(&pGUI, NULL, guiThread, NULL);
   pthread_setname_np(pGUI, "guiThread");
 
   //bhop thread
-  std::thread bhopThread(bhop, gamePid, bhopDisplay);
+  std::thread bhopThread(bhop, gamePid, bhopDisplay, dev_uinput);
   pthread_setname_np(bhopThread.native_handle(), "bhopThread");
 
   //aimbot thread
@@ -315,6 +344,8 @@ int main() {
   for (;;) {
     if (isKeyDown(d, XK_Delete)) {
       printf("Closing now");
+      ioctl(dev_uinput, UI_DEV_DESTROY);
+      close(dev_uinput);
       exit(0);
     }
     players(gamePid);

@@ -7,6 +7,8 @@
 //180/pi
 #define radpi 57.295779513082f
 
+#define pideg 0.017453293f
+
 #define isNaN(n) n != n
 
 inline static float distanceFormula3D(float locationOne[3], float locationTwo[2]) {
@@ -92,8 +94,30 @@ inline static bool WorldToScreen(pid_t gamePid, const float vIn[3], float vOut[2
   x += 0.5f * vOutTmp[0] * width + 0.5f;
   y -= 0.5f * vOutTmp[1] * height + 0.5f;
   
-  vOut[0] = std::floor(x * 100.f) / 100.f;
-  vOut[1] = std::floor(y * 100.f) / 100.f;
+  vOut[0] = x * 100.f / 100.f;
+  vOut[1] = y * 100.f / 100.f;
 
+  return true;
+}
+
+inline bool WorldToScreenTest(pid_t gamePid, const float vIn[3], float vOut[2]) {
+  Memory::Read(gamePid, ENGINE::viewMatrix, &vmatrix, sizeof(vmatrix));
+
+  float clip_coords[4];
+  clip_coords[0] = vIn[0] * vmatrix[0][0] + vIn[1] * vmatrix[0][1] + vIn[2] * vmatrix[0][2] + vmatrix[0][3];
+  clip_coords[1] = vIn[0] * vmatrix[1][0] + vIn[1] * vmatrix[1][1] + vIn[2] * vmatrix[1][2] + vmatrix[1][3];
+  clip_coords[2] = vIn[0] * vmatrix[2][0] + vIn[1] * vmatrix[2][1] + vIn[2] * vmatrix[2][2] + vmatrix[2][3];
+  clip_coords[3] = vIn[0] * vmatrix[3][0] + vIn[1] * vmatrix[3][1] + vIn[2] * vmatrix[3][2] + vmatrix[3][3];
+
+  if (clip_coords[3] < 0.1f)
+    return false;
+
+  float ndc[3];
+  ndc[0] = clip_coords[0] / clip_coords[3];
+  ndc[1] = clip_coords[1] / clip_coords[3];
+  ndc[2] = clip_coords[2] / clip_coords[3];
+
+  vOut[0] = (int)((ENGINE::screenX / 2 * ndc[0]) + (ndc[0] + ENGINE::screenX / 2));
+  vOut[1] = (int)(-(ENGINE::screenY / 2 * ndc[1]) + (ndc[1] + ENGINE::screenY / 2));
   return true;
 }

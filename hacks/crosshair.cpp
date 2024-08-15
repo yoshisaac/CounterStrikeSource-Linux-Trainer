@@ -36,8 +36,8 @@ void crosshair(pid_t gamePid, XdbeBackBuffer back_buffer, Display* drawDisplay, 
 							drawDisplay,
 							DefaultScreen(drawDisplay)).pixel);
  
-    XDrawLine(drawDisplay, back_buffer, gc, screen_center[0]-20, screen_center[1]-4, screen_center[0]+7, screen_center[1]-4);
-    XDrawLine(drawDisplay, back_buffer, gc, screen_center[0]-7, screen_center[1]-17, screen_center[0]-7, screen_center[1]+9);
+    XDrawLine(drawDisplay, back_buffer, gc, screen_center[0]-13, screen_center[1], screen_center[0]+14, screen_center[1]);
+    XDrawLine(drawDisplay, back_buffer, gc, screen_center[0], screen_center[1]-13, screen_center[0], screen_center[1]+14);
   }
 
   if (config->ESPcrosshairRCS) {
@@ -48,16 +48,16 @@ void crosshair(pid_t gamePid, XdbeBackBuffer back_buffer, Display* drawDisplay, 
 							DefaultScreen(drawDisplay)).pixel);
   
     XDrawLine(drawDisplay, back_buffer, gc,
-	      (screen_center[0] - ((screen_center[0] / 90) * p_local.aimPunch[1])) - 20,
-	      (screen_center[1] + ((screen_center[1] / 90) * p_local.aimPunch[0])) - 4,
-	      (screen_center[0] - ((screen_center[0] / 90) * p_local.aimPunch[1])) + 7,
-	      (screen_center[1] + ((screen_center[1] / 90) * p_local.aimPunch[0])) - 4);
+	      (screen_center[0] - ((screen_center[0] / 90) * p_local.aimPunch[1])) - 13,
+	      (screen_center[1] + ((screen_center[1] / 90) * p_local.aimPunch[0])),
+	      (screen_center[0] - ((screen_center[0] / 90) * p_local.aimPunch[1])) + 14,
+	      (screen_center[1] + ((screen_center[1] / 90) * p_local.aimPunch[0])));
   
     XDrawLine(drawDisplay, back_buffer, gc,
-	      (screen_center[0] - ((screen_center[0] / 90) * p_local.aimPunch[1])) - 7,
-	      (screen_center[1] + ((screen_center[1] / 90) * p_local.aimPunch[0])) - 17,
-	      (screen_center[0] - ((screen_center[0] / 90) * p_local.aimPunch[1])) - 7,
-	      (screen_center[1] + ((screen_center[1] / 90) * p_local.aimPunch[0])) + 9);
+	      (screen_center[0] - ((screen_center[0] / 90) * p_local.aimPunch[1])),
+	      (screen_center[1] + ((screen_center[1] / 90) * p_local.aimPunch[0])) - 13,
+	      (screen_center[0] - ((screen_center[0] / 90) * p_local.aimPunch[1])),
+	      (screen_center[1] + ((screen_center[1] / 90) * p_local.aimPunch[0])) + 14);
   }
   
   return;

@@ -85,12 +85,15 @@ void players(pid_t gamePid) {
 
     float aimPunch[3];
     Memory::Read(gamePid, player + playerOffset::aimPunch, &aimPunch, sizeof(float[3]));
+
+    int flags;
+    Memory::Read(gamePid, player + playerOffset::flags, &flags, sizeof(int));    
     
     playerInfo::l_players[i] = Player(i, health, name, viewAngle,
 				      location, team, isDead, height,
 				      dormant, boneMatrix, playerInfo::l_players[i].dormant_frames,
 				      playerInfo::l_players[i].dormant_alpha,
-				      aimPunch);
+				      aimPunch, flags, playerInfo::l_players[i].aimbotFov);
 
    }
 }

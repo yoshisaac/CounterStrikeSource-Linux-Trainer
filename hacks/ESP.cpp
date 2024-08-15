@@ -24,7 +24,6 @@
 void esp(pid_t gamePid, XdbeBackBuffer back_buffer, Display* drawDisplay, Window window, GC gc) {
 
   XSetBackground(drawDisplay, gc, DRAW::white.pixel);
-
     
   if (getPidByWindow(drawDisplay, getFocusedWindow(drawDisplay)) != gamePid || !config->ESP) //ESP is off/disable ESP/stop rendering
     return;
@@ -37,14 +36,16 @@ void esp(pid_t gamePid, XdbeBackBuffer back_buffer, Display* drawDisplay, Window
     if (p_local.team == player.team) continue;
       
     float out[2];
-    if (WorldToScreen(gamePid, player.absLocation, out)) {      
+    if (WorldToScreenTest(gamePid, player.absLocation, out)) {      
 	
       float distance = distanceFormula3D(p_local.absLocation, player.absLocation);
+
+      if (distance < 25) continue;
 	
       float getHead[3] = {player.absLocation[0], player.absLocation[1], player.absLocation[2]};
       getHead[2] += player.height + 10;
       float screenHead[2];
-      WorldToScreen(gamePid, getHead, screenHead); //get feet height
+      WorldToScreenTest(gamePid, getHead, screenHead); //get feet height
 	
       float bottomY = out[1];
       float topY = screenHead[1];
@@ -54,7 +55,7 @@ void esp(pid_t gamePid, XdbeBackBuffer back_buffer, Display* drawDisplay, Window
       //text screen offset
       player.absLocation[2] += player.height + 14;
       float screenText[2];
-      WorldToScreen(gamePid, player.absLocation, screenText);
+      WorldToScreenTest(gamePid, player.absLocation, screenText);
 
       XColor dormant_color;
       if (player.dormant == true) {
@@ -129,12 +130,12 @@ void esp(pid_t gamePid, XdbeBackBuffer back_buffer, Display* drawDisplay, Window
       if (config->ESPhealthbar) {
 	//health bar shadow
 	XSetForeground(drawDisplay, gc, DRAW::black.pixel);
-	db_thickline(back_buffer, drawDisplay, gc, out[0] - (11500/distance), topY-2, out[0] - (11500/distance), bottomY+2, 4, distance, 0.650f);
+	db_thickline(back_buffer, drawDisplay, gc, out[0] - (9800/distance) - 5, topY-2, out[0] - (9800/distance) - 5, bottomY+2, 4, distance, 0.650f);
 
 	int ydelta = (topY - bottomY) * (1 - (player.health / 100.f));
 	
 	//health bar color
-	if (player.health > 100) {
+	if (player.health > 100) { //show that they have more health than what is conventional
 	  XSetForeground(drawDisplay, gc, DRAW::cyan.pixel);
 	  ydelta = 0;
 	}
@@ -149,7 +150,7 @@ void esp(pid_t gamePid, XdbeBackBuffer back_buffer, Display* drawDisplay, Window
 
 	  
 	//health bar
-	db_thickline(back_buffer, drawDisplay, gc, out[0] - (11500/distance), bottomY, out[0] - (11500/distance), topY - ydelta, 2, distance, 0.20f);
+	db_thickline(back_buffer, drawDisplay, gc, out[0] - (9800/distance) - 5, bottomY, out[0] - (9800/distance) - 5, topY - ydelta, 2, distance, 0.20f);
       }
 
       if (config->ESPhealthtext) {
@@ -170,6 +171,15 @@ void esp(pid_t gamePid, XdbeBackBuffer back_buffer, Display* drawDisplay, Window
 	XDrawString(drawDisplay, back_buffer, gc, out[0] - (11500/distance), screenText[1], std::to_string(player.health).c_str(), strlen(std::to_string(player.health).c_str()));
       }
 
+      if (config->ESPsnaplines) {
+	XSetForeground(drawDisplay, gc, createXColorFromRGB(config->ESPsnaplinescolor[0],
+							    config->ESPsnaplinescolor[1],
+							    config->ESPsnaplinescolor[2],
+							    drawDisplay, DefaultScreen(drawDisplay)).pixel);
+	
+	XDrawLine(drawDisplay, back_buffer, gc, ENGINE::screenX/2, ENGINE::screenY, out[0], out[1]);
+      }
+
       //skeleton debug
       // XSetForeground(drawDisplay, gc, DRAW::white.pixel);
       // float last_bone[3];
@@ -177,7 +187,7 @@ void esp(pid_t gamePid, XdbeBackBuffer back_buffer, Display* drawDisplay, Window
       //   //float bone[3] = {*player.boneMatrix[i]};
 
       //   float bone_screen[2];
-      //   if (!WorldToScreen(gamePid, player.boneMatrix[i], bone_screen)) continue;
+      //   if (!WorldToScreenTest(gamePid, player.boneMatrix[i], bone_screen)) continue;
 	  
       //   XDrawString(drawDisplay, back_buffer, gc, bone_screen[0], bone_screen[1], std::to_string(i).c_str(), strlen(std::to_string(i).c_str()));
 	  
@@ -200,19 +210,19 @@ void esp(pid_t gamePid, XdbeBackBuffer back_buffer, Display* drawDisplay, Window
       float bone_screen15[2], bone_screen16[2], bone_screen17[2], bone_screen43[2], bone_screen18[2];
       float bone_screen28[2], bone_screen29[2], bone_screen30[2], bone_screen44[2], bone_screen31[2];
       if (config->ESPskeleton) {
-	if (WorldToScreen(gamePid, player.boneMatrix[0], bone_screen0) && WorldToScreen(gamePid, player.boneMatrix[1], bone_screen1) &&
-	    WorldToScreen(gamePid, player.boneMatrix[2], bone_screen2) && WorldToScreen(gamePid, player.boneMatrix[3], bone_screen3) &&
-	    WorldToScreen(gamePid, player.boneMatrix[4], bone_screen4) && WorldToScreen(gamePid, player.boneMatrix[5], bone_screen5) &&
-	    WorldToScreen(gamePid, player.boneMatrix[6], bone_screen6) && WorldToScreen(gamePid, player.boneMatrix[7], bone_screen7) &&
-	    WorldToScreen(gamePid, player.boneMatrix[8], bone_screen8) && WorldToScreen(gamePid, player.boneMatrix[9], bone_screen9) &&
-	    WorldToScreen(gamePid, player.boneMatrix[10], bone_screen10) && WorldToScreen(gamePid, player.boneMatrix[11], bone_screen11) &&
-	    WorldToScreen(gamePid, player.boneMatrix[12], bone_screen12) && WorldToScreen(gamePid, player.boneMatrix[13], bone_screen13) &&
-	    WorldToScreen(gamePid, player.boneMatrix[14], bone_screen14) && WorldToScreen(gamePid, player.boneMatrix[15], bone_screen15) &&
-	    WorldToScreen(gamePid, player.boneMatrix[16], bone_screen16) && WorldToScreen(gamePid, player.boneMatrix[17], bone_screen17) &&
-	    WorldToScreen(gamePid, player.boneMatrix[43], bone_screen43) && WorldToScreen(gamePid, player.boneMatrix[18], bone_screen18) &&
-	    WorldToScreen(gamePid, player.boneMatrix[28], bone_screen28) && WorldToScreen(gamePid, player.boneMatrix[29], bone_screen29) &&
-	    WorldToScreen(gamePid, player.boneMatrix[30], bone_screen30) && WorldToScreen(gamePid, player.boneMatrix[44], bone_screen44) &&
-	    WorldToScreen(gamePid, player.boneMatrix[31], bone_screen31) && (player.boneMatrix[0][0] != 0 && player.boneMatrix[0][1] != 0 && player.boneMatrix[0][2] != 0)) {
+	if (WorldToScreenTest(gamePid, player.boneMatrix[0], bone_screen0) && WorldToScreenTest(gamePid, player.boneMatrix[1], bone_screen1) &&
+	    WorldToScreenTest(gamePid, player.boneMatrix[2], bone_screen2) && WorldToScreenTest(gamePid, player.boneMatrix[3], bone_screen3) &&
+	    WorldToScreenTest(gamePid, player.boneMatrix[4], bone_screen4) && WorldToScreenTest(gamePid, player.boneMatrix[5], bone_screen5) &&
+	    WorldToScreenTest(gamePid, player.boneMatrix[6], bone_screen6) && WorldToScreenTest(gamePid, player.boneMatrix[7], bone_screen7) &&
+	    WorldToScreenTest(gamePid, player.boneMatrix[8], bone_screen8) && WorldToScreenTest(gamePid, player.boneMatrix[9], bone_screen9) &&
+	    WorldToScreenTest(gamePid, player.boneMatrix[10], bone_screen10) && WorldToScreenTest(gamePid, player.boneMatrix[11], bone_screen11) &&
+	    WorldToScreenTest(gamePid, player.boneMatrix[12], bone_screen12) && WorldToScreenTest(gamePid, player.boneMatrix[13], bone_screen13) &&
+	    WorldToScreenTest(gamePid, player.boneMatrix[14], bone_screen14) && WorldToScreenTest(gamePid, player.boneMatrix[15], bone_screen15) &&
+	    WorldToScreenTest(gamePid, player.boneMatrix[16], bone_screen16) && WorldToScreenTest(gamePid, player.boneMatrix[17], bone_screen17) &&
+	    WorldToScreenTest(gamePid, player.boneMatrix[43], bone_screen43) && WorldToScreenTest(gamePid, player.boneMatrix[18], bone_screen18) &&
+	    WorldToScreenTest(gamePid, player.boneMatrix[28], bone_screen28) && WorldToScreenTest(gamePid, player.boneMatrix[29], bone_screen29) &&
+	    WorldToScreenTest(gamePid, player.boneMatrix[30], bone_screen30) && WorldToScreenTest(gamePid, player.boneMatrix[44], bone_screen44) &&
+	    WorldToScreenTest(gamePid, player.boneMatrix[31], bone_screen31) && (player.boneMatrix[0][0] != 0 && player.boneMatrix[0][1] != 0 && player.boneMatrix[0][2] != 0)) {
 	  //left leg
 	  XDrawLine(drawDisplay, back_buffer, gc, bone_screen0[0], bone_screen0[1], bone_screen1[0], bone_screen1[1]);
 	  XDrawLine(drawDisplay, back_buffer, gc, bone_screen1[0], bone_screen1[1], bone_screen2[0], bone_screen2[1]);
@@ -251,7 +261,7 @@ void esp(pid_t gamePid, XdbeBackBuffer back_buffer, Display* drawDisplay, Window
 	}
       }
       player.boneMatrix[14][2] += 9;
-      if (config->ESPdot && WorldToScreen(gamePid, player.boneMatrix[14], bone_screen14))
+      if (config->ESPdot && WorldToScreenTest(gamePid, player.boneMatrix[14], bone_screen14))
 	XFillArc(drawDisplay, back_buffer, gc, bone_screen14[0] - ((9800/distance)/2), bone_screen14[1], (9500/distance), (9500/distance), 0, 360*64);
 	
     }

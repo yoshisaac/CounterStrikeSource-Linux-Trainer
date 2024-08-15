@@ -13,16 +13,19 @@
 
 #include "../client/client.hpp"
 
+#define FL_ONGROUND (1 << 0)
+
 namespace playerOffset {
-  inline uintptr_t health = 0x84;
-  inline uintptr_t viewAngles = 0x25C;
-  inline uintptr_t absLocation = 0x250;
-  inline uintptr_t team = 0x8C; //3 is CT, 2 is T
-  inline uintptr_t isDead = 0x83;
-  inline uintptr_t height = 0x1C0;
-  inline uintptr_t dormant = 0x16E;
-  inline uintptr_t boneMatrixPtr = 0x810;
-  inline uintptr_t aimPunch = 0xE28;
+  inline constexpr uintptr_t health = 0x84;
+  inline constexpr uintptr_t viewAngles = 0x25C;
+  inline constexpr uintptr_t absLocation = 0x250;
+  inline constexpr uintptr_t team = 0x8C; //3 is CT, 2 is T
+  inline constexpr uintptr_t isDead = 0x83;
+  inline constexpr uintptr_t height = 0x1C0;
+  inline constexpr uintptr_t dormant = 0x16E;
+  inline constexpr uintptr_t flags = 0x340; // https://github.com/rdbo/cssmh-external/blob/master/cssmh/offsets.hpp#L19
+  inline constexpr uintptr_t boneMatrixPtr = 0x810;
+  inline constexpr uintptr_t aimPunch = 0xE28;
 };
 
 class Player {
@@ -40,7 +43,9 @@ public:
   short dormant_alpha;
   float boneMatrix[48][3];
   float aimPunch[3];
-
+  int flags;
+  float aimbotFov;
+  
   Player() {
     this->index = -1;
     this->health = 0;
@@ -59,7 +64,8 @@ public:
     this->aimPunch[0] = 0;
     this->aimPunch[1] = 0;
     this->aimPunch[2] = 0;
-    
+    this->flags = -1;
+    this->aimbotFov = 9999;
   }
   
   Player(int index, int health, std::string name,
@@ -67,7 +73,7 @@ public:
 	 int team, bool isDead, float height,
 	 bool dormant, float boneMatrix[48][3],
 	 int dormant_frames, short dormant_alpha,
-	 float aimPunch[3]) {
+	 float aimPunch[3], int flags, float aimbotFov) {
 
     this->index = index;
     this->health = health;
@@ -91,6 +97,8 @@ public:
     this->aimPunch[0] = aimPunch[0];
     this->aimPunch[1] = aimPunch[1];
     this->aimPunch[2] = aimPunch[2];
+    this->flags = flags;
+    this->aimbotFov = aimbotFov;
   }
 };
 

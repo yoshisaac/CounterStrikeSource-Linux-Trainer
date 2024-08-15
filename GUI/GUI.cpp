@@ -7,13 +7,16 @@ static void activate(GtkApplication* app, gpointer user_data) {
   
   GtkWidget* ESPmaster;
   GtkWidget* ESPbox;
+  GtkWidget* ESPboxcolor;
   GtkWidget* ESPskeleton;
+  GtkWidget* ESPskeletoncolor;
   GtkWidget* ESPdot;
   GtkWidget* ESPname;
   GtkWidget* ESPhealthbar;
   GtkWidget* ESPhealthtext;
-  GtkWidget* ESPboxcolor;
-  GtkWidget* ESPskeletoncolor;
+  GtkWidget* ESPsnaplines;
+  GtkWidget* ESPsnaplinescolor;
+  
   GtkWidget* ESPcrosshair;
   GtkWidget* ESPcrosshaircolor;
   GtkWidget* ESPcrosshairRCS;
@@ -25,6 +28,8 @@ static void activate(GtkApplication* app, gpointer user_data) {
   GtkWidget* AIMhitbox;
   
   GtkWidget* BHOPmaster;
+
+  GtkWidget* ROmode; //read only mode
   
   GtkWidget* grid = gtk_grid_new();
 
@@ -87,10 +92,23 @@ static void activate(GtkApplication* app, gpointer user_data) {
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ESPhealthtext), true);
   gtk_grid_attach(GTK_GRID(grid), ESPhealthtext, 0, 7, 2, 1);
 
+  ESPsnaplines = gtk_check_button_new_with_label("Snap Lines");
+  g_signal_connect(ESPsnaplines, "toggled", G_CALLBACK(esp_snaplines_toggle), NULL);
+  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ESPsnaplines), false);
+  gtk_grid_attach(GTK_GRID(grid), ESPsnaplines, 0, 8, 1, 1);
+
+  ESPsnaplinescolor = gtk_color_button_new();
+  g_signal_connect(ESPsnaplinescolor, "color-set", G_CALLBACK(esp_snaplines_color), NULL);
+  GdkRGBA snaplinesdefcolor; snaplinesdefcolor.red = 0.0f;
+  snaplinesdefcolor.green = 1.0f; snaplinesdefcolor.blue = 0.0f;
+  snaplinesdefcolor.alpha = 1.0f;
+  gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(ESPsnaplinescolor), &snaplinesdefcolor);
+  gtk_grid_attach(GTK_GRID(grid), ESPsnaplinescolor, 1, 8, 1, 1);
+
   ESPcrosshair = gtk_check_button_new_with_label("Crosshair");
   g_signal_connect(ESPcrosshair, "toggled", G_CALLBACK(esp_crosshair_toggle), NULL);
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ESPcrosshair), false);
-  gtk_grid_attach(GTK_GRID(grid), ESPcrosshair, 0, 8, 1, 1);
+  gtk_grid_attach(GTK_GRID(grid), ESPcrosshair, 0, 9, 1, 1);
 
   ESPcrosshaircolor = gtk_color_button_new();
   g_signal_connect(ESPcrosshaircolor, "color-set", G_CALLBACK(esp_crosshair_color), NULL);
@@ -98,12 +116,12 @@ static void activate(GtkApplication* app, gpointer user_data) {
   crosshairdefcolor.green = 1.0f; crosshairdefcolor.blue = 0.0f;
   crosshairdefcolor.alpha = 1.0f;
   gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(ESPcrosshaircolor), &crosshairdefcolor);
-  gtk_grid_attach(GTK_GRID(grid), ESPcrosshaircolor, 1, 8, 1, 1);
+  gtk_grid_attach(GTK_GRID(grid), ESPcrosshaircolor, 1, 9, 1, 1);
 
   ESPcrosshairRCS = gtk_check_button_new_with_label("Crosshair RCS");
   g_signal_connect(ESPcrosshairRCS, "toggled", G_CALLBACK(esp_crosshair_rcs_toggle), NULL);
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ESPcrosshairRCS), false);
-  gtk_grid_attach(GTK_GRID(grid), ESPcrosshairRCS, 0, 9, 1, 1);
+  gtk_grid_attach(GTK_GRID(grid), ESPcrosshairRCS, 0, 10, 1, 1);
   
   ESPcrosshairRCScolor = gtk_color_button_new();
   g_signal_connect(ESPcrosshairRCScolor, "color-set", G_CALLBACK(esp_crosshair_rcs_color), NULL);
@@ -111,7 +129,7 @@ static void activate(GtkApplication* app, gpointer user_data) {
   crosshairRCSdefcolor.green = (192.f/255.f); crosshairRCSdefcolor.blue = (212.f/255.f);
   crosshairRCSdefcolor.alpha = 1.0f;
   gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(ESPcrosshairRCScolor), &crosshairRCSdefcolor);
-  gtk_grid_attach(GTK_GRID(grid), ESPcrosshairRCScolor, 1, 9, 1, 1);
+  gtk_grid_attach(GTK_GRID(grid), ESPcrosshairRCScolor, 1, 10, 1, 1);
   
   /* AIMBOT GUI configuration */
   AIMmaster = gtk_check_button_new_with_label("Aimbot Master Toggle");
@@ -141,6 +159,11 @@ static void activate(GtkApplication* app, gpointer user_data) {
   g_signal_connect(BHOPmaster, "toggled", G_CALLBACK(bhop_master_toggle), NULL);
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(BHOPmaster), true);
   gtk_grid_attach(GTK_GRID(grid), BHOPmaster, 5, 1, 2, 1);
+
+  // ROmode = gtk_check_button_new_with_label("Read Only Mode");
+  // g_signal_connect(ROmode, "toggled", G_CALLBACK(read_only_toggle), NULL);
+  // gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ROmode), false);
+  // gtk_grid_attach(GTK_GRID(grid), ROmode, 5, 9, 2, 1);
   
   gtk_widget_show_all (window);
 }

@@ -1,9 +1,5 @@
 #include "draw.hpp"
 
-#include "ESP.hpp"
-#include "crosshair.hpp"
-#include "../xutil.hpp"
-
 #include <X11/Xos.h>
 #include <X11/X.h>
 #include <X11/Xlib.h>
@@ -13,6 +9,12 @@
 #include <X11/extensions/Xfixes.h>
 #include <X11/extensions/Xcomposite.h>
 #include <X11/extensions/Xdbe.h>
+
+#include "ESP.hpp"
+#include "crosshair.hpp"
+#include "fovCircle.hpp"
+
+#include "../xutil.hpp"
 
 
 void draw(pid_t gamePid, XdbeBackBuffer back_buffer, Display* drawDisplay, Window window) {
@@ -24,7 +26,8 @@ void draw(pid_t gamePid, XdbeBackBuffer back_buffer, Display* drawDisplay, Windo
     //hack features
     esp(gamePid, back_buffer, drawDisplay, window, gc);
     crosshair(gamePid, back_buffer, drawDisplay, window, gc);
-
+    fovCircle(gamePid, back_buffer, drawDisplay, window, gc);
+    
     db_swap_buffers(drawDisplay, window); //swap the back buffer
     XFreeGC(drawDisplay, gc); //free the memory we allocated for the graphics context
     usleep(1000*1000/300); //frame rate
