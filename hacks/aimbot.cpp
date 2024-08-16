@@ -86,7 +86,8 @@ void aimbot(pid_t gamePid, Display* aimDisplay) {
 	}
 
 	if (config->AIMsmooth > 0) {
-
+	  deltaAngle[0] = plocal_vo[0] - plocal_v[0];
+	  deltaAngle[1] = plocal_vo[1] - plocal_v[1];
 	  // https://github.com/joaovarelas/h00k-game-hack/blob/master/h00k/aimbot.cpp#L658
 	  if (deltaAngle[0] >  180) deltaAngle[0] -= 360;
 	  if (deltaAngle[1] >  180) deltaAngle[1] -= 360;
@@ -142,5 +143,6 @@ void aimbot(pid_t gamePid, Display* aimDisplay) {
 	}
       }
     }
-  }
+    usleep(1000*1000/128); //at most, servers will run at a 128 ticks per second.
+  }                       //even then im unsure of that.
 }
