@@ -15,20 +15,17 @@
 
 void bhop(pid_t gamePid, Display* d, int dev_uinput) {
   for (;;) {
-
-    if (getPidByWindow(d, getFocusedWindow(d)) != gamePid) { continue; } //dont read, write, or get key states if we aren't focused into the game
-    
-    if (!config->BHOP) {
-      std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    if (getPidByWindow(d, getFocusedWindow(d)) != gamePid || !config->BHOP) {
+      usleep(1000*1000/128);
       continue; 
     }
 
     Player p_local = getLocalPlayer();
-
+    int i = 6;
     if (p_local.flags & FL_ONGROUND && isKeyDown(d, XK_space) == true) {
-      if (config->ROmode == false)
+      if (config->ROmode == false) {
         Memory::Write(gamePid, CLIENT::dwForceJump, &CLIENT::DO, sizeof(int));
-      else {
+      } else {
 	/*
 	emit(dev_uinput, EV_KEY, KEY_SPACE, 1);
 	emit(dev_uinput, EV_SYN, SYN_REPORT, 0);
@@ -36,12 +33,10 @@ void bhop(pid_t gamePid, Display* d, int dev_uinput) {
 	emit(dev_uinput, EV_SYN, SYN_REPORT, 0);
 	*/
       }
-    }
-    else {
-      if (config->ROmode == false)
-	Memory::Write(gamePid, CLIENT::dwForceJump, &CLIENT::DONT, sizeof(int));
+    } else {
+      Memory::Write(gamePid, CLIENT::dwForceJump, &CLIENT::DONT, sizeof(int));
     }
     
-    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    usleep(1000*1000/128);
   }
 }

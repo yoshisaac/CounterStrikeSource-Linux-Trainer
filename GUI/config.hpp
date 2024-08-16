@@ -19,7 +19,7 @@ public:
   bool ESPcrosshair = false;
   int ESPcrosshaircolor[4] = {255, 255, 0, 255};
   bool ESPcrosshairRCS = false;
-  int ESPcrosshairRCScolor[4] = {11, 192, 212, 255};
+  int ESPcrosshairRCScolor[4] = {0, 255, 240, 255};
   
   bool AIM = false;
   float AIMsmooth = 0;

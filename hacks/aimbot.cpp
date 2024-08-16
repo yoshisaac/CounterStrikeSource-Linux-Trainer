@@ -65,8 +65,6 @@ void aimbot(pid_t gamePid, Display* aimDisplay) {
       plocal_vo[0] = (float)(atan(deltaLocation[2] / hyp) * radpi);
       plocal_vo[1] = (float)(atan(deltaLocation[1] / deltaLocation[0]) * radpi);
       
-      float deltaAngle[2] = {plocal_vo[0] - plocal_v[0], plocal_vo[1] - plocal_v[1]}; 
-
       float distance = distanceFormula3D(p_local.absLocation, player.boneMatrix[aimbot_bone]);
       
       float fov = sqrt(powf(sin((plocal_v[0] - plocal_vo[0] + p_local.aimPunch[0] * 2) * pideg) * distance, 2.0) + powf(sin((plocal_v[1] - plocal_vo[1] + p_local.aimPunch[1] * 2) * pideg) * distance, 2.0));
@@ -76,7 +74,7 @@ void aimbot(pid_t gamePid, Display* aimDisplay) {
 
 	playerInfo::l_players[i].aimbotFov = fov;
 	
-	if (fov > 90) {
+	if (fov > 90 && !isKeyDown(aimDisplay, XK_Alt_L)) {
 	  AIMBOT::aimIndex = -1;
 	  continue;
 	}
@@ -86,8 +84,8 @@ void aimbot(pid_t gamePid, Display* aimDisplay) {
 	}
 
 	if (config->AIMsmooth > 0) {
-	  deltaAngle[0] = plocal_vo[0] - plocal_v[0];
-	  deltaAngle[1] = plocal_vo[1] - plocal_v[1];
+	  float deltaAngle[2] = {plocal_vo[0] - plocal_v[0], plocal_vo[1] - plocal_v[1]}; 
+
 	  // https://github.com/joaovarelas/h00k-game-hack/blob/master/h00k/aimbot.cpp#L658
 	  if (deltaAngle[0] >  180) deltaAngle[0] -= 360;
 	  if (deltaAngle[1] >  180) deltaAngle[1] -= 360;
@@ -126,8 +124,8 @@ void aimbot(pid_t gamePid, Display* aimDisplay) {
 
 	// https://github.com/GhostsOfHiroshima/Counter-Strike-Source-Hack/blob/master/Aimbot.cpp#L65
 	if (config->AIMrecoilcompensation) {
-	  plocal_v[0] -= p_local.aimPunch[0] * 2.f;
-	  plocal_v[1] -= p_local.aimPunch[1] * 2.f;
+	  plocal_v[0] -= (p_local.aimPunch[0] * 2.f);
+	  plocal_v[1] -= (p_local.aimPunch[1] * 2.f);
 	}
       }
 

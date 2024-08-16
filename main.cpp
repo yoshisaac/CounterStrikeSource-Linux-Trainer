@@ -283,6 +283,7 @@ int main() {
     return 1;
   }
 
+  //some color constants
   DRAW::red = createXColorFromRGB(255, 0, 0, d, DefaultScreen(d));
   DRAW::orange = createXColorFromRGB(255, 170, 0, d, DefaultScreen(d)); 
   DRAW::black = createXColorFromRGB(0, 0, 0, d, DefaultScreen(d));
@@ -291,7 +292,7 @@ int main() {
   DRAW::yellow = createXColorFromRGB(255, 255, 0, d, DefaultScreen(d));
   DRAW::tColor = createXColorFromRGB(230, 35, 35, d, DefaultScreen(d));
   DRAW::ctColor = createXColorFromRGB(148, 196, 248, d, DefaultScreen(d));
-  DRAW::cyan = createXColorFromRGB(11, 192, 212, d, DefaultScreen(d));
+  DRAW::cyan = createXColorFromRGB(0, 255, 240, d, DefaultScreen(d));
   DRAW::gray = createXColorFromRGBA(90, 90, 90, -1, d, DefaultScreen(d));
   /* end of X initiation */
 
