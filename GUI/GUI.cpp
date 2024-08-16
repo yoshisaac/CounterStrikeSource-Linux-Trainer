@@ -125,8 +125,8 @@ static void activate(GtkApplication* app, gpointer user_data) {
   
   ESPcrosshairRCScolor = gtk_color_button_new();
   g_signal_connect(ESPcrosshairRCScolor, "color-set", G_CALLBACK(esp_crosshair_rcs_color), NULL);
-  GdkRGBA crosshairRCSdefcolor; crosshairRCSdefcolor.red = (11.f/255.f);
-  crosshairRCSdefcolor.green = (192.f/255.f); crosshairRCSdefcolor.blue = (212.f/255.f);
+  GdkRGBA crosshairRCSdefcolor; crosshairRCSdefcolor.red = 0.0f;
+  crosshairRCSdefcolor.green = 1.0f; crosshairRCSdefcolor.blue = (240.f/255.f);
   crosshairRCSdefcolor.alpha = 1.0f;
   gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(ESPcrosshairRCScolor), &crosshairRCSdefcolor);
   gtk_grid_attach(GTK_GRID(grid), ESPcrosshairRCScolor, 1, 10, 1, 1);
