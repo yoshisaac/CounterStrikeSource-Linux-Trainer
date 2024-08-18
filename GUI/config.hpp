@@ -4,7 +4,7 @@ class Config {
 public:
   //the default values are set by GTK3, not the class itself.
   //go to GUI.cpp to check out default config values.
-  //everything here should be false. Other than colors for some reason.
+  //everything here should be false. Except colors.
   bool ESP = false;
   bool ESPbox = false;
   int ESPboxcolor[4] = {230, 35, 35, 255}; //red, green, blue, alpha
@@ -16,6 +16,8 @@ public:
   bool ESPhealthtext = false;
   bool ESPsnaplines = false;
   int ESPsnaplinescolor[4] = {0, 255, 0, 255};
+  bool ESPsnaplineaimbot = false;
+  int ESPsnaplineaimbotcolor[4] = {255, 255, 255, 255};
   bool ESPcrosshair = false;
   int ESPcrosshaircolor[4] = {255, 255, 0, 255};
   bool ESPcrosshairRCS = false;
@@ -97,6 +99,19 @@ static void esp_snaplines_color(GtkColorButton *color_button, gpointer user_data
     config->ESPsnaplinescolor[3] = (int)(255 * color.alpha);
 }
 
+static void esp_snaplineaimbot_toggle() {
+  config->ESPsnaplineaimbot = !config->ESPsnaplineaimbot;
+}
+
+static void esp_snaplineaimbot_color(GtkColorButton *color_button, gpointer user_data) {
+    GdkRGBA color;
+    gtk_color_chooser_get_rgba(GTK_COLOR_CHOOSER(color_button), &color);
+
+    config->ESPsnaplineaimbotcolor[0] = (int)(255 * color.red);
+    config->ESPsnaplineaimbotcolor[1] = (int)(255 * color.green);
+    config->ESPsnaplineaimbotcolor[2] = (int)(255 * color.blue);
+    config->ESPsnaplineaimbotcolor[3] = (int)(255 * color.alpha);
+}
 
 static void esp_crosshair_toggle() {
   config->ESPcrosshair = !config->ESPcrosshair;

@@ -96,5 +96,5 @@ void players(pid_t gamePid) {
 				      aimPunch, flags, playerInfo::l_players[i].aimbotFov);
 
    }
-  usleep(1000*1000/128);
+  usleep(1000*1000/250);
 }

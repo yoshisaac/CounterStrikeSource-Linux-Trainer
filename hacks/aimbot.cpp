@@ -16,7 +16,10 @@ void aimbot(pid_t gamePid, Display* aimDisplay) {
       Player p_local = getLocalPlayer();
       p_local.absLocation[2] += p_local.height;
       
-      if (!config->AIM) continue;
+      if (!config->AIM) {
+	usleep(1000*1000/250); //at most, servers will run at a 128 ticks per second.	
+	continue;
+      }
 
       int aimbot_bone = 14; //default option if the switch statement is not hit for any reason
       switch (config->AIMhitbox) {
@@ -141,6 +144,6 @@ void aimbot(pid_t gamePid, Display* aimDisplay) {
 	}
       }
     }
-    usleep(1000*1000/128); //at most, servers will run at a 128 ticks per second.
+    usleep(1000*1000/250); //at most, servers will run at a 128 ticks per second.
   }                       //even then im unsure of that.
 }

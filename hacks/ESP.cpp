@@ -14,6 +14,7 @@
 #include <X11/extensions/Xdbe.h>
 
 #include "playerInfo.hpp"
+#include "aimbot.hpp"
 #include "../engine/engine.hpp"
 
 #include "../GUI/config.hpp"
@@ -34,6 +35,19 @@ void esp(pid_t gamePid, XdbeBackBuffer back_buffer, Display* drawDisplay, Window
 
     if (player.isDead == true || player.health <= 0) continue;
     if (p_local.team == player.team) continue;
+
+    int aimbot_bone = 14; //default option if the switch statement is not hit for any reason
+    switch (config->AIMhitbox) {
+    case 0: //head
+      aimbot_bone = 14;
+      break;
+    case 1: //upper body
+      aimbot_bone = 12;
+      break;
+    case 2: //lower body
+      aimbot_bone = 11;
+      break;
+    }
       
     float out[2];
     if (WorldToScreenTest(gamePid, player.absLocation, out)) {      
@@ -81,10 +95,10 @@ void esp(pid_t gamePid, XdbeBackBuffer back_buffer, Display* drawDisplay, Window
 	//box shadow
 	if (player.dormant == false) {
 	  XSetForeground(drawDisplay, gc, DRAW::black.pixel);
-	  db_thickline(back_buffer, drawDisplay, gc, out[0] - (9800/distance), topY, out[0] - (9800/distance), bottomY, 4, distance, 0.66f);
-	  db_thickline(back_buffer, drawDisplay, gc, out[0] + (9800/distance), topY, out[0] + (9800/distance), bottomY, 4, distance, 0.66f);
-	  db_thickline(back_buffer, drawDisplay, gc, out[0] + (9800/distance) - 2, topY, out[0] - (9800/distance) + 2, topY, 4, distance, 0.66f);
-	  db_thickline(back_buffer, drawDisplay, gc, out[0] - (9800/distance) - 2, bottomY, out[0] + (9800/distance) + 2, bottomY, 4, distance, 0.66f);
+	  db_thickline(back_buffer, drawDisplay, gc, out[0] - (9800/distance), topY-2, out[0] - (9800/distance), bottomY+2, 4, distance, 0.66f);
+	  db_thickline(back_buffer, drawDisplay, gc, out[0] + (9800/distance), topY-2, out[0] + (9800/distance), bottomY+2, 4, distance, 0.66f);
+	  db_thickline(back_buffer, drawDisplay, gc, out[0] + (9800/distance) + 2, topY, out[0] - (9800/distance) - 3, topY, 4, distance, 0.66f);
+	  db_thickline(back_buffer, drawDisplay, gc, out[0] - (9800/distance), bottomY, out[0] + (9800/distance), bottomY, 4, distance, 0.66f);
 	}
 	//box
 	/*
@@ -111,7 +125,7 @@ void esp(pid_t gamePid, XdbeBackBuffer back_buffer, Display* drawDisplay, Window
 	  
 	db_thickline(back_buffer, drawDisplay, gc, (out[0] - (9800/distance)), topY, (out[0] - (9800/distance)), bottomY, 2, distance, 0.30f);
 	db_thickline(back_buffer, drawDisplay, gc, (out[0] + (9800/distance)), topY, (out[0] + (9800/distance)), bottomY, 2, distance, 0.30f);
-	db_thickline(back_buffer, drawDisplay, gc, out[0] + (9800/distance), topY, out[0] - (9800/distance), topY, 2, distance, 0.30f);
+	db_thickline(back_buffer, drawDisplay, gc, out[0] + (9800/distance), topY, out[0] - (9800/distance) - 1, topY, 2, distance, 0.30f);
 	db_thickline(back_buffer, drawDisplay, gc, out[0] - (9800/distance), bottomY, out[0] + (9800/distance), bottomY, 2, distance, 0.30f);
       }
 	
@@ -179,7 +193,7 @@ void esp(pid_t gamePid, XdbeBackBuffer back_buffer, Display* drawDisplay, Window
 	
 	XDrawLine(drawDisplay, back_buffer, gc, ENGINE::screenX/2, ENGINE::screenY, out[0], out[1]);
       }
-
+      
       //skeleton debug
       // XSetForeground(drawDisplay, gc, DRAW::white.pixel);
       // float last_bone[3];
@@ -260,9 +274,17 @@ void esp(pid_t gamePid, XdbeBackBuffer back_buffer, Display* drawDisplay, Window
 	  //XDrawLine(drawDisplay, back_buffer, gc, bone_screen44[0], bone_screen44[1], bone_screen31[0], bone_screen31[1]);
 	}
       }
-      player.boneMatrix[14][2] += 9;
-      if (config->ESPdot && WorldToScreenTest(gamePid, player.boneMatrix[14], bone_screen14))
-	XFillArc(drawDisplay, back_buffer, gc, bone_screen14[0] - ((9800/distance)/2), bone_screen14[1], (9500/distance), (9500/distance), 0, 360*64);
+      
+      if (config->ESPsnaplineaimbot && AIMBOT::aimIndex == i) {
+	XSetForeground(drawDisplay, gc, createXColorFromRGB(config->ESPsnaplineaimbotcolor[0],
+							    config->ESPsnaplineaimbotcolor[1],
+							    config->ESPsnaplineaimbotcolor[2],
+							    drawDisplay, DefaultScreen(drawDisplay)).pixel);
+	float bone_screen[2];
+	WorldToScreen(gamePid, player.boneMatrix[aimbot_bone], bone_screen);
+	
+	XDrawLine(drawDisplay, back_buffer, gc, ENGINE::screenX/2, ENGINE::screenY/2, bone_screen[0], bone_screen[1]);
+      }
 	
     }
 

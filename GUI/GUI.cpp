@@ -16,6 +16,8 @@ static void activate(GtkApplication* app, gpointer user_data) {
   GtkWidget* ESPhealthtext;
   GtkWidget* ESPsnaplines;
   GtkWidget* ESPsnaplinescolor;
+  GtkWidget* ESPsnaplineaimbot;
+  GtkWidget* ESPsnaplineaimbotcolor;
   
   GtkWidget* ESPcrosshair;
   GtkWidget* ESPcrosshaircolor;
@@ -104,11 +106,24 @@ static void activate(GtkApplication* app, gpointer user_data) {
   snaplinesdefcolor.alpha = 1.0f;
   gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(ESPsnaplinescolor), &snaplinesdefcolor);
   gtk_grid_attach(GTK_GRID(grid), ESPsnaplinescolor, 1, 8, 1, 1);
+  
+  ESPsnaplineaimbot = gtk_check_button_new_with_label("Aimbot Line");
+  g_signal_connect(ESPsnaplineaimbot, "toggled", G_CALLBACK(esp_snaplineaimbot_toggle), NULL);
+  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ESPsnaplineaimbot), false);
+  gtk_grid_attach(GTK_GRID(grid), ESPsnaplineaimbot, 0, 9, 1, 1);
 
+  ESPsnaplineaimbotcolor = gtk_color_button_new();
+  g_signal_connect(ESPsnaplineaimbotcolor, "color-set", G_CALLBACK(esp_snaplineaimbot_color), NULL);
+  GdkRGBA snaplineaimbotdefcolor; snaplineaimbotdefcolor.red = 1.0f;
+  snaplineaimbotdefcolor.green = 1.0f; snaplineaimbotdefcolor.blue = 1.0f;
+  snaplineaimbotdefcolor.alpha = 1.0f;
+  gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(ESPsnaplineaimbotcolor), &snaplineaimbotdefcolor);
+  gtk_grid_attach(GTK_GRID(grid), ESPsnaplineaimbotcolor, 1, 9, 1, 1);
+  
   ESPcrosshair = gtk_check_button_new_with_label("Crosshair");
   g_signal_connect(ESPcrosshair, "toggled", G_CALLBACK(esp_crosshair_toggle), NULL);
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ESPcrosshair), false);
-  gtk_grid_attach(GTK_GRID(grid), ESPcrosshair, 0, 9, 1, 1);
+  gtk_grid_attach(GTK_GRID(grid), ESPcrosshair, 0, 10, 1, 1);
 
   ESPcrosshaircolor = gtk_color_button_new();
   g_signal_connect(ESPcrosshaircolor, "color-set", G_CALLBACK(esp_crosshair_color), NULL);
@@ -116,12 +131,12 @@ static void activate(GtkApplication* app, gpointer user_data) {
   crosshairdefcolor.green = 1.0f; crosshairdefcolor.blue = 0.0f;
   crosshairdefcolor.alpha = 1.0f;
   gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(ESPcrosshaircolor), &crosshairdefcolor);
-  gtk_grid_attach(GTK_GRID(grid), ESPcrosshaircolor, 1, 9, 1, 1);
+  gtk_grid_attach(GTK_GRID(grid), ESPcrosshaircolor, 1, 10, 1, 1);
 
   ESPcrosshairRCS = gtk_check_button_new_with_label("Crosshair RCS");
   g_signal_connect(ESPcrosshairRCS, "toggled", G_CALLBACK(esp_crosshair_rcs_toggle), NULL);
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ESPcrosshairRCS), false);
-  gtk_grid_attach(GTK_GRID(grid), ESPcrosshairRCS, 0, 10, 1, 1);
+  gtk_grid_attach(GTK_GRID(grid), ESPcrosshairRCS, 0, 11, 1, 1);
   
   ESPcrosshairRCScolor = gtk_color_button_new();
   g_signal_connect(ESPcrosshairRCScolor, "color-set", G_CALLBACK(esp_crosshair_rcs_color), NULL);
@@ -129,7 +144,7 @@ static void activate(GtkApplication* app, gpointer user_data) {
   crosshairRCSdefcolor.green = 1.0f; crosshairRCSdefcolor.blue = (240.f/255.f);
   crosshairRCSdefcolor.alpha = 1.0f;
   gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(ESPcrosshairRCScolor), &crosshairRCSdefcolor);
-  gtk_grid_attach(GTK_GRID(grid), ESPcrosshairRCScolor, 1, 10, 1, 1);
+  gtk_grid_attach(GTK_GRID(grid), ESPcrosshairRCScolor, 1, 11, 1, 1);
   
   /* AIMBOT GUI configuration */
   AIMmaster = gtk_check_button_new_with_label("Aimbot Master Toggle");

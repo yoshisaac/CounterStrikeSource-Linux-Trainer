@@ -16,7 +16,7 @@
 void bhop(pid_t gamePid, Display* d, int dev_uinput) {
   for (;;) {
     if (getPidByWindow(d, getFocusedWindow(d)) != gamePid || !config->BHOP) {
-      usleep(1000*1000/128);
+      usleep(1000*1000/250); //at most, servers will run at a 128 ticks per second.
       continue; 
     }
 
@@ -37,6 +37,6 @@ void bhop(pid_t gamePid, Display* d, int dev_uinput) {
       Memory::Write(gamePid, CLIENT::dwForceJump, &CLIENT::DONT, sizeof(int));
     }
     
-    usleep(1000*1000/60);
+    usleep(1000*1000/250);
   }
 }
