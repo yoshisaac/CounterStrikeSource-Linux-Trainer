@@ -54,7 +54,7 @@ void esp(pid_t gamePid, XdbeBackBuffer back_buffer, Display* drawDisplay, Window
 	
       float distance = distanceFormula3D(p_local.absLocation, player.absLocation);
 
-      if (distance < 25) continue;
+      if (distance < 75) continue;
 	
       float getHead[3] = {player.absLocation[0], player.absLocation[1], player.absLocation[2]};
       getHead[2] += player.height + 10;
@@ -284,6 +284,7 @@ void esp(pid_t gamePid, XdbeBackBuffer back_buffer, Display* drawDisplay, Window
 	WorldToScreen(gamePid, player.boneMatrix[aimbot_bone], bone_screen);
 	
 	XDrawLine(drawDisplay, back_buffer, gc, ENGINE::screenX/2, ENGINE::screenY/2, bone_screen[0], bone_screen[1]);
+	//db_thickline(back_buffer, drawDisplay, gc, ENGINE::screenX/2, ENGINE::screenY/2, bone_screen[0], bone_screen[1], 5, 0, 0);
       }
 	
     }

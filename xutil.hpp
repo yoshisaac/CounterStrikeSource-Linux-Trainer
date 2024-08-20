@@ -163,15 +163,26 @@ inline void db_line(XdbeBackBuffer back_buffer, Display* d, GC gc, int x1, int y
 
 //chatgipidy assisted
 inline void db_thickline(XdbeBackBuffer back_buffer, Display* d, GC gc, int x1, int y1, int x2, int y2, int thickness, int distance, float scale_factor) {
-  for (int i = 1; i <= thickness; ++i) {
-    if (y1 == y2) {
-      XDrawLine(d, back_buffer, gc, x1, y1+(i*((distance*scale_factor)/distance)), x2, y2+(i*((distance*scale_factor)/distance)));
-      XDrawLine(d, back_buffer, gc, x1, y1-(i*((distance*scale_factor)/distance)), x2, y2-(i*((distance*scale_factor)/distance)));
-    } else {
-      XDrawLine(d, back_buffer, gc, x1+(i*((distance*scale_factor)/distance)), y1, x2+(i*((distance*scale_factor)/distance)), y2);
-      XDrawLine(d, back_buffer, gc, x1-(i*((distance*scale_factor)/distance)), y1, x2-(i*((distance*scale_factor)/distance)), y2);
+  float slope = (y2-y1+1)/(x2-x1+1);
+  //float slope_inverse = slope * -1;
+  
+  if (scale_factor > 0) {
+    for (int i = 1; i <= thickness; ++i) {
+      if (y1 == y2) {
+	XDrawLine(d, back_buffer, gc, x1, y1+(i*((distance*scale_factor)/distance)), x2, y2+(i*((distance*scale_factor)/distance)));
+	XDrawLine(d, back_buffer, gc, x1, y1-(i*((distance*scale_factor)/distance)), x2, y2-(i*((distance*scale_factor)/distance)));
+      } else {
+	XDrawLine(d, back_buffer, gc, x1+(i*((distance*scale_factor)/distance)), y1, x2+(i*((distance*scale_factor)/distance)), y2);
+	XDrawLine(d, back_buffer, gc, x1-(i*((distance*scale_factor)/distance)), y1, x2-(i*((distance*scale_factor)/distance)), y2);
+      }
+    }
+  } else {
+    for (int i = 0; i <= thickness; ++i) {
+      XDrawLine(d, back_buffer, gc, x1+i+slope, y1+i+slope, x2-i-slope, y2-i-slope);
+      XDrawLine(d, back_buffer, gc, x1-i-slope, y1-i-slope, x2+i+slope, y2+i+slope);
     }
   }
+  
 }
   
 inline void db_swap_buffers(Display* d, Window win)
