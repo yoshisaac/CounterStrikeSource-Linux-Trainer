@@ -25,7 +25,8 @@ else
 fi
 
 apt update -qq
-apt install --no-install-recommends --allow-downgrades -yq \
+apt install --no-install-recommends -yq \
     mesa-common-dev libx11-dev libxfixes-dev libxcomposite-dev \
-    gcc g++ make libgtk-3-dev:i386 gcc-multilib g++-multilib
+    gcc g++ make libgtk-3-dev:i386 libgtk-3-dev gcc-multilib \
+    g++-multilib
 
