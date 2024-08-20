@@ -2,15 +2,15 @@
 
 ######################################################################
 #                                                                    #
-# this script should work for ubuntu (or debian) and its derivatives #
+# this script should work for debian and its derivatives #
 #                                                                    #
 ######################################################################
 
 # check if root
 # https://stackoverflow.com/questions/18215973/how-to-check-if-running-as-root-in-a-bash-script
 if [ "$EUID" -ne 0 ]; then
-    echo "ubuntu.sh: Please run as root"
-    echo "ubuntu.sh: Example: sudo ./ubuntu.sh"
+    echo "debian.sh: Please run as root"
+    echo "debian.sh: Example: sudo ./debian.sh"
     exit
 fi
 
@@ -19,7 +19,7 @@ fi
 
 # no need to re-add it if it already exist. Also alert them that it already exists.
 if [ $(dpkg --print-foreign-architectures) = "i386" ]; then
-    echo "ubuntu.sh: 32bit (i368) architecture already added"
+    echo "debian.sh: 32bit (i368) architecture already added"
 else
     dpkg --add-architecture i386
 fi
