@@ -15,7 +15,7 @@ jobs:
     - uses: actions/checkout@v4
 
     - name: Install dependencies
-      run: sudo ./scripts/ubuntu.sh
+      run: sudo ./scripts/debian.sh
     
     - name: Build
       run: make
