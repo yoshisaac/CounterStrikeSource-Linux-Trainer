@@ -40,3 +40,4 @@ void bhop(pid_t gamePid, Display* d, int dev_uinput) {
     usleep(1000*1000/250);
   }
 }
+

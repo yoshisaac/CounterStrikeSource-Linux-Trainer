@@ -186,6 +186,8 @@ int main() {
   CLIENT::dwForceAttack2 = ClientObject + 0xBEE4C8;
 
   CLIENT::onGround = ClientObject + 0xB9E650;
+
+  CLIENT::cameraLocation = ClientObject + 0xBC3E08;
   
   ENGINE::pLocalYaw = EngineObject + 0xB3349C;
   ENGINE::pLocalPitch = EngineObject + 0xB33498;
@@ -196,6 +198,7 @@ int main() {
   std::cout << "viewMatrix: " << std::hex << ENGINE::viewMatrix << '\n';
   std::cout << "playerList: " << std::hex << CLIENT::playerList << '\n';
   std::cout << "radarList: " << std::hex << CLIENT::radarList << '\n';
+  std::cout << "cameraLocation: " << std::hex << CLIENT::cameraLocation << '\n';
   std::cout << "pLocalYaw: " << std::hex << ENGINE::pLocalYaw << '\n';
   std::cout << "pLocalPitch: " << std::hex << ENGINE::pLocalPitch << '\n';
   std::cout << "localPlayer: " << std::hex << CLIENT::localPlayer << '\n';

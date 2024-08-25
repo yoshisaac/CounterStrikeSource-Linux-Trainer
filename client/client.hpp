@@ -8,14 +8,18 @@
 #include <X11/Xutil.h>
 
 namespace CLIENT {
+  //abstract constants for networked variables
   inline static int DO = 5;
   inline static int DONT = 4;
 
   inline uintptr_t radarList;
   inline uintptr_t playerList;
 
+  //local player stuff
   inline uintptr_t onGround;
 
+  inline uintptr_t cameraLocation;
+  
   inline uintptr_t localPlayer;
   inline unsigned int pLocalIndex = 0;
   

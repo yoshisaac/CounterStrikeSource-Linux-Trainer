@@ -50,11 +50,14 @@ void esp(pid_t gamePid, XdbeBackBuffer back_buffer, Display* drawDisplay, Window
     }
       
     float out[2];
-    if (WorldToScreenTest(gamePid, player.absLocation, out)) {      
-	
-      float distance = distanceFormula3D(p_local.absLocation, player.absLocation);
+    if (WorldToScreenTest(gamePid, player.absLocation, out)) {    
 
-      if (distance < 75) continue;
+      float absCamera[3];
+      Memory::Read(gamePid, CLIENT::cameraLocation, &absCamera, sizeof(float[3]));
+      
+      float distance = distanceFormula3D(absCamera, player.absLocation);
+
+      if (distance < 50) continue;
 	
       float getHead[3] = {player.absLocation[0], player.absLocation[1], player.absLocation[2]};
       getHead[2] += player.height + 10;

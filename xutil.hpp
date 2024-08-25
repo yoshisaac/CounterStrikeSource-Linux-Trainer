@@ -164,7 +164,7 @@ inline void db_line(XdbeBackBuffer back_buffer, Display* d, GC gc, int x1, int y
 //chatgipidy assisted
 inline void db_thickline(XdbeBackBuffer back_buffer, Display* d, GC gc, int x1, int y1, int x2, int y2, int thickness, int distance, float scale_factor) {
   float slope = (y2-y1+1)/(x2-x1+1);
-  //float slope_inverse = slope * -1;
+  float slope_inverse = -(1/slope);
   
   if (scale_factor > 0) {
     for (int i = 1; i <= thickness; ++i) {
