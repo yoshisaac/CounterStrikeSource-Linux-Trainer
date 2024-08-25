@@ -7,7 +7,8 @@ It externally (as a seperate program from the video game) reads and writes memor
 To display a window and draw information inside of it, the program uses the X11 protocol. If you are using Wayland, then there is a chance Xwayland will not handle it correctly. There may also be other issues your window manager or desktop environment can cause, such as overriding placement of windows, or preventing programs from having transparent backgrounds.
 
 # Does my distro or DE work with this?
-Most likely. Any problems you will have are primarily going to be the desktop environment's fault, or your distro will not package the required dependencies. Here is a list of desktops and distributions that are known to work.  
+Most likely. Any problems you will have are primarily going to be the desktop environment's fault, or your distro will not package the required dependencies.  
+Here is a list of desktops and distributions that are known to work.  
   
 Distributions:  
 - Arch Linux  
@@ -21,25 +22,31 @@ Desktops:
 - Dwm (X11, does not support Wayland)  
 
 # How to compile
+
+### Cloning Repository
+Clone the repo using `git`, and change your directory into the root of the project.  
+
+```console
+$ git clone https://github.com/yoshisaac/CounterStrikeSource-Linux-Trainer.git  
+$ cd CounterStrikeSource-Linux-Trainer/
+```
   
 ### Installing dependencies
 Install the necessary packages.  
   
 Debian/Ubuntu/LinuxMint:
-
 ```console
-$ sudo apt install mesa-common-dev libx11-dev libxfixes-dev libxcomposite-dev gcc g++ make libgtk-3-dev:i386
+$ sudo ./scripts/debian.sh
 ```
-ArchLinux:  
 
+ArchLinux:  
 ```console
 $ sudo pacman -S base-devel xorg-fonts-misc lib32-gtk3
 ```
 On Arch, once you install `xorg-fonts-misc` you need to restart your computer.  
-If these are found to be incorrect, then please contact me.  
-  
+
 ### Compiling
-Go to the root directory of the project in your terminal (where main.cpp is located), and run:  
+Build the program from source.  
 
 ```console
 $ make
@@ -49,7 +56,7 @@ $ make
 # How to use
 After compilation, there will be a program created in the root directory of the project called `cs-source-hack`.
 
-To run the software, go to the root directory of the project and type `sudo ./cs-source-hack` in your terminal. What this does is it runs the software as `root`, which is required for reading and writing memory on an external level.  
+To run the hack, go to the root directory of the project and type `sudo ./cs-source-hack` in your terminal. What this does is it runs the software as `root`, which is required for reading and writing memory on an external level.  
 
 # Features
 - Bunny hop (automatically jump after hitting the ground)  
@@ -68,7 +75,8 @@ To run the software, go to the root directory of the project and type `sudo ./cs
 ![Screenshot of menu](https://r2.e-z.host/bb3dfc85-7f7f-4dcb-8b0b-3a4af0aa57e4/mxaejoj82j8hj92j4f.png)
 
 # Is this finished?
-No, it is very incomplete, and will change a lot over time. The program is inefficient, and commented out code is all over the place.
+Perhaps you could say it is. It does everything a cheat would do.  
+Only minor improvements and bug fixes exist for what the hack currently has, but more advanced features like silent-aimbot or auto-strafing would be neat.  
 
 # TODO
 Ordered by importance  
