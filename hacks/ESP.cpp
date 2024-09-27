@@ -149,7 +149,7 @@ void esp(pid_t gamePid, XdbeBackBuffer back_buffer, Display* drawDisplay, Window
 	XSetForeground(drawDisplay, gc, DRAW::black.pixel);
 	db_thickline(back_buffer, drawDisplay, gc, out[0] - (9800/distance) - 5, topY-2, out[0] - (9800/distance) - 5, bottomY+2, 4, distance, 0.650f);
 
-	int ydelta = (topY - bottomY) * (1 - (player.health / 100.f));
+	int ydelta = (topY - bottomY) * (1.f - (player.health / 100.f));
 	
 	//health bar color
 	if (player.health > 100) { //show that they have more health than what is conventional
@@ -187,6 +187,33 @@ void esp(pid_t gamePid, XdbeBackBuffer back_buffer, Display* drawDisplay, Window
 	XSetFont(drawDisplay, gc, DRAW::font->fid);
 	XDrawString(drawDisplay, back_buffer, gc, out[0] - (11500/distance), screenText[1], std::to_string(player.health).c_str(), strlen(std::to_string(player.health).c_str()));
       }
+
+      if (config->ESParmorbar) {
+	//armor bar shadow
+	XSetForeground(drawDisplay, gc, DRAW::black.pixel);
+	db_thickline(back_buffer, drawDisplay, gc, out[0] + (9800/distance) + 5, topY-2, out[0] + (9800/distance) + 5, bottomY+2, 4, distance, 0.650f);
+
+	int ydelta = (topY - bottomY) * (1.f - (player.armor / 100.f));
+	
+	if (player.armor > 100) ydelta = 0;
+
+	XSetForeground(drawDisplay, gc, DRAW::blue.pixel);
+	
+	//armor bar
+	db_thickline(back_buffer, drawDisplay, gc, out[0] + (9800/distance) + 5, bottomY, out[0] + (9800/distance) + 5, topY - ydelta, 2, distance, 0.20f);
+      }
+
+      if (config->ESParmortext) {
+	//armor text shadow
+	XSetFont(drawDisplay, gc, DRAW::shadowfont->fid);
+	XSetForeground(drawDisplay, gc, DRAW::black.pixel);
+	XDrawString(drawDisplay, back_buffer, gc, (out[0] + (11500/distance)) + 1, screenText[1] + 1, std::to_string(player.armor).c_str(), strlen(std::to_string(player.armor).c_str()));
+	//armor text
+	XSetForeground(drawDisplay, gc, DRAW::blue.pixel);
+	XSetFont(drawDisplay, gc, DRAW::font->fid);
+	XDrawString(drawDisplay, back_buffer, gc, out[0] + (11500/distance), screenText[1], std::to_string(player.armor).c_str(), strlen(std::to_string(player.armor).c_str()));
+      }
+
 
       if (config->ESPsnaplines) {
 	XSetForeground(drawDisplay, gc, createXColorFromRGB(config->ESPsnaplinescolor[0],

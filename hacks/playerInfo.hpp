@@ -17,6 +17,7 @@
 
 namespace playerOffset {
   inline constexpr uintptr_t health = 0x84;
+  inline constexpr uintptr_t armor = 0x1478;
   inline constexpr uintptr_t viewAngles = 0x25C;
   inline constexpr uintptr_t absLocation = 0x250;
   inline constexpr uintptr_t team = 0x8C; //3 is CT, 2 is T
@@ -32,6 +33,7 @@ class Player {
 public:
   int index;
   int health;
+  int armor;
   std::string name;
   float viewAngles[2];
   float absLocation[3];
@@ -66,6 +68,7 @@ public:
     this->aimPunch[2] = 0;
     this->flags = -1;
     this->aimbotFov = 9999;
+    this->armor = 0;
   }
   
   Player(int index, int health, std::string name,
@@ -73,7 +76,8 @@ public:
 	 int team, bool isDead, float height,
 	 bool dormant, float boneMatrix[48][3],
 	 int dormant_frames, short dormant_alpha,
-	 float aimPunch[3], int flags, float aimbotFov) {
+	 float aimPunch[3], int flags, float aimbotFov,
+	 int armor) {
 
     this->index = index;
     this->health = health;
@@ -99,6 +103,7 @@ public:
     this->aimPunch[2] = aimPunch[2];
     this->flags = flags;
     this->aimbotFov = aimbotFov;
+    this->armor = armor;
   }
 };
 
@@ -107,12 +112,12 @@ namespace playerInfo {
 };
 
 inline Player getPlayerByIndex(unsigned int i) {
-  if (i > 32) return Player();
+  if (i > 64) return Player();
   else return playerInfo::l_players[i];
 }
 
 inline Player* getPlayerReferenceByIndex(unsigned int i) {
-  if (i > 32) return nullptr;
+  if (i > 64) return nullptr;
   else return &playerInfo::l_players[i];
 }
 

@@ -57,6 +57,9 @@ void players(pid_t gamePid) {
     int health = 0;
     Memory::Read(gamePid, player + playerOffset::health, &health, sizeof(int));
 
+    int armor = 0;
+    Memory::Read(gamePid, player + playerOffset::armor, &armor, sizeof(int));
+    
     float viewAngle[3];
     Memory::Read(gamePid, player + playerOffset::viewAngles, &viewAngle, sizeof(float[3]));
 
@@ -93,7 +96,8 @@ void players(pid_t gamePid) {
 				      location, team, isDead, height,
 				      dormant, boneMatrix, playerInfo::l_players[i].dormant_frames,
 				      playerInfo::l_players[i].dormant_alpha,
-				      aimPunch, flags, playerInfo::l_players[i].aimbotFov);
+				      aimPunch, flags, playerInfo::l_players[i].aimbotFov,
+				      armor);
 
    }
   usleep(1000*1000/250);

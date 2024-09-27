@@ -14,6 +14,8 @@ public:
   bool ESPname = false;
   bool ESPhealthbar = false;
   bool ESPhealthtext = false;
+  bool ESParmorbar = false;
+  bool ESParmortext = false;
   bool ESPsnaplines = false;
   int ESPsnaplinescolor[4] = {0, 255, 0, 255};
   bool ESPsnaplineaimbot = false;
@@ -83,6 +85,14 @@ static void esp_health_bar_toggle() {
 
 static void esp_health_text_toggle() {
   config->ESPhealthtext = !config->ESPhealthtext; 
+}
+
+static void esp_armor_bar_toggle() {
+  config->ESParmorbar = !config->ESParmorbar;   
+}
+
+static void esp_armor_text_toggle() {
+  config->ESParmortext = !config->ESParmortext; 
 }
 
 static void esp_snaplines_toggle() {

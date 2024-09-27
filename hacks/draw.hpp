@@ -22,6 +22,7 @@ namespace DRAW {
   inline XColor ctColor;
   inline XColor cyan;
   inline XColor gray;
+  inline XColor blue;
 }
 
 void draw(pid_t, XdbeBackBuffer, Display*, Window);

@@ -297,6 +297,7 @@ int main() {
   DRAW::ctColor = createXColorFromRGB(148, 196, 248, d, DefaultScreen(d));
   DRAW::cyan = createXColorFromRGB(0, 255, 240, d, DefaultScreen(d));
   DRAW::gray = createXColorFromRGBA(90, 90, 90, -1, d, DefaultScreen(d));
+  DRAW::blue = createXColorFromRGB(38, 113, 252, d, DefaultScreen(d));
   /* end of X initiation */
 
   /* uinput initiation */

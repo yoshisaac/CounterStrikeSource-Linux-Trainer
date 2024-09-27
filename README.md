@@ -8,7 +8,7 @@ To display a window and draw information inside of it, the program uses the X11 
 
 # Does my distro or DE work with this?
 Most likely. Any problems you will have are primarily going to be the desktop environment's fault, or your distro will not package the required dependencies.  
-Here is a list of desktops and distributions that are known to work.  
+Here is a list of desktops and distributions that have been tested.  
   
 Distributions:  
 - Arch Linux  
@@ -18,8 +18,8 @@ Desktops:
 - Cinnamon (X11 only)  
 - KDE Plasma (Wayland only)  
 - Gnome (X11, Wayland untested)  
-- Xfce4 (X11, does not support Wayland yet)  
-- Dwm (X11, does not support Wayland)  
+- Xfce4 (X11, DE does not support Wayland yet)  
+- Dwm (X11, WM does not support Wayland)  
 
 # How to compile
 
@@ -38,11 +38,14 @@ Debian/Ubuntu/LinuxMint:
 ```console
 $ sudo ./scripts/debian.sh
 ```
+This script will automagically add the 32bit architecture and install the packages.  
+It is magic, because I don't understand how it works!  
 
 ArchLinux:  
 ```console
 $ sudo pacman -S base-devel xorg-fonts-misc lib32-gtk3
 ```
+If you some how haven't already, you will need to [enable the `multilib` repository for `pacman`](https://wiki.archlinux.org/title/Official_repositories#multilib).  
 On Arch, once you install `xorg-fonts-misc` you need to restart your computer.  
 
 ### Compiling
@@ -68,6 +71,8 @@ To run the hack, go to the root directory of the project and type `sudo ./cs-sou
   * Skeleton
   * Name  
   * Health  
+  * Armor
+  * Snap Lines  
 - Aimbot (Hold left ALT)  
 
 ![Screenshot of ESP](https://r2.e-z.host/bb3dfc85-7f7f-4dcb-8b0b-3a4af0aa57e4/6oscyb9iqkr4r3gl9k.png)
@@ -80,5 +85,8 @@ Only minor improvements and bug fixes exist for what the hack currently has, but
 
 # TODO
 Ordered by importance  
-- Redo skeleton ESP
+- Toggleable network traffic  
+- Roll the skeleton ESP into a loop  
 - Sync ESP frame rate to game frame rate  
+- Silent-aimbot  
+- Strafe optimizer  
