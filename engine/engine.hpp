@@ -2,6 +2,8 @@
 #define ENGINE_HPP
 
 #include <string>
+#include <cstdint>
+
 namespace ENGINE {
   //window information
   inline int screenX = 0;
