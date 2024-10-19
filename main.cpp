@@ -156,13 +156,13 @@ unsigned int findPattern(pid_t procId, std::string moduleName, std::string Patte
 
 int main() {
   if (getuid()) { //check if we are root or not
-    printf("Please run as root\nExample: \"sudo ./cs-source-hack\"\n");
+    printf("cs-source-hack: Please run as root\ncs-source-hack: Example: \"sudo ./cs-source-hack\"\n");
     return 1;
   }
 
   pid_t gamePid = getProcessByName("hl2_linux");
   if (gamePid == -1) { // check if we successfully got the game processes id
-    printf("Please open the game\n");
+    printf("cs-source-hack: Please open the game\n");
     return 1;
   }
 
@@ -171,9 +171,17 @@ int main() {
   const uintptr_t EngineObject = Memory::getModuleBaseAddress(gamePid, "bin/engine.so");
   const uintptr_t hl2_linux = Memory::getModuleBaseAddress(gamePid, "hl2_linux");
 
+
+  //base address of window struct: engine.so + 0xD20008
+
+  uintptr_t window_pos_ptr = 0;
+  Memory::Read(gamePid, EngineObject + 0xD20008, &window_pos_ptr, sizeof(uintptr_t));
+  Memory::Read(gamePid, window_pos_ptr + 0x38, &ENGINE::screenXpos, sizeof(int));
+  
   Memory::Read(gamePid, EngineObject + 0xD20014, &ENGINE::screenX, sizeof(int));
   Memory::Read(gamePid, EngineObject + 0xD20018, &ENGINE::screenY, sizeof(int));
 
+  
   Memory::Read(gamePid, ClientObject + 0xBE9380, &CLIENT::radarList, sizeof(uintptr_t));
   
   CLIENT::playerList = ClientObject + 0xBA5FB4;
@@ -214,6 +222,14 @@ int main() {
 
   Screen* s = DefaultScreenOfDisplay(d);
 
+  XWindowAttributes gameAttr = getWindowAttributesFromPid(d, gamePid);
+
+  printf("gameAttr.x %d\n", gameAttr.x);
+  printf("gameAttr.y %d\n", gameAttr.y);
+
+  ENGINE::screenXpos = gameAttr.x;
+  ENGINE::screenYpos = gameAttr.y;
+  
   printf("s->width %d\n", s->width);
   printf("s->height %d\n", s->height);
 
@@ -223,7 +239,7 @@ int main() {
   }
 
   if (!d) {
-    printf("Please run startx/xinit\nIf you are running this program from SSH, it won't work.\n");
+    printf("cs-source-hack: Please run startx/xinit\nIf you are running this program from SSH, it won't work.\n");
     return 1;
   }
 
@@ -233,7 +249,7 @@ int main() {
   int shape_error_base;
 
   if (!XShapeQueryExtension (d, &shape_event_base, &shape_error_base)) {
-    printf("NO shape extension in your system !\n");
+    printf("cs-source-hack: NO shape extension in your system !\n");
     return 1;
   }
 
@@ -261,7 +277,7 @@ int main() {
 
   unsigned long mask = CWColormap | CWBorderPixel | CWBackPixel | CWEventMask | CWWinGravity|CWBitGravity | CWSaveUnder | CWDontPropagate | CWOverrideRedirect;
 
-  Window window = XCreateWindow(d, root, 0, 0, ENGINE::screenX, ENGINE::screenY, 0, vinfo.depth, InputOutput, vinfo.visual, mask, &attr);
+  Window window = XCreateWindow(d, root, gameAttr.x, gameAttr.y, ENGINE::screenX, ENGINE::screenY, 0, vinfo.depth, InputOutput, vinfo.visual, mask, &attr);
 
   XShapeCombineMask(d, window, ShapeInput, 0, 0, None, ShapeSet);
 
@@ -282,7 +298,7 @@ int main() {
   DRAW::font = XLoadQueryFont(d, "6x13");
 
   if (!DRAW::font || !DRAW::shadowfont) {
-    std::cout << "fonts not found, aborting." << std::endl;
+    std::cout << "cs-source-hack: One or more fonts are missing, aborting." << std::endl;
     return 1;
   }
 
@@ -353,6 +369,21 @@ int main() {
       close(dev_uinput);
       exit(0);
     }
+    
+    //move and resize drawing window if needed
+    gameAttr = getWindowAttributesFromPid(d, gamePid);
+    if (ENGINE::screenXpos != gameAttr.x || ENGINE::screenYpos != gameAttr.y ||
+        ENGINE::screenX != gameAttr.width || ENGINE::screenY != gameAttr.height) {
+
+      XMoveResizeWindow(d, window, gameAttr.x, gameAttr.y, gameAttr.width, gameAttr.height);
+
+      ENGINE::screenXpos = gameAttr.x;
+      ENGINE::screenYpos = gameAttr.y;
+
+      ENGINE::screenX = gameAttr.width;
+      ENGINE::screenY = gameAttr.height;
+    }
+    
     players(gamePid);
   }
 

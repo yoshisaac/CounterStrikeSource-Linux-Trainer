@@ -79,64 +79,73 @@ inline bool isMouseDown(Display* d, int mouse) {
 
 //Halts the program until that pid is in focus, yes, the only purpose is to get the Window object of the game
 //chatgpt assisted
-inline Window waitUntilPidIsFocus(Display *display, pid_t pid) {
-    Atom prop = XInternAtom(display, "_NET_WM_PID", False);
+inline XWindowAttributes getWindowAttributesFromPid(Display *display, pid_t pid) {
+  XWindowAttributes windowAttr;
+    
+  Window root = DefaultRootWindow(display);
+    
+  Atom actualType;
+  int format;
+  unsigned long nItems, bytesAfter;
+  unsigned char *propData = NULL;
 
-    Atom actualType;
-    int format;
-    unsigned long nItems, bytesAfter;
-    unsigned char *propData = NULL;
+  Window root_return, parent_return;
+  Window *children;
+  unsigned int nchildren;
+  
+  if (!XQueryTree(display, root, &root_return, &parent_return, &children, &nchildren)) return windowAttr;
 
-    while (true) {
-      Window focusedWindow;
-      int revert;
-      XGetInputFocus(display, &focusedWindow, &revert);
-      if (XGetWindowProperty(display, focusedWindow, prop, 0, LONG_MAX / 4, False, AnyPropertyType,
-			     &actualType, &format, &nItems, &bytesAfter, &propData) == Success) {
-        if (propData != NULL) {
-	  pid_t *pidArray = reinterpret_cast<pid_t *>(propData);
-	  pid_t windowPid = pidArray[0];
+  Atom prop = XInternAtom(display, "_NET_WM_PID", False);
 
-	  if (windowPid == pid) {
-	    XFree(propData);
-	    return focusedWindow;
-	  }
-        }
+  for (unsigned int i = 0; i < nchildren; ++i) {
+    Window window = children[i];
+    if (XGetWindowProperty(display, window, prop, 0, LONG_MAX / 4, False, AnyPropertyType,
+			   &actualType, &format, &nItems, &bytesAfter, &propData) == Success) {
+      if (propData != NULL) {
+	pid_t *pidArray = reinterpret_cast<pid_t *>(propData);
+	pid_t windowPid = pidArray[0];
+	
+	if (windowPid == pid) {
+	  XFree(propData);
+	  XGetWindowAttributes(display, window, &windowAttr);
+	  return windowAttr;
+	}
       }
     }
+  }
 
-    return -1; // Unable to retrieve PID
+  return windowAttr;
 }
 
 //chatgpt wrote this
 inline Window getFocusedWindow(Display* d) {
-    Window focusedWindow;
-    int revert;
-    XGetInputFocus(d, &focusedWindow, &revert);
-    return focusedWindow;
+  Window focusedWindow;
+  int revert;
+  XGetInputFocus(d, &focusedWindow, &revert);
+  return focusedWindow;
 }
 
 //Get pid from window
 //chatgpt wrote this
 inline pid_t getPidByWindow(Display *display, Window window) {
-    Atom prop = XInternAtom(display, "_NET_WM_PID", False);
+  Atom prop = XInternAtom(display, "_NET_WM_PID", False);
 
-    Atom actualType;
-    int format;
-    unsigned long nItems, bytesAfter;
-    unsigned char *propData = NULL;
+  Atom actualType;
+  int format;
+  unsigned long nItems, bytesAfter;
+  unsigned char *propData = NULL;
 
-    if (XGetWindowProperty(display, window, prop, 0, LONG_MAX / 4, False, AnyPropertyType,
-                           &actualType, &format, &nItems, &bytesAfter, &propData) == Success) {
-        if (propData != NULL) {
-            pid_t *pidArray = reinterpret_cast<pid_t *>(propData);
-            pid_t pid = pidArray[0];
-            XFree(propData);
-            return pid;
-        }
+  if (XGetWindowProperty(display, window, prop, 0, LONG_MAX / 4, False, AnyPropertyType,
+			 &actualType, &format, &nItems, &bytesAfter, &propData) == Success) {
+    if (propData != NULL) {
+      pid_t *pidArray = reinterpret_cast<pid_t *>(propData);
+      pid_t pid = pidArray[0];
+      XFree(propData);
+      return pid;
     }
+  }
 
-    return -1; // Unable to retrieve PID
+  return -1; // Unable to retrieve PID
 }
 
 //double buffering examples: https://github.com/tsoding/x11-double-buffering/blob/master/db_xdbe.c

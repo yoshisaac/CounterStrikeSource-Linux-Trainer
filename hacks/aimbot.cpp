@@ -10,7 +10,7 @@
 
 void aimbot(pid_t gamePid, Display* aimDisplay) {
   for (;;) {
-    for (int i = 0; i < 64; ++i) {
+    for (unsigned int i = 0; i < 64; ++i) {
       
       Player player = getPlayerByIndex(i);
       Player p_local = getLocalPlayer();
@@ -131,7 +131,6 @@ void aimbot(pid_t gamePid, Display* aimDisplay) {
 	  plocal_v[1] -= (p_local.aimPunch[1] * 2.f);
 	}
       }
-
 
       if (AIMBOT::aimIndex != -1 && isKeyDown(aimDisplay, XK_Alt_L)) {
 	if (config->AIMsmooth > 0) usleep(1000*1000/300);

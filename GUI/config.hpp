@@ -10,7 +10,6 @@ public:
   int ESPboxcolor[4] = {230, 35, 35, 255}; //red, green, blue, alpha
   bool ESPskeleton = false;
   int ESPskeletoncolor[4] = {255, 255, 255, 255};
-  bool ESPdot = false;
   bool ESPname = false;
   bool ESPhealthbar = false;
   bool ESPhealthtext = false;
@@ -69,10 +68,6 @@ static void esp_skeleton_color(GtkColorButton *color_button) {
     config->ESPskeletoncolor[1] = (int)(255 * color.green);
     config->ESPskeletoncolor[2] = (int)(255 * color.blue);
     config->ESPskeletoncolor[3] = (int)(255 * color.alpha);
-}
-
-static void esp_dot_toggle() {
-  config->ESPdot = !config->ESPdot; 
 }
 
 static void esp_name_toggle() {

@@ -10,7 +10,6 @@ static void activate(GtkApplication* app, gpointer user_data) {
   GtkWidget* ESPboxcolor;
   GtkWidget* ESPskeleton;
   GtkWidget* ESPskeletoncolor;
-  GtkWidget* ESPdot;
   GtkWidget* ESPname;
   GtkWidget* ESPhealthbar;
   GtkWidget* ESPhealthtext;
@@ -75,41 +74,36 @@ static void activate(GtkApplication* app, gpointer user_data) {
   skeletondefcolor.alpha = 1.0f;
   gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(ESPskeletoncolor), &skeletondefcolor);
   gtk_grid_attach(GTK_GRID(grid), ESPskeletoncolor, 1, 3, 1, 1);
-
-  ESPdot = gtk_check_button_new_with_label("Head Dot");
-  g_signal_connect(ESPdot, "toggled", G_CALLBACK(esp_dot_toggle), NULL);
-  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ESPdot), false);
-  gtk_grid_attach(GTK_GRID(grid), ESPdot, 0, 4, 2, 1);
   
   ESPname = gtk_check_button_new_with_label("Name");
   g_signal_connect(ESPname, "toggled", G_CALLBACK(esp_name_toggle), NULL);
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ESPname), false);
-  gtk_grid_attach(GTK_GRID(grid), ESPname, 0, 5, 2, 1);
+  gtk_grid_attach(GTK_GRID(grid), ESPname, 0, 4, 2, 1);
 
   ESPhealthbar = gtk_check_button_new_with_label("Health Bar");
   g_signal_connect(ESPhealthbar, "toggled", G_CALLBACK(esp_health_bar_toggle), NULL);
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ESPhealthbar), false);
-  gtk_grid_attach(GTK_GRID(grid), ESPhealthbar, 0, 6, 2, 1);
+  gtk_grid_attach(GTK_GRID(grid), ESPhealthbar, 0, 5, 2, 1);
 
   ESPhealthtext = gtk_check_button_new_with_label("Health Text");
   g_signal_connect(ESPhealthtext, "toggled", G_CALLBACK(esp_health_text_toggle), NULL);
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ESPhealthtext), true);
-  gtk_grid_attach(GTK_GRID(grid), ESPhealthtext, 0, 7, 2, 1);
+  gtk_grid_attach(GTK_GRID(grid), ESPhealthtext, 0, 6, 2, 1);
 
   ESParmorbar = gtk_check_button_new_with_label("Armor Bar");
   g_signal_connect(ESParmorbar, "toggled", G_CALLBACK(esp_armor_bar_toggle), NULL);
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ESParmorbar), false);
-  gtk_grid_attach(GTK_GRID(grid), ESParmorbar, 0, 8, 2, 1);
+  gtk_grid_attach(GTK_GRID(grid), ESParmorbar, 0, 7, 2, 1);
 
   ESParmortext = gtk_check_button_new_with_label("Armor Text");
   g_signal_connect(ESParmortext, "toggled", G_CALLBACK(esp_armor_text_toggle), NULL);
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ESParmortext), false);
-  gtk_grid_attach(GTK_GRID(grid), ESParmortext, 0, 9, 2, 1);
+  gtk_grid_attach(GTK_GRID(grid), ESParmortext, 0, 8, 2, 1);
 
   ESPsnaplines = gtk_check_button_new_with_label("Snap Lines");
   g_signal_connect(ESPsnaplines, "toggled", G_CALLBACK(esp_snaplines_toggle), NULL);
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ESPsnaplines), false);
-  gtk_grid_attach(GTK_GRID(grid), ESPsnaplines, 0, 10, 1, 1);
+  gtk_grid_attach(GTK_GRID(grid), ESPsnaplines, 0, 9, 1, 1);
 
   ESPsnaplinescolor = gtk_color_button_new();
   g_signal_connect(ESPsnaplinescolor, "color-set", G_CALLBACK(esp_snaplines_color), NULL);
@@ -117,12 +111,12 @@ static void activate(GtkApplication* app, gpointer user_data) {
   snaplinesdefcolor.green = 1.0f; snaplinesdefcolor.blue = 0.0f;
   snaplinesdefcolor.alpha = 1.0f;
   gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(ESPsnaplinescolor), &snaplinesdefcolor);
-  gtk_grid_attach(GTK_GRID(grid), ESPsnaplinescolor, 1, 10, 1, 1);
+  gtk_grid_attach(GTK_GRID(grid), ESPsnaplinescolor, 1, 9, 1, 1);
   
   ESPsnaplineaimbot = gtk_check_button_new_with_label("Aimbot Line");
   g_signal_connect(ESPsnaplineaimbot, "toggled", G_CALLBACK(esp_snaplineaimbot_toggle), NULL);
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ESPsnaplineaimbot), false);
-  gtk_grid_attach(GTK_GRID(grid), ESPsnaplineaimbot, 0, 11, 1, 1);
+  gtk_grid_attach(GTK_GRID(grid), ESPsnaplineaimbot, 0, 10, 1, 1);
 
   ESPsnaplineaimbotcolor = gtk_color_button_new();
   g_signal_connect(ESPsnaplineaimbotcolor, "color-set", G_CALLBACK(esp_snaplineaimbot_color), NULL);
@@ -130,12 +124,12 @@ static void activate(GtkApplication* app, gpointer user_data) {
   snaplineaimbotdefcolor.green = 1.0f; snaplineaimbotdefcolor.blue = 1.0f;
   snaplineaimbotdefcolor.alpha = 1.0f;
   gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(ESPsnaplineaimbotcolor), &snaplineaimbotdefcolor);
-  gtk_grid_attach(GTK_GRID(grid), ESPsnaplineaimbotcolor, 1, 11, 1, 1);
+  gtk_grid_attach(GTK_GRID(grid), ESPsnaplineaimbotcolor, 1, 10, 1, 1);
   
   ESPcrosshair = gtk_check_button_new_with_label("Crosshair");
   g_signal_connect(ESPcrosshair, "toggled", G_CALLBACK(esp_crosshair_toggle), NULL);
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ESPcrosshair), false);
-  gtk_grid_attach(GTK_GRID(grid), ESPcrosshair, 0, 12, 1, 1);
+  gtk_grid_attach(GTK_GRID(grid), ESPcrosshair, 0, 11, 1, 1);
 
   ESPcrosshaircolor = gtk_color_button_new();
   g_signal_connect(ESPcrosshaircolor, "color-set", G_CALLBACK(esp_crosshair_color), NULL);
@@ -143,12 +137,12 @@ static void activate(GtkApplication* app, gpointer user_data) {
   crosshairdefcolor.green = 1.0f; crosshairdefcolor.blue = 0.0f;
   crosshairdefcolor.alpha = 1.0f;
   gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(ESPcrosshaircolor), &crosshairdefcolor);
-  gtk_grid_attach(GTK_GRID(grid), ESPcrosshaircolor, 1, 12, 1, 1);
+  gtk_grid_attach(GTK_GRID(grid), ESPcrosshaircolor, 1, 11, 1, 1);
 
   ESPcrosshairRCS = gtk_check_button_new_with_label("Crosshair RCS");
   g_signal_connect(ESPcrosshairRCS, "toggled", G_CALLBACK(esp_crosshair_rcs_toggle), NULL);
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ESPcrosshairRCS), false);
-  gtk_grid_attach(GTK_GRID(grid), ESPcrosshairRCS, 0, 13, 1, 1);
+  gtk_grid_attach(GTK_GRID(grid), ESPcrosshairRCS, 0, 12, 1, 1);
   
   ESPcrosshairRCScolor = gtk_color_button_new();
   g_signal_connect(ESPcrosshairRCScolor, "color-set", G_CALLBACK(esp_crosshair_rcs_color), NULL);
@@ -156,7 +150,7 @@ static void activate(GtkApplication* app, gpointer user_data) {
   crosshairRCSdefcolor.green = 1.0f; crosshairRCSdefcolor.blue = (240.f/255.f);
   crosshairRCSdefcolor.alpha = 1.0f;
   gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(ESPcrosshairRCScolor), &crosshairRCSdefcolor);
-  gtk_grid_attach(GTK_GRID(grid), ESPcrosshairRCScolor, 1, 13, 1, 1);
+  gtk_grid_attach(GTK_GRID(grid), ESPcrosshairRCScolor, 1, 12, 1, 1);
   
   /* AIMBOT GUI configuration */
   AIMmaster = gtk_check_button_new_with_label("Aimbot Master Toggle");
@@ -172,14 +166,14 @@ static void activate(GtkApplication* app, gpointer user_data) {
   g_signal_connect(AIMrecoilcompensation, "toggled", G_CALLBACK(aim_recoil_compensation_toggle), NULL);
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(AIMrecoilcompensation), false);
   gtk_grid_attach(GTK_GRID(grid), AIMrecoilcompensation, 2, 3, 2, 1);
-
+  
   AIMhitbox = gtk_combo_box_text_new();
   gtk_combo_box_text_append(GTK_COMBO_BOX_TEXT(AIMhitbox), NULL, "Head");
   gtk_combo_box_text_append(GTK_COMBO_BOX_TEXT(AIMhitbox), NULL, "Upper Body");
   gtk_combo_box_text_append(GTK_COMBO_BOX_TEXT(AIMhitbox), NULL, "Lower Body");
   gtk_combo_box_set_active(GTK_COMBO_BOX(AIMhitbox), 0);
   g_signal_connect(AIMhitbox, "changed", G_CALLBACK(aim_hitbox_dropdown), NULL);
-  gtk_grid_attach(GTK_GRID(grid), AIMhitbox, 2, 4, 2, 1);
+  gtk_grid_attach(GTK_GRID(grid), AIMhitbox, 2, 5, 2, 1);
   
   /* BHOP GUI configuration */
   BHOPmaster = gtk_check_button_new_with_label("Bhop Master Toggle");

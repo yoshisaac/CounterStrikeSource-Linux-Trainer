@@ -188,7 +188,7 @@ void esp(pid_t gamePid, XdbeBackBuffer back_buffer, Display* drawDisplay, Window
 	XDrawString(drawDisplay, back_buffer, gc, out[0] - (11500/distance), screenText[1], std::to_string(player.health).c_str(), strlen(std::to_string(player.health).c_str()));
       }
 
-      if (config->ESParmorbar) {
+      if (player.armor != 0 && config->ESParmorbar) {
 	//armor bar shadow
 	XSetForeground(drawDisplay, gc, DRAW::black.pixel);
 	db_thickline(back_buffer, drawDisplay, gc, out[0] + (9800/distance) + 5, topY-2, out[0] + (9800/distance) + 5, bottomY+2, 4, distance, 0.650f);
