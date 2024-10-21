@@ -23,18 +23,36 @@
 #include "../xutil.hpp"
 
 void esp(pid_t gamePid, XdbeBackBuffer back_buffer, Display* drawDisplay, Window window, GC gc) {
-
-  XSetBackground(drawDisplay, gc, DRAW::white.pixel);
     
   if (getPidByWindow(drawDisplay, getFocusedWindow(drawDisplay)) != gamePid || !config->ESP) //ESP is off/disable ESP/stop rendering
     return;
 
-  for(int i = 0; i < 64; ++i) {
+  unsigned int spectator_name_offset = 0;
+    
+  for(unsigned int i = 0; i < 64; ++i) {
     Player player = getPlayerByIndex(i);
     Player p_local = getLocalPlayer();
 
-    if (player.isDead == true || player.health <= 0) continue;
+    XSetBackground(drawDisplay, gc, DRAW::white.pixel);
+    XSetForeground(drawDisplay, gc, DRAW::white.pixel);
+
+    /*
+    //kill list (? this shit is pointless and a tad broken lmao)
+    XDrawString(drawDisplay, back_buffer, gc, 25, 200, "Kill List: ", strlen("Kill List: "));
+    if (getPlayerByIndex(player.spectatorTargetIndex).name == p_local.name && player.isDead == true &&
+	player.name != "" && p_local.isDead == false && player.spectatorMode == SP_DEATH) {
+      XDrawString(drawDisplay, back_buffer, gc, 25, 215+spectator_name_offset,
+		  player.name.c_str(),
+		  strlen(player.name.c_str()));
+      spectator_name_offset+=15;
+    }
+    */
+
+    if (player.index == p_local.spectatorTargetIndex && p_local.spectatorMode == SP_FIRST) continue;
+    if (player.isDead == true || player.health <= 0) continue;    
     if (p_local.team == player.team) continue;
+
+
 
     int aimbot_bone = 14; //default option if the switch statement is not hit for any reason
     switch (config->AIMhitbox) {
@@ -48,6 +66,8 @@ void esp(pid_t gamePid, XdbeBackBuffer back_buffer, Display* drawDisplay, Window
       aimbot_bone = 11;
       break;
     }
+
+    
       
     float out[2];
     if (WorldToScreenTest(gamePid, player.absLocation, out)) {    

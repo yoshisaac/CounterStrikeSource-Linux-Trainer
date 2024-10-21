@@ -91,14 +91,28 @@ void players(pid_t gamePid) {
 
     int flags;
     Memory::Read(gamePid, player + playerOffset::flags, &flags, sizeof(int));    
+
+    int fov;
+    Memory::Read(gamePid, player + playerOffset::fov, &fov, sizeof(int));
+
+
+    //https://www.unknowncheats.me/forum/counterstrike-global-offensive/207551-external-spectators-list.html
+    uintptr_t spectatorTargetHandle;
+    Memory::Read(gamePid, player + playerOffset::spectatorTarget, &spectatorTargetHandle, sizeof(uintptr_t));
+    //https://github.com/ValveSoftware/source-sdk-2013/blob/master/mp/src/public/const.h#L79
+    int spectatorTargetIndex = (spectatorTargetHandle & ENT_ENTRY_MASK) - 1; //convert ehandle to player list index with black magic
+
+    int spectatorMode;
+    Memory::Read(gamePid, player + playerOffset::spectatorMode, &spectatorMode, sizeof(int));
     
     playerInfo::l_players[i] = Player(i, health, name, viewAngle,
 				      location, team, isDead, height,
 				      dormant, boneMatrix, playerInfo::l_players[i].dormant_frames,
 				      playerInfo::l_players[i].dormant_alpha,
 				      aimPunch, flags, playerInfo::l_players[i].aimbotFov,
-				      armor);
+				      armor, fov, spectatorTargetIndex,
+				      spectatorMode);
 
-   }
+  }
   usleep(1000*1000/250);
 }

@@ -35,22 +35,13 @@ void aimbot(pid_t gamePid, Display* aimDisplay) {
       }
       
       // if (getPidByWindow(aimDisplay, getFocusedWindow(aimDisplay)) != gamePid) continue;
+
+      if (getPlayerByIndex(AIMBOT::aimIndex).isDead == true) AIMBOT::aimIndex = -1;
+      if (getPlayerByIndex(AIMBOT::aimIndex).dormant == true) AIMBOT::aimIndex = -1;
       
       if (player.isDead == true || player.health <= 0) continue;
       if (player.dormant == true) continue;
       if (player.team == p_local.team) continue;
-      float screen_center[2] = {ENGINE::screenX/2.f, ENGINE::screenY/2.f};
-    
-      float enemy_screen[2];
-      WorldToScreen(gamePid, player.boneMatrix[aimbot_bone], enemy_screen);
-
-      float aimindex_screen[2];
-      WorldToScreen(gamePid, getPlayerByIndex(AIMBOT::aimIndex).boneMatrix[aimbot_bone], aimindex_screen);
-
-      if (distanceFormula3D(player.absLocation, p_local.absLocation) < distanceFormula3D(getPlayerByIndex(AIMBOT::closestDistanceIndex).absLocation, p_local.absLocation))
-       	AIMBOT::closestDistanceIndex = i;
-
-      if (getPlayerByIndex(AIMBOT::aimIndex).isDead == true) AIMBOT::aimIndex = -1;
 
       float plocal_v[3];
       Memory::Read(gamePid, ENGINE::pLocalPitch, &plocal_v[0], sizeof(float));

@@ -65,7 +65,7 @@ pid_t getProcessByName(std::string strName) {
   if (pDir == nullptr) { return -1; } // if that fails then exit
 
   dirent* pDirent = nullptr;
-
+  
   //basically loop through all the processes
   while (pDirent = readdir(pDir), pDirent != nullptr) {
 
@@ -154,7 +154,7 @@ unsigned int findPattern(pid_t procId, std::string moduleName, std::string Patte
 }
 */
 
-int main() {
+int main() {  
   if (getuid()) { //check if we are root or not
     printf("cs-source-hack: Please run as root\ncs-source-hack: Example: \"sudo ./cs-source-hack\"\n");
     return 1;
@@ -172,12 +172,8 @@ int main() {
   const uintptr_t hl2_linux = Memory::getModuleBaseAddress(gamePid, "hl2_linux");
 
 
-  //base address of window struct: engine.so + 0xD20008
+  //some address inside of window struct: engine.so + 0xD20008
 
-  uintptr_t window_pos_ptr = 0;
-  Memory::Read(gamePid, EngineObject + 0xD20008, &window_pos_ptr, sizeof(uintptr_t));
-  Memory::Read(gamePid, window_pos_ptr + 0x38, &ENGINE::screenXpos, sizeof(int));
-  
   Memory::Read(gamePid, EngineObject + 0xD20014, &ENGINE::screenX, sizeof(int));
   Memory::Read(gamePid, EngineObject + 0xD20018, &ENGINE::screenY, sizeof(int));
 
@@ -248,7 +244,7 @@ int main() {
   int shape_event_base;
   int shape_error_base;
 
-  if (!XShapeQueryExtension (d, &shape_event_base, &shape_error_base)) {
+  if (!XShapeQueryExtension(d, &shape_event_base, &shape_error_base)) {
     printf("cs-source-hack: NO shape extension in your system !\n");
     return 1;
   }
@@ -349,7 +345,9 @@ int main() {
   //draw thread for esp and such
   std::thread drawThread(draw, gamePid, back_buffer, drawDisplay, window);
   pthread_setname_np(drawThread.native_handle(), "drawThread");
-  
+
+
+  /* Fun Stuff */
   printf("Ready\n");
   printf("The Free and Open Source no-name GNU CS:S cheat, made with GNU Emacs, for your GNU operating system.\n");
   printf("    ,           ,    \n");
@@ -360,7 +358,9 @@ int main() {
   printf("       \\  `  /      \n");
   printf("        ): :(        \n");
   printf("        :o_o:        \n");
-  printf("         \"-\"       \n");
+  printf("         \"-\"       \n");  
+  /* End Of Fun Stuff */
+    
   //player iterator thread
   for (;;) {
     if (isKeyDown(d, XK_Delete)) {

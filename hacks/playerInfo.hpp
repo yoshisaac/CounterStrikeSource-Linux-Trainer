@@ -15,6 +15,14 @@
 
 #define FL_ONGROUND (1 << 0)
 
+//https://github.com/ValveSoftware/source-sdk-2013/blob/master/mp/src/public/const.h#L79
+#define ENT_ENTRY_MASK ((1<<12)-1)
+
+#define SP_DEATH 1
+#define SP_FIRST 4
+#define SP_THIRD 5
+#define SP_FREE  7
+
 namespace playerOffset {
   inline constexpr uintptr_t health = 0x84;
   inline constexpr uintptr_t armor = 0x1478;
@@ -27,6 +35,9 @@ namespace playerOffset {
   inline constexpr uintptr_t flags = 0x340; // https://github.com/rdbo/cssmh-external/blob/master/cssmh/offsets.hpp#L19
   inline constexpr uintptr_t boneMatrixPtr = 0x810;
   inline constexpr uintptr_t aimPunch = 0xE28;
+  inline constexpr uintptr_t fov = 0xfb8;
+  inline constexpr uintptr_t spectatorTarget = 0x1020;
+  inline constexpr uintptr_t spectatorMode = 0x101C;
 };
 
 class Player {
@@ -47,6 +58,9 @@ public:
   float aimPunch[3];
   int flags;
   float aimbotFov;
+  int fov;
+  int spectatorTargetIndex;
+  int spectatorMode;
   
   Player() {
     this->index = -1;
@@ -69,6 +83,9 @@ public:
     this->flags = -1;
     this->aimbotFov = 9999;
     this->armor = 0;
+    this->fov = 0;
+    this->spectatorTargetIndex = 0;
+    this->spectatorMode = -1;
   }
   
   Player(int index, int health, std::string name,
@@ -77,7 +94,8 @@ public:
 	 bool dormant, float boneMatrix[48][3],
 	 int dormant_frames, short dormant_alpha,
 	 float aimPunch[3], int flags, float aimbotFov,
-	 int armor) {
+	 int armor, int fov, int spectatorTargetIndex,
+	 int spectatorMode) {
 
     this->index = index;
     this->health = health;
@@ -104,6 +122,9 @@ public:
     this->flags = flags;
     this->aimbotFov = aimbotFov;
     this->armor = armor;
+    this->fov = fov;
+    this->spectatorTargetIndex = spectatorTargetIndex;
+    this->spectatorMode = spectatorMode;
   }
 };
 
