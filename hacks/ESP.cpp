@@ -47,9 +47,12 @@ void esp(pid_t gamePid, XdbeBackBuffer back_buffer, Display* drawDisplay, Window
       spectator_name_offset+=15;
     }
     */
-
-    if (player.index == p_local.spectatorTargetIndex && p_local.spectatorMode == SP_FIRST) continue;
-    if (player.isDead == true || player.health <= 0) continue;    
+    
+    //dont render the person you are spectating in first person
+    if (player.index == p_local.spectatorTargetIndex && p_local.spectatorMode == SP_FIRST) continue; 
+    //they are dead
+    if (player.isDead == true || player.health <= 0) continue;     
+    //they are on the same team
     if (p_local.team == player.team) continue;
 
 
@@ -88,6 +91,8 @@ void esp(pid_t gamePid, XdbeBackBuffer back_buffer, Display* drawDisplay, Window
       float topY = screenHead[1];
 
       //Helped with box spacing: https://www.unknowncheats.me/forum/c-and-c-/76713-esp-box-size-calculation.html
+      float width_offset = ((9800/distance) * (p_local.fov_default/p_local.fov));
+      float offset_text  = ((11500/distance) * (p_local.fov_default/p_local.fov));
 
       //text screen offset
       player.absLocation[2] += player.height + 14;
@@ -118,10 +123,10 @@ void esp(pid_t gamePid, XdbeBackBuffer back_buffer, Display* drawDisplay, Window
 	//box shadow
 	if (player.dormant == false) {
 	  XSetForeground(drawDisplay, gc, DRAW::black.pixel);
-	  db_thickline(back_buffer, drawDisplay, gc, out[0] - (9800/distance), topY-2, out[0] - (9800/distance), bottomY+2, 4, distance, 0.66f);
-	  db_thickline(back_buffer, drawDisplay, gc, out[0] + (9800/distance), topY-2, out[0] + (9800/distance), bottomY+2, 4, distance, 0.66f);
-	  db_thickline(back_buffer, drawDisplay, gc, out[0] + (9800/distance) + 2, topY, out[0] - (9800/distance) - 3, topY, 4, distance, 0.66f);
-	  db_thickline(back_buffer, drawDisplay, gc, out[0] - (9800/distance), bottomY, out[0] + (9800/distance), bottomY, 4, distance, 0.66f);
+	  db_thickline(back_buffer, drawDisplay, gc, out[0] - width_offset, topY-2, out[0] - width_offset, bottomY+2, 4, distance, 0.66f);
+	  db_thickline(back_buffer, drawDisplay, gc, out[0] + width_offset, topY-2, out[0] + width_offset, bottomY+2, 4, distance, 0.66f);
+	  db_thickline(back_buffer, drawDisplay, gc, out[0] + width_offset + 2, topY, out[0] - width_offset - 3, topY, 4, distance, 0.66f);
+	  db_thickline(back_buffer, drawDisplay, gc, out[0] - width_offset, bottomY, out[0] + width_offset, bottomY, 4, distance, 0.66f);
 	}
 	//box
 	/*
@@ -146,28 +151,28 @@ void esp(pid_t gamePid, XdbeBackBuffer back_buffer, Display* drawDisplay, Window
 							     config->ESPboxcolor[2],
 							     drawDisplay, DefaultScreen(drawDisplay)).pixel);
 	  
-	db_thickline(back_buffer, drawDisplay, gc, (out[0] - (9800/distance)), topY, (out[0] - (9800/distance)), bottomY, 2, distance, 0.30f);
-	db_thickline(back_buffer, drawDisplay, gc, (out[0] + (9800/distance)), topY, (out[0] + (9800/distance)), bottomY, 2, distance, 0.30f);
-	db_thickline(back_buffer, drawDisplay, gc, out[0] + (9800/distance), topY, out[0] - (9800/distance) - 1, topY, 2, distance, 0.30f);
-	db_thickline(back_buffer, drawDisplay, gc, out[0] - (9800/distance), bottomY, out[0] + (9800/distance), bottomY, 2, distance, 0.30f);
+	db_thickline(back_buffer, drawDisplay, gc, (out[0] - width_offset), topY, (out[0] - width_offset), bottomY, 2, distance, 0.30f);
+	db_thickline(back_buffer, drawDisplay, gc, (out[0] + width_offset), topY, (out[0] + width_offset), bottomY, 2, distance, 0.30f);
+	db_thickline(back_buffer, drawDisplay, gc, out[0] + width_offset, topY, out[0] - width_offset - 1, topY, 2, distance, 0.30f);
+	db_thickline(back_buffer, drawDisplay, gc, out[0] - width_offset, bottomY, out[0] + width_offset, bottomY, 2, distance, 0.30f);
       }
 	
       if (config->ESPname) {
 	//name shadow
 	XSetFont(drawDisplay, gc, DRAW::shadowfont->fid);
 	XSetForeground(drawDisplay, gc, DRAW::black.pixel);
-	XDrawString(drawDisplay, back_buffer, gc, out[0] - (11500/distance) + 20 + 1, screenText[1] + 1, player.name.c_str(), strlen(player.name.c_str()));
+	XDrawString(drawDisplay, back_buffer, gc, out[0] - offset_text + 20 + 1, screenText[1] + 1, player.name.c_str(), strlen(player.name.c_str()));
 	//name
 	XSetFont(drawDisplay, gc, DRAW::font->fid);
 	XSetForeground(drawDisplay, gc, DRAW::white.pixel);
-	XDrawString(drawDisplay, back_buffer, gc, out[0] - (11500/distance) + 20, screenText[1], player.name.c_str(), strlen(player.name.c_str()));
+	XDrawString(drawDisplay, back_buffer, gc, out[0] - offset_text + 20, screenText[1], player.name.c_str(), strlen(player.name.c_str()));
       }	
 
 
       if (config->ESPhealthbar) {
 	//health bar shadow
 	XSetForeground(drawDisplay, gc, DRAW::black.pixel);
-	db_thickline(back_buffer, drawDisplay, gc, out[0] - (9800/distance) - 5, topY-2, out[0] - (9800/distance) - 5, bottomY+2, 4, distance, 0.650f);
+	db_thickline(back_buffer, drawDisplay, gc, out[0] - width_offset - 5, topY-2, out[0] - width_offset - 5, bottomY+2, 4, distance, 0.650f);
 
 	int ydelta = (topY - bottomY) * (1.f - (player.health / 100.f));
 	
@@ -187,14 +192,14 @@ void esp(pid_t gamePid, XdbeBackBuffer back_buffer, Display* drawDisplay, Window
 
 	  
 	//health bar
-	db_thickline(back_buffer, drawDisplay, gc, out[0] - (9800/distance) - 5, bottomY, out[0] - (9800/distance) - 5, topY - ydelta, 2, distance, 0.20f);
+	db_thickline(back_buffer, drawDisplay, gc, out[0] - width_offset - 5, bottomY, out[0] - width_offset - 5, topY - ydelta, 2, distance, 0.20f);
       }
 
       if (config->ESPhealthtext) {
 	//health text shadow
 	XSetFont(drawDisplay, gc, DRAW::shadowfont->fid);
 	XSetForeground(drawDisplay, gc, DRAW::black.pixel);
-	XDrawString(drawDisplay, back_buffer, gc, (out[0] - (11500/distance)) + 1, screenText[1] + 1, std::to_string(player.health).c_str(), strlen(std::to_string(player.health).c_str()));
+	XDrawString(drawDisplay, back_buffer, gc, (out[0] - offset_text) + 1, screenText[1] + 1, std::to_string(player.health).c_str(), strlen(std::to_string(player.health).c_str()));
 	//health text
 	if (player.health >= 90)
 	  XSetForeground(drawDisplay, gc, DRAW::green.pixel);
@@ -205,13 +210,13 @@ void esp(pid_t gamePid, XdbeBackBuffer back_buffer, Display* drawDisplay, Window
 	else if (player.health <= 35)
 	  XSetForeground(drawDisplay, gc, DRAW::red.pixel);
 	XSetFont(drawDisplay, gc, DRAW::font->fid);
-	XDrawString(drawDisplay, back_buffer, gc, out[0] - (11500/distance), screenText[1], std::to_string(player.health).c_str(), strlen(std::to_string(player.health).c_str()));
+	XDrawString(drawDisplay, back_buffer, gc, out[0] - offset_text, screenText[1], std::to_string(player.health).c_str(), strlen(std::to_string(player.health).c_str()));
       }
 
       if (player.armor != 0 && config->ESParmorbar) {
 	//armor bar shadow
 	XSetForeground(drawDisplay, gc, DRAW::black.pixel);
-	db_thickline(back_buffer, drawDisplay, gc, out[0] + (9800/distance) + 5, topY-2, out[0] + (9800/distance) + 5, bottomY+2, 4, distance, 0.650f);
+	db_thickline(back_buffer, drawDisplay, gc, out[0] + width_offset + 5, topY-2, out[0] + width_offset + 5, bottomY+2, 4, distance, 0.650f);
 
 	int ydelta = (topY - bottomY) * (1.f - (player.armor / 100.f));
 	
@@ -220,18 +225,18 @@ void esp(pid_t gamePid, XdbeBackBuffer back_buffer, Display* drawDisplay, Window
 	XSetForeground(drawDisplay, gc, DRAW::blue.pixel);
 	
 	//armor bar
-	db_thickline(back_buffer, drawDisplay, gc, out[0] + (9800/distance) + 5, bottomY, out[0] + (9800/distance) + 5, topY - ydelta, 2, distance, 0.20f);
+	db_thickline(back_buffer, drawDisplay, gc, out[0] + width_offset + 5, bottomY, out[0] + width_offset + 5, topY - ydelta, 2, distance, 0.20f);
       }
 
       if (config->ESParmortext) {
 	//armor text shadow
 	XSetFont(drawDisplay, gc, DRAW::shadowfont->fid);
 	XSetForeground(drawDisplay, gc, DRAW::black.pixel);
-	XDrawString(drawDisplay, back_buffer, gc, (out[0] + (11500/distance)) + 1, screenText[1] + 1, std::to_string(player.armor).c_str(), strlen(std::to_string(player.armor).c_str()));
+	XDrawString(drawDisplay, back_buffer, gc, (out[0] + offset_text) + 1, screenText[1] + 1, std::to_string(player.armor).c_str(), strlen(std::to_string(player.armor).c_str()));
 	//armor text
 	XSetForeground(drawDisplay, gc, DRAW::blue.pixel);
 	XSetFont(drawDisplay, gc, DRAW::font->fid);
-	XDrawString(drawDisplay, back_buffer, gc, out[0] + (11500/distance), screenText[1], std::to_string(player.armor).c_str(), strlen(std::to_string(player.armor).c_str()));
+	XDrawString(drawDisplay, back_buffer, gc, out[0] + offset_text, screenText[1], std::to_string(player.armor).c_str(), strlen(std::to_string(player.armor).c_str()));
       }
 
 

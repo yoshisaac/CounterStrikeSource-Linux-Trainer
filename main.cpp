@@ -216,8 +216,18 @@ int main() {
   Display* aimDisplay = XOpenDisplay(NULL);
   Display* drawDisplay = XOpenDisplay(NULL);
 
+  if (!d) {
+    printf("cs-source-hack: Please run startx/xinit\nIf you are running this program from SSH, it won't work.\n");
+    return 1;
+  }
+
   Screen* s = DefaultScreenOfDisplay(d);
 
+  if (s == NULL) return 1;
+
+  int default_display_resolution[2];
+  getDefaultDisplayResolution(default_display_resolution);
+  
   XWindowAttributes gameAttr = getWindowAttributesFromPid(d, gamePid);
 
   printf("gameAttr.x %d\n", gameAttr.x);
@@ -225,19 +235,22 @@ int main() {
 
   ENGINE::screenXpos = gameAttr.x;
   ENGINE::screenYpos = gameAttr.y;
+
+  if ((gameAttr.x > s->width || gameAttr.x < 0) || (gameAttr.y > s->height || gameAttr.y < 0)) {
+    printf("gameAttr is corrupted, assuming the game is full screen.\n");
+    ENGINE::screenXpos = 0;
+    ENGINE::screenYpos = 0;
+  }
   
   printf("s->width %d\n", s->width);
   printf("s->height %d\n", s->height);
 
-  if (s->width < ENGINE::screenX && s->height < ENGINE::screenY) { //bleh, in a nutshell: If you use over scanning on nvidia, then the game's resolution lies
-    ENGINE::screenX = s->width;                                                                                            // and will be larger than the screen
-    ENGINE::screenY = s->height;                                                                                            
+  if (default_display_resolution[0] < ENGINE::screenX && default_display_resolution[1] < ENGINE::screenY) {
+    ENGINE::screenX = s->width;
+    ENGINE::screenY = s->height;
   }
 
-  if (!d) {
-    printf("cs-source-hack: Please run startx/xinit\nIf you are running this program from SSH, it won't work.\n");
-    return 1;
-  }
+  printf("Final screen width and height:\nx: %d\ny: %d\n", ENGINE::screenX, ENGINE::screenY);
 
   int screen = DefaultScreen(d);
 
@@ -273,7 +286,7 @@ int main() {
 
   unsigned long mask = CWColormap | CWBorderPixel | CWBackPixel | CWEventMask | CWWinGravity|CWBitGravity | CWSaveUnder | CWDontPropagate | CWOverrideRedirect;
 
-  Window window = XCreateWindow(d, root, gameAttr.x, gameAttr.y, ENGINE::screenX, ENGINE::screenY, 0, vinfo.depth, InputOutput, vinfo.visual, mask, &attr);
+  Window window = XCreateWindow(d, root, ENGINE::screenXpos, ENGINE::screenYpos, ENGINE::screenX, ENGINE::screenY, 0, vinfo.depth, InputOutput, vinfo.visual, mask, &attr);
 
   XShapeCombineMask(d, window, ShapeInput, 0, 0, None, ShapeSet);
 

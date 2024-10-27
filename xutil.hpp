@@ -2,6 +2,10 @@
  *                                                                      WARNING
  * ChatGPT basically wrote this entire file. I have no interest in working with a window protocol from 1984, although more recently X11 is from 2012.
  * Regardless, it's not like im using ChatGPT for everything. Just a little less pain with legacy software. This really isn't fun.
+ *
+ *
+ * October 2024: After learning the protocol a bit more; finding window information isn't really that bad. There is still some C related nonsense that
+ * should not still be around in our current year.
  */
 
 #include <X11/Xos.h>
@@ -117,6 +121,31 @@ inline XWindowAttributes getWindowAttributesFromPid(Display *display, pid_t pid)
   return windowAttr;
 }
 
+inline void getDefaultDisplayResolution(int resolution[2]) {
+  FILE* fp = popen("xrandr | grep \"$(xrandr --listmonitors | grep \'*\' | awk {\'print $4\'})\" | awk {\'print $4\'} | grep -Eo \'[0-9x0-9]+\' | awk \'NR==1{print $1}\'", "r");
+  char buffer[1024];
+  int x, y;
+
+  if (fp == NULL) {
+    resolution = 0;
+    return;
+  }
+
+  if (fgets(buffer, sizeof(buffer), fp) != NULL) {
+    std::string num_buffer = "";
+    for (unsigned int i = 0; i < strlen(buffer); ++i) {
+      if (buffer[i] == 'x') { x = atoi(num_buffer.c_str()); num_buffer = ""; continue; }
+      num_buffer += buffer[i];
+    }
+    y = atoi(num_buffer.c_str());
+  }
+    
+  pclose(fp);
+
+  resolution[0] = x;
+  resolution[1] = y;
+}
+
 //chatgpt wrote this
 inline Window getFocusedWindow(Display* d) {
   Window focusedWindow;
@@ -124,6 +153,8 @@ inline Window getFocusedWindow(Display* d) {
   XGetInputFocus(d, &focusedWindow, &revert);
   return focusedWindow;
 }
+
+
 
 //Get pid from window
 //chatgpt wrote this

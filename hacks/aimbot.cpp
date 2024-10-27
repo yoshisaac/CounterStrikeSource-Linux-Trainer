@@ -14,6 +14,7 @@ void aimbot(pid_t gamePid, Display* aimDisplay) {
       
       Player player = getPlayerByIndex(i);
       Player p_local = getLocalPlayer();
+      if (p_local.isDead == true) continue;
       p_local.absLocation[2] += p_local.height;
       
       if (!config->AIM) {

@@ -91,11 +91,19 @@ void players(pid_t gamePid) {
 
     int flags;
     Memory::Read(gamePid, player + playerOffset::flags, &flags, sizeof(int));    
-
+    
+    int fov_default;
+    Memory::Read(gamePid, player + playerOffset::fov_default, &fov_default, sizeof(int));    
+    
     int fov;
     Memory::Read(gamePid, player + playerOffset::fov, &fov, sizeof(int));
 
-
+    if (fov <= 0) fov = fov_default;
+    if (fov == 0 || fov_default == 0) {
+      fov = 90;
+      fov_default = 90;
+    }
+    
     //https://www.unknowncheats.me/forum/counterstrike-global-offensive/207551-external-spectators-list.html
     uintptr_t spectatorTargetHandle;
     Memory::Read(gamePid, player + playerOffset::spectatorTarget, &spectatorTargetHandle, sizeof(uintptr_t));
@@ -104,6 +112,9 @@ void players(pid_t gamePid) {
 
     int spectatorMode;
     Memory::Read(gamePid, player + playerOffset::spectatorMode, &spectatorMode, sizeof(int));
+
+    bool isDefusing;
+    Memory::Read(gamePid, player + playerOffset::isDefusing, &isDefusing, sizeof(bool));
     
     playerInfo::l_players[i] = Player(i, health, name, viewAngle,
 				      location, team, isDead, height,
@@ -111,7 +122,8 @@ void players(pid_t gamePid) {
 				      playerInfo::l_players[i].dormant_alpha,
 				      aimPunch, flags, playerInfo::l_players[i].aimbotFov,
 				      armor, fov, spectatorTargetIndex,
-				      spectatorMode);
+				      spectatorMode, isDefusing,
+				      fov_default);
 
   }
   usleep(1000*1000/250);

@@ -28,6 +28,7 @@ namespace playerOffset {
   inline constexpr uintptr_t armor = 0x1478;
   inline constexpr uintptr_t viewAngles = 0x25C;
   inline constexpr uintptr_t absLocation = 0x250;
+  inline constexpr uintptr_t vecOrigin = 0x328;
   inline constexpr uintptr_t team = 0x8C; //3 is CT, 2 is T
   inline constexpr uintptr_t isDead = 0x83;
   inline constexpr uintptr_t height = 0x1C0;
@@ -35,9 +36,12 @@ namespace playerOffset {
   inline constexpr uintptr_t flags = 0x340; // https://github.com/rdbo/cssmh-external/blob/master/cssmh/offsets.hpp#L19
   inline constexpr uintptr_t boneMatrixPtr = 0x810;
   inline constexpr uintptr_t aimPunch = 0xE28;
-  inline constexpr uintptr_t fov = 0xfb8;
+  inline constexpr uintptr_t fov = 0xFB4;
+  inline constexpr uintptr_t fov_default = 0xFC0;
   inline constexpr uintptr_t spectatorTarget = 0x1020;
   inline constexpr uintptr_t spectatorMode = 0x101C;
+  inline constexpr uintptr_t isDefusing = 0x13EC;
+  inline constexpr uintptr_t money = 0x146C;
 };
 
 class Player {
@@ -59,8 +63,10 @@ public:
   int flags;
   float aimbotFov;
   int fov;
+  int fov_default;
   int spectatorTargetIndex;
   int spectatorMode;
+  bool isDefusing;
   
   Player() {
     this->index = -1;
@@ -84,8 +90,10 @@ public:
     this->aimbotFov = 9999;
     this->armor = 0;
     this->fov = 0;
+    this->fov_default = 0;
     this->spectatorTargetIndex = 0;
     this->spectatorMode = -1;
+    this->isDefusing = 0;
   }
   
   Player(int index, int health, std::string name,
@@ -95,7 +103,8 @@ public:
 	 int dormant_frames, short dormant_alpha,
 	 float aimPunch[3], int flags, float aimbotFov,
 	 int armor, int fov, int spectatorTargetIndex,
-	 int spectatorMode) {
+	 int spectatorMode, bool isDefusing,
+	 int fov_default) {
 
     this->index = index;
     this->health = health;
@@ -112,7 +121,7 @@ public:
 
     for (int i = 0; i < 48; ++i)
       for (int h = 0; h < 3; ++h)
-      this->boneMatrix[i][h] = boneMatrix[i][h];
+	this->boneMatrix[i][h] = boneMatrix[i][h];
 
     this->dormant_frames = dormant_frames;
     this->dormant_alpha = dormant_alpha;
@@ -125,6 +134,8 @@ public:
     this->fov = fov;
     this->spectatorTargetIndex = spectatorTargetIndex;
     this->spectatorMode = spectatorMode;
+    this->isDefusing = isDefusing;
+    this->fov_default = fov_default;
   }
 };
 
