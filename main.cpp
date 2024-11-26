@@ -233,8 +233,11 @@ int main() {
   printf("gameAttr.x %d\n", gameAttr.x);
   printf("gameAttr.y %d\n", gameAttr.y);
 
-  ENGINE::screenXpos = gameAttr.x;
-  ENGINE::screenYpos = gameAttr.y;
+  // ENGINE::screenXpos = gameAttr.x;
+  // ENGINE::screenYpos = gameAttr.y;
+
+  ENGINE::screenXpos = 0;
+  ENGINE::screenYpos = 0;
 
   if ((gameAttr.x > s->width || gameAttr.x < 0) || (gameAttr.y > s->height || gameAttr.y < 0)) {
     printf("gameAttr is corrupted, assuming the game is full screen.\n");
@@ -384,6 +387,7 @@ int main() {
     }
     
     //move and resize drawing window if needed
+    /*
     gameAttr = getWindowAttributesFromPid(d, gamePid);
     if (ENGINE::screenXpos != gameAttr.x || ENGINE::screenYpos != gameAttr.y ||
         ENGINE::screenX != gameAttr.width || ENGINE::screenY != gameAttr.height) {
@@ -396,6 +400,7 @@ int main() {
       ENGINE::screenX = gameAttr.width;
       ENGINE::screenY = gameAttr.height;
     }
+    */
     
     players(gamePid);
   }
