@@ -1,3 +1,7 @@
+# 2025 64-bit notice
+### Counter-Strike: Source has updated to a 64-bit engine. This hack will no longer work. Follow 64-bit development here: [64-bit CS:S Hack](https://github.com/yoshisaac/CounterStrikeSource-Linux-Cheat) 
+### This repository will become "read-only" at some point.
+
 # What is this?
 This is a program intended to automate tasks such as movement, and display information to us that wasn't originally intended to be shown. In a nutshell, this is a video game hack/cheat.
 
